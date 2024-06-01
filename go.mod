@@ -1,4 +1,4 @@
-module github.com/greeneg/allocator
+module github.com/greeneg/allocatord
 
 go 1.22.0
 
