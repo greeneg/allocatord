@@ -1,8 +1,8 @@
-package controllers
+package model
 
 /*
 
-  Copyright 2024, YggdrasilSoft, LLC.
+  Copyright 2024, JAFAX, Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,10 +18,18 @@ package controllers
 
 */
 
-import "github.com/greeneg/allocatord/globals"
+type InvalidStatusValue struct {
+	Err error
+}
 
-type Allocator struct {
-	AppPath    string
-	ConfigPath string
-	ConfStruct globals.Config
+func (i *InvalidStatusValue) Error() string {
+	return "Invalid value! Must be either 'enabled' or 'locked'"
+}
+
+type PasswordHashMismatch struct {
+	Err error
+}
+
+func (p *PasswordHashMismatch) Error() string {
+	return "Password hashes do not match!"
 }

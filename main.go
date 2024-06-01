@@ -40,7 +40,6 @@ import (
 	_ "github.com/greeneg/allocatord/docs"
 	"github.com/greeneg/allocatord/globals"
 	"github.com/greeneg/allocatord/helpers"
-	"github.com/greeneg/allocatord/middleware"
 	"github.com/greeneg/allocatord/model"
 	"github.com/greeneg/allocatord/routes"
 )
@@ -81,12 +80,12 @@ func main() {
 	helpers.FatalCheckError(err)
 
 	// create an app object that contains our routes and the configuration
-	AllocatorD := new(controllers.Allocator)
-	AllocatorD.AppPath = appdir
-	AllocatorD.ConfigPath = configDir
-	AllocatorD.ConfStruct = config
+	Allocator := new(controllers.Allocator)
+	Allocator.AppPath = appdir
+	Allocator.ConfigPath = configDir
+	Allocator.ConfStruct = config
 
-	err = model.ConnectDatabase(AllocatorD.ConfStruct.DbPath)
+	err = model.ConnectDatabase(Allocator.ConfStruct.DbPath)
 	helpers.FatalCheckError(err)
 
 	// set up our static assets
@@ -96,29 +95,29 @@ func main() {
 	// some defaults for using session support
 	r.Use(sessions.Sessions("session", cookie.NewStore(globals.Secret)))
 	// frontend
-	fePublic := r.Group("/")
-	routes.FePublicRoutes(fePublic, AllocatorD)
+	// fePublic := r.Group("/")
+	// routes.FePublicRoutes(fePublic, AllocatorD)
 
-	fePrivate := r.Group("/")
-	fePrivate.Use(middleware.AuthCheck)
-	routes.FePrivateRoutes(fePrivate, AllocatorD)
+	// fePrivate := r.Group("/")
+	// fePrivate.Use(middleware.AuthCheck)
+	// routes.FePrivateRoutes(fePrivate, AllocatorD)
 
 	// API
 	public := r.Group("/api/v1")
-	routes.PublicRoutes(public, AllocatorD)
+	routes.PublicRoutes(public, Allocator)
 
-	private := r.Group("/api/v1")
-	private.Use(middleware.AuthCheck)
-	routes.PrivateRoutes(private, AllocatorD)
+	// private := r.Group("/api/v1")
+	// private.Use(middleware.AuthCheck)
+	// routes.PrivateRoutes(private, AllocatorD)
 
 	// swagger doc
 	r.GET("/api/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
-	tcpPort := strconv.Itoa(AllocatorD.ConfStruct.TcpPort)
-	tlsTcpPort := strconv.Itoa(AllocatorD.ConfStruct.TLSTcpPort)
-	tlsPemFile := AllocatorD.ConfStruct.TLSPemFile
-	tlsKeyFile := AllocatorD.ConfStruct.TLSKeyFile
-	if AllocatorD.ConfStruct.UseTLS {
+	tcpPort := strconv.Itoa(Allocator.ConfStruct.TcpPort)
+	tlsTcpPort := strconv.Itoa(Allocator.ConfStruct.TLSTcpPort)
+	tlsPemFile := Allocator.ConfStruct.TLSPemFile
+	tlsKeyFile := Allocator.ConfStruct.TLSKeyFile
+	if Allocator.ConfStruct.UseTLS {
 		r.RunTLS(":"+tlsTcpPort, tlsPemFile, tlsKeyFile)
 	} else {
 		r.Run(":" + tcpPort)

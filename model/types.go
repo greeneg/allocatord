@@ -19,3 +19,28 @@ package model
 */
 
 // primary object structs
+
+type ProposedUser struct {
+	Id       int    `json:"Id"`
+	UserName string `json:"userName"`
+	Status   string `json:"status" enum:"enabled,disabled"`
+	Password string `json:"password"`
+}
+
+type User struct {
+	Id              int    `json:"Id"`
+	UserName        string `json:"userName"`
+	Status          string `json:"status"`
+	PasswordHash    string `json:"passwordHash"`
+	CreationDate    string `json:"creationDate"`
+	LastChangedDate string `json:"lastChangedDate"`
+}
+
+type UserStatus struct {
+	Status string `json:"status" enum:"enabled,disabled"`
+}
+
+type UserStatusMsg struct {
+	Message    string `json:"message"`
+	UserStatus string `json:"userStatus" enum:"enabled,disabled"`
+}

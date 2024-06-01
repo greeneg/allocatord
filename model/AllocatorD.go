@@ -1,8 +1,8 @@
-package controllers
+package model
 
 /*
 
-  Copyright 2024, YggdrasilSoft, LLC.
+  Copyright 2024, JAFAX, Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,10 +18,20 @@ package controllers
 
 */
 
-import "github.com/greeneg/allocatord/globals"
+import (
+	"database/sql"
 
-type Allocator struct {
-	AppPath    string
-	ConfigPath string
-	ConfStruct globals.Config
+	_ "github.com/mattn/go-sqlite3"
+)
+
+var DB *sql.DB
+
+func ConnectDatabase(dbPath string) error {
+	db, err := sql.Open("sqlite3", "file:"+dbPath+"?_foreign_keys=on")
+	if err != nil {
+		return err
+	}
+
+	DB = db
+	return nil
 }

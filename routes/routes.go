@@ -24,5 +24,5 @@ import (
 	"github.com/greeneg/allocatord/controllers"
 )
 
-func PublicRoutes(g *gin.RouterGroup, i *controllers.GironService) {
+func PublicRoutes(g *gin.RouterGroup, i *controllers.Allocator) {
 }
