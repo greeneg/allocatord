@@ -1,4 +1,4 @@
-module github.com/JAFAX/giron-service
+module github.com/greeneg/allocator
 
 go 1.22.0
 
