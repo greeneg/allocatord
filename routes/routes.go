@@ -25,4 +25,39 @@ import (
 )
 
 func PublicRoutes(g *gin.RouterGroup, i *controllers.Allocator) {
+	// Architectures
+	g.GET("/architectures")    // get all architectures
+	g.GET("/architecture/:id") // get architecture by Id
+	// Buildings
+	g.GET("/buildings")                    // get all buildings
+	g.GET("/building/byId/:id")            // get building by Id
+	g.GET("/building/byShortName/:abbrev") // get building by abbreviation
+	// Machine Roles
+	g.GET("/machineRoles")         // get all machine roles
+	g.GET("/machineRole/byId/:id") // get a machine role by Id
+	// Organizational Units
+	g.GET("/organizationalUnits")           // get all organizational units
+	g.GET("/organizationalUnit/byId/:ouId") // get organizational unit by Id
+	// Roles
+	g.GET("/roles")             // get all roles
+	g.GET("/role/byId/:roleId") // get role by Id
+	// Systems
+	g.GET("/systems")                                // get all systems
+	g.GET("/systems/byVendorId/:vendorid")           // get systems by vendor Id
+	g.GET("/systems/byCpuCores/:coreCount")          // get systems by number of CPU Cores
+	g.GET("/systems/byRAM/:memoryCount")             // get systems by amount of installed RAM
+	g.GET("/systems/byMachineRoleId/:machineRoleId") // get systems by the machine's role Id
+	g.GET("/systems/byOuId/:ouId")                   // get systems by organizational unit Id
+	g.GET("/system/byId/:id")                        // get system by Id
+	// Users
+	g.GET("/users")                  // get all users
+	g.GET("/users/byOuId/:ouId")     // get all users by organizational unit Id
+	g.GET("/users/byRoleId/:roleId") // get all users by role Id
+	g.GET("/user/byId/:id")          // get a user by Id
+	// vendors
+	g.GET("/vendors")         // get all vendors
+	g.GET("/vendor/byId/:id") // get a vendor by Id
+	// service related routes
+	g.OPTIONS("/")   // API options
+	g.GET("/health") // service health API
 }
