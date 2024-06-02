@@ -46,15 +46,15 @@ type ProposedUser struct {
 }
 
 type User struct {
-	Id              int    `json:"Id"`
-	UserName        string `json:"userName"`
-	FullName        string `json:"fullName"`
-	Status          string `json:"status"`
-	OrgUnitId       int    `json:"orgUnitId"`
-	RoleId          int    `json:"roleId"`
-	PasswordHash    string `json:"passwordHash"`
-	CreationDate    string `json:"creationDate"`
-	LastChangedDate string `json:"lastChangedDate"`
+	Id                      int    `json:"Id"`
+	UserName                string `json:"userName"`
+	FullName                string `json:"fullName"`
+	Status                  string `json:"status"`
+	OrgUnitId               int    `json:"orgUnitId"`
+	RoleId                  int    `json:"roleId"`
+	PasswordHash            string `json:"passwordHash"`
+	CreationDate            string `json:"creationDate"`
+	LastPasswordChangedDate string `json:"lastPasswordChangedDate"`
 }
 
 type UsersList struct {

@@ -53,8 +53,9 @@ func PublicRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 	g.GET("/organizationalUnits")           // get all organizational units
 	g.GET("/organizationalUnit/byId/:ouId") // get organizational unit by Id
 	// Roles
-	g.GET("/roles", a.GetRoles)                // get all roles
-	g.GET("/role/byId/:roleId", a.GetRoleById) // get role by Id
+	g.GET("/roles", a.GetRoles)                      // get all roles
+	g.GET("/role/byId/:roleId", a.GetRoleById)       // get role by Id
+	g.GET("/role/byName/:roleName", a.GetRoleByName) // get role by name
 	// Systems
 	g.GET("/systems")                                // get all systems
 	g.GET("/systems/byVendorId/:vendorid")           // get systems by vendor Id

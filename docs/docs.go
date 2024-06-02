@@ -67,6 +67,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/role/byId/{roleId}": {
+            "get": {
+                "description": "Retrieve a role by its Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "role"
+                ],
+                "summary": "Retrieve a role by its Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Role ID",
+                        "name": "roleId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Role"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/role/byName/{roleName}": {
+            "get": {
+                "description": "Retrieve a role by its role name",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "role"
+                ],
+                "summary": "Retrieve a role by its role name",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Role Name",
+                        "name": "roleName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Role"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
         "/role/{roleId}": {
             "delete": {
                 "security": [
@@ -755,7 +825,7 @@ const docTemplate = `{
                 "fullName": {
                     "type": "string"
                 },
-                "lastChangedDate": {
+                "lastPasswordChangedDate": {
                     "type": "string"
                 },
                 "orgUnitId": {

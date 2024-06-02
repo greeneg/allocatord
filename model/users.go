@@ -52,7 +52,7 @@ func storeNewPassword(hashedPassword string, username string) (bool, error) {
 	}
 
 	// now we need to create a new transaction to SET the password hash into the DB
-	q, err := DB.Prepare("UPDATE Users SET PasswordHash = ?, LastChangedDate = ? WHERE UserName = ?")
+	q, err := DB.Prepare("UPDATE Users SET PasswordHash = ?, LastPasswordChangedDate = ? WHERE UserName = ?")
 	if err != nil {
 		return false, err
 	}
@@ -120,7 +120,7 @@ func GetUserById(id int) (User, error) {
 		&user.RoleId,
 		&user.PasswordHash,
 		&user.CreationDate,
-		&user.LastChangedDate,
+		&user.LastPasswordChangedDate,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -130,6 +130,9 @@ func GetUserById(id int) (User, error) {
 		log.Println("ERROR: Cannot retrieve user from DB: " + string(err.Error()))
 		return User{}, err
 	}
+
+	user.CreationDate = ConvertSqliteTimestamp(user.CreationDate)
+	user.LastPasswordChangedDate = ConvertSqliteTimestamp(user.LastPasswordChangedDate)
 
 	return user, nil
 }
@@ -152,7 +155,7 @@ func GetUserByUserName(username string) (User, error) {
 		&user.RoleId,
 		&user.PasswordHash,
 		&user.CreationDate,
-		&user.LastChangedDate,
+		&user.LastPasswordChangedDate,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -162,6 +165,9 @@ func GetUserByUserName(username string) (User, error) {
 		log.Println("ERROR: Cannot retrieve user from DB: " + string(err.Error()))
 		return User{}, err
 	}
+
+	user.CreationDate = ConvertSqliteTimestamp(user.CreationDate)
+	user.LastPasswordChangedDate = ConvertSqliteTimestamp(user.LastPasswordChangedDate)
 
 	return user, nil
 }
@@ -242,12 +248,16 @@ func GetUsers() ([]User, error) {
 			&user.RoleId,
 			&user.PasswordHash,
 			&user.CreationDate,
-			&user.LastChangedDate,
+			&user.LastPasswordChangedDate,
 		)
 		if err != nil {
 			log.Println("ERROR: Cannot marshal the user objects!" + string(err.Error()))
 			return nil, err
 		}
+
+		user.CreationDate = ConvertSqliteTimestamp(user.CreationDate)
+		user.LastPasswordChangedDate = ConvertSqliteTimestamp(user.LastPasswordChangedDate)
+
 		users = append(users, user)
 	}
 
@@ -275,11 +285,15 @@ func GetUsersByOuId(ouId int) ([]User, error) {
 			&user.RoleId,
 			&user.PasswordHash,
 			&user.CreationDate,
-			&user.LastChangedDate,
+			&user.LastPasswordChangedDate,
 		)
 		if err != nil {
 			return nil, err
 		}
+
+		user.CreationDate = ConvertSqliteTimestamp(user.CreationDate)
+		user.LastPasswordChangedDate = ConvertSqliteTimestamp(user.LastPasswordChangedDate)
+
 		users = append(users, user)
 	}
 
@@ -307,11 +321,15 @@ func GetUsersByRoleId(roleId int) ([]User, error) {
 			&user.RoleId,
 			&user.PasswordHash,
 			&user.CreationDate,
-			&user.LastChangedDate,
+			&user.LastPasswordChangedDate,
 		)
 		if err != nil {
 			return nil, err
 		}
+
+		user.CreationDate = ConvertSqliteTimestamp(user.CreationDate)
+		user.LastPasswordChangedDate = ConvertSqliteTimestamp(user.LastPasswordChangedDate)
+
 		users = append(users, user)
 	}
 

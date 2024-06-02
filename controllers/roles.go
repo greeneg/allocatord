@@ -24,7 +24,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/greeneg/allocatord/helpers"
 	"github.com/greeneg/allocatord/model"
 )
 
@@ -95,7 +94,10 @@ func (a *Allocator) DeleteRole(c *gin.Context) {
 //	@Router			/roles [get]
 func (a *Allocator) GetRoles(c *gin.Context) {
 	roles, err := model.GetRoles()
-	helpers.FatalCheckError(err)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
+		return
+	}
 
 	if roles == nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
@@ -113,15 +115,43 @@ func (a *Allocator) GetRoles(c *gin.Context) {
 //	@Param			roleId	path int true "Role ID"
 //	@Success		200	{object}	model.Role
 //	@Failure		400	{object}	model.FailureMsg
-//	@Router			/user/id/{id} [get]
+//	@Router			/role/byId/{roleId} [get]
 func (a *Allocator) GetRoleById(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("roleId"))
 	role, err := model.GetRoleById(id)
-	helpers.FatalCheckError(err)
-
 	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
+		return
+	}
+
+	if role.RoleName == "" {
 		strId := strconv.Itoa(id)
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with role id " + strId})
+	} else {
+		c.IndentedJSON(http.StatusOK, role)
+	}
+}
+
+// GetRoleByName Retrieve a role by its role name
+//
+//	@Summary		Retrieve a role by its role name
+//	@Description	Retrieve a role by its role name
+//	@Tags			role
+//	@Produce		json
+//	@Param			roleName	path int true "Role Name"
+//	@Success		200	{object}	model.Role
+//	@Failure		400	{object}	model.FailureMsg
+//	@Router			/role/byName/{roleName} [get]
+func (a *Allocator) GetRoleByName(c *gin.Context) {
+	roleName := c.Param("roleName")
+	role, err := model.GetRoleByName(roleName)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
+		return
+	}
+
+	if role.RoleName == "" {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with role name " + roleName})
 	} else {
 		c.IndentedJSON(http.StatusOK, role)
 	}

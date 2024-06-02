@@ -97,6 +97,9 @@ func GetRoles() ([]Role, error) {
 			log.Println("ERROR: Cannot marshal the user objects!" + string(err.Error()))
 			return nil, err
 		}
+
+		role.CreationDate = ConvertSqliteTimestamp(role.CreationDate)
+
 		roles = append(roles, role)
 	}
 
@@ -127,6 +130,37 @@ func GetRoleById(id int) (Role, error) {
 		log.Println("ERROR: Cannot retrieve user from DB: " + string(err.Error()))
 		return Role{}, err
 	}
+
+	role.CreationDate = ConvertSqliteTimestamp(role.CreationDate)
+
+	return role, nil
+}
+
+func GetRoleByName(roleName string) (Role, error) {
+	log.Println("INFO: Role by Id requested: " + roleName)
+	rec, err := DB.Prepare("SELECT * FROM Roles WHERE RoleName = ?")
+	if err != nil {
+		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
+		return Role{}, err
+	}
+
+	role := Role{}
+	err = rec.QueryRow(roleName).Scan(
+		&role.Id,
+		&role.RoleName,
+		&role.Description,
+		&role.CreationDate,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Println("ERROR: No such user found in DB: " + string(err.Error()))
+			return Role{}, nil
+		}
+		log.Println("ERROR: Cannot retrieve user from DB: " + string(err.Error()))
+		return Role{}, err
+	}
+
+	role.CreationDate = ConvertSqliteTimestamp(role.CreationDate)
 
 	return role, nil
 }

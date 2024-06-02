@@ -75,7 +75,7 @@ definitions:
         type: string
       fullName:
         type: string
-      lastChangedDate:
+      lastPasswordChangedDate:
         type: string
       orgUnitId:
         type: integer
@@ -196,6 +196,52 @@ paths:
       security:
       - BasicAuth: []
       summary: Delete role
+      tags:
+      - role
+  /role/byId/{roleId}:
+    get:
+      description: Retrieve a role by its Id
+      parameters:
+      - description: Role ID
+        in: path
+        name: roleId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Role'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      summary: Retrieve a role by its Id
+      tags:
+      - role
+  /role/byName/{roleName}:
+    get:
+      description: Retrieve a role by its role name
+      parameters:
+      - description: Role Name
+        in: path
+        name: roleName
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Role'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      summary: Retrieve a role by its role name
       tags:
       - role
   /roles:
