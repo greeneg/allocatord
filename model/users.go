@@ -2,7 +2,7 @@ package model
 
 /*
 
-  Copyright 2024, JAFAX, Inc.
+  Copyright 2024, YggdrasilSoft, LLC.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -114,7 +114,10 @@ func GetUserById(id int) (User, error) {
 	err = rec.QueryRow(id).Scan(
 		&user.Id,
 		&user.UserName,
+		&user.FullName,
 		&user.Status,
+		&user.OrgUnitId,
+		&user.RoleId,
 		&user.PasswordHash,
 		&user.CreationDate,
 		&user.LastChangedDate,
@@ -143,7 +146,10 @@ func GetUserByUserName(username string) (User, error) {
 	err = rec.QueryRow(username).Scan(
 		&user.Id,
 		&user.UserName,
+		&user.FullName,
 		&user.Status,
+		&user.OrgUnitId,
+		&user.RoleId,
 		&user.PasswordHash,
 		&user.CreationDate,
 		&user.LastChangedDate,
@@ -230,7 +236,10 @@ func GetUsers() ([]User, error) {
 		err = rows.Scan(
 			&user.Id,
 			&user.UserName,
+			&user.FullName,
 			&user.Status,
+			&user.OrgUnitId,
+			&user.RoleId,
 			&user.PasswordHash,
 			&user.CreationDate,
 			&user.LastChangedDate,
@@ -243,6 +252,70 @@ func GetUsers() ([]User, error) {
 	}
 
 	log.Println("INFO: List of all users retrieved")
+	return users, nil
+}
+
+func GetUsersByOuId(ouId int) ([]User, error) {
+	log.Println("INFO: List user objects based on organizational unit Id")
+	rows, err := DB.Query("SELECT * FROM Users WHERE OrgUnitId IS ?", ouId)
+	if err != nil {
+		log.Println("ERROR: Could not prepare DB query! " + string(err.Error()))
+		return []User{}, err
+	}
+
+	users := make([]User, 0)
+	for rows.Next() {
+		user := User{}
+		err := rows.Scan(
+			&user.Id,
+			&user.UserName,
+			&user.FullName,
+			&user.Status,
+			&user.OrgUnitId,
+			&user.RoleId,
+			&user.PasswordHash,
+			&user.CreationDate,
+			&user.LastChangedDate,
+		)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	log.Println("INFO: List of selected users retrieved")
+	return users, nil
+}
+
+func GetUsersByRoleId(roleId int) ([]User, error) {
+	log.Println("INFO: List user objects based on role Id")
+	rows, err := DB.Query("SELECT * FROM Users WHERE RoleId IS ?", roleId)
+	if err != nil {
+		log.Println("ERROR: Could not prepare DB query! " + string(err.Error()))
+		return []User{}, err
+	}
+
+	users := make([]User, 0)
+	for rows.Next() {
+		user := User{}
+		err := rows.Scan(
+			&user.Id,
+			&user.UserName,
+			&user.FullName,
+			&user.Status,
+			&user.OrgUnitId,
+			&user.RoleId,
+			&user.PasswordHash,
+			&user.CreationDate,
+			&user.LastChangedDate,
+		)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	log.Println("INFO: List of selected users retrieved")
 	return users, nil
 }
 
@@ -307,6 +380,62 @@ func SetUserStatus(username string, j UserStatus) (bool, error) {
 
 	t.Commit()
 
+	log.Println("INFO: SQL result: Rows: " + strconv.Itoa(int(numberOfRows)))
+	return true, nil
+}
+
+func SetUserOuId(username string, j UserOrgUnitId) (bool, error) {
+	log.Println("INFO: Set user's organizational unit Id for user '" + username + "'")
+	t, err := DB.Begin()
+	if err != nil {
+		log.Println("ERROR: Could not start DB transaction: " + string(err.Error()))
+		return false, err
+	}
+
+	q, err := DB.Prepare("UPDATE Users SET OrgUnitId = ? WHERE UserName = ?")
+	if err != nil {
+		log.Println("ERROR: Could not prepare DB query! " + string(err.Error()))
+		return false, err
+	}
+	result, err := q.Exec(j.OrgUnitId, username)
+	if err != nil {
+		log.Println("ERROR: Could not execute query for user '" + username + "': " + string(err.Error()))
+		return false, err
+	}
+	numberOfRows, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	t.Commit()
+	log.Println("INFO: SQL result: Rows: " + strconv.Itoa(int(numberOfRows)))
+	return true, nil
+}
+
+func SetUserRoleId(username string, j UserRoleId) (bool, error) {
+	log.Println("INFO: Set user's role Id for user '" + username + "'")
+	t, err := DB.Begin()
+	if err != nil {
+		log.Println("ERROR: Could not start DB transaction: " + string(err.Error()))
+		return false, err
+	}
+
+	q, err := DB.Prepare("UPDATE Users SET RoleId = ? WHERE UserName = ?")
+	if err != nil {
+		log.Println("ERROR: Could not prepare DB query! " + string(err.Error()))
+		return false, err
+	}
+	result, err := q.Exec(j.RoleId, username)
+	if err != nil {
+		log.Println("ERROR: Could not execute query for user '" + username + "': " + string(err.Error()))
+		return false, err
+	}
+	numberOfRows, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	t.Commit()
 	log.Println("INFO: SQL result: Rows: " + strconv.Itoa(int(numberOfRows)))
 	return true, nil
 }

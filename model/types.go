@@ -2,7 +2,7 @@ package model
 
 /*
 
-  Copyright 2024, JAFAX, Inc.
+  Copyright 2024, YggdrasilSoft, LLC.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -19,21 +19,46 @@ package model
 */
 
 // primary object structs
+type Role struct {
+	Id           int    `json:"Id"`
+	RoleName     string `json:"roleName"`
+	Description  string `json:"description"`
+	CreationDate string `json:"creationDate"`
+}
+
+type RolesList struct {
+	Data []Role `json:"data"`
+}
+
+type PasswordChange struct {
+	OldPassword string `json:"oldPassword"`
+	NewPassword string `json:"newPassword"`
+}
 
 type ProposedUser struct {
-	Id       int    `json:"Id"`
-	UserName string `json:"userName"`
-	Status   string `json:"status" enum:"enabled,disabled"`
-	Password string `json:"password"`
+	Id        int    `json:"Id"`
+	UserName  string `json:"userName"`
+	FullName  string `json:"fullName"`
+	Status    string `json:"status" enum:"enabled,disabled"`
+	OrgUnitId int    `json:"orgUnitId"`
+	RoleId    int    `json:"roleId"`
+	Password  string `json:"password"`
 }
 
 type User struct {
 	Id              int    `json:"Id"`
 	UserName        string `json:"userName"`
+	FullName        string `json:"fullName"`
 	Status          string `json:"status"`
+	OrgUnitId       int    `json:"orgUnitId"`
+	RoleId          int    `json:"roleId"`
 	PasswordHash    string `json:"passwordHash"`
 	CreationDate    string `json:"creationDate"`
 	LastChangedDate string `json:"lastChangedDate"`
+}
+
+type UsersList struct {
+	Data []User `json:"data"`
 }
 
 type UserStatus struct {
@@ -43,4 +68,30 @@ type UserStatus struct {
 type UserStatusMsg struct {
 	Message    string `json:"message"`
 	UserStatus string `json:"userStatus" enum:"enabled,disabled"`
+}
+
+type UserOrgUnitId struct {
+	OrgUnitId int `json:"orgUnitId"`
+}
+
+type UserOrgUnitIdMsg struct {
+	Message       string `json:"message"`
+	UserOrgUnitId int    `json:"orgUnitId"`
+}
+
+type UserRoleId struct {
+	RoleId int `json:"roleId"`
+}
+
+type UserRoleIdMsg struct {
+	Message    string `json:"message"`
+	UserRoleId int    `json:"roleId"`
+}
+
+type FailureMsg struct {
+	Error string `json:"error"`
+}
+
+type SuccessMsg struct {
+	Message string `json:"message"`
 }

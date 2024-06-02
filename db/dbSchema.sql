@@ -1,5 +1,5 @@
 --
--- File generated with SQLiteStudio v3.4.4 on Sat Jun 1 11:50:27 2024
+-- File generated with SQLiteStudio v3.4.4 on Sun Jun 2 17:37:34 2024
 --
 -- Text encoding used: UTF-8
 --
@@ -112,6 +112,7 @@ CREATE TABLE IF NOT EXISTS Roles (
     Id           INTEGER  PRIMARY KEY AUTOINCREMENT,
     RoleName     STRING   UNIQUE
                           NOT NULL,
+    Description  STRING   NOT NULL,
     CreationDate DATETIME NOT NULL
                           DEFAULT (CURRENT_TIMESTAMP) 
 );
@@ -119,11 +120,13 @@ CREATE TABLE IF NOT EXISTS Roles (
 INSERT INTO Roles (
                       Id,
                       RoleName,
+                      Description,
                       CreationDate
                   )
                   VALUES (
                       1,
                       'SYSTEM',
+                      'Built-in system role',
                       '2024-06-01 14:57:41'
                   );
 

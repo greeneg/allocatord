@@ -1,8 +1,8 @@
-package model
+package controllers
 
 /*
 
-  Copyright 2024, JAFAX, Inc.
+  Copyright 2024, YggdrasilSoft, LLC.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,20 +18,8 @@ package model
 
 */
 
-import (
-	"database/sql"
+import "github.com/gin-gonic/gin"
 
-	_ "github.com/mattn/go-sqlite3"
-)
+func (a *Allocator) GetArchitectures(c *gin.Context) {
 
-var DB *sql.DB
-
-func ConnectDatabase(dbPath string) error {
-	db, err := sql.Open("sqlite3", "file:"+dbPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
-	}
-
-	DB = db
-	return nil
 }

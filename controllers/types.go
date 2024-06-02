@@ -25,3 +25,12 @@ type Allocator struct {
 	ConfigPath string
 	ConfStruct globals.Config
 }
+
+type SafeUser struct {
+	Id           int
+	UserName     string
+	FullName     string
+	OrgUnitId    int
+	RoleId       int
+	CreationDate string
+}

@@ -1,4 +1,4 @@
-package globals
+package model
 
 /*
 
@@ -18,11 +18,20 @@ package globals
 
 */
 
-type Config struct {
-	TcpPort    int    `json:"tcpPort"`
-	TLSTcpPort int    `json:"tlsTcpPort"`
-	TLSPemFile string `json:"tlsPemFile"`
-	TLSKeyFile string `json:"tlsKeyFile"`
-	DbPath     string `json:"dbPath"`
-	UseTLS     bool   `json:"useTls"`
+import (
+	"database/sql"
+
+	_ "github.com/mattn/go-sqlite3"
+)
+
+var DB *sql.DB
+
+func ConnectDatabase(dbPath string) error {
+	db, err := sql.Open("sqlite3", "file:"+dbPath+"?_foreign_keys=on")
+	if err != nil {
+		return err
+	}
+
+	DB = db
+	return nil
 }

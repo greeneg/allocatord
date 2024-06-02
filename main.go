@@ -40,6 +40,7 @@ import (
 	_ "github.com/greeneg/allocatord/docs"
 	"github.com/greeneg/allocatord/globals"
 	"github.com/greeneg/allocatord/helpers"
+	"github.com/greeneg/allocatord/middleware"
 	"github.com/greeneg/allocatord/model"
 	"github.com/greeneg/allocatord/routes"
 )
@@ -89,8 +90,8 @@ func main() {
 	helpers.FatalCheckError(err)
 
 	// set up our static assets
-	r.Static("/assets", "./assets")
-	r.LoadHTMLGlob("templates/*.html")
+	// r.Static("/assets", "./assets")
+	// r.LoadHTMLGlob("templates/*.html")
 
 	// some defaults for using session support
 	r.Use(sessions.Sessions("session", cookie.NewStore(globals.Secret)))
@@ -106,9 +107,9 @@ func main() {
 	public := r.Group("/api/v1")
 	routes.PublicRoutes(public, Allocator)
 
-	// private := r.Group("/api/v1")
-	// private.Use(middleware.AuthCheck)
-	// routes.PrivateRoutes(private, AllocatorD)
+	private := r.Group("/api/v1")
+	private.Use(middleware.AuthCheck)
+	routes.PrivateRoutes(private, Allocator)
 
 	// swagger doc
 	r.GET("/api/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))

@@ -2,7 +2,7 @@ package routes
 
 /*
 
-  Copyright 2024, JAFAX, Inc.
+  Copyright 2024, YggdrasilSoft, LLC.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -24,7 +24,21 @@ import (
 	"github.com/greeneg/allocatord/controllers"
 )
 
-func PublicRoutes(g *gin.RouterGroup, i *controllers.Allocator) {
+func PrivateRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
+	// Roles
+	g.POST("/role", a.CreateRole)           // create new role
+	g.DELETE("/role/:roleId", a.DeleteRole) // delete a role by Id
+	// user related routes
+	g.POST("/user", a.CreateUser)                   // create new user
+	g.PATCH("/user/:name", a.ChangeAccountPassword) // update a user password
+	g.PATCH("/user/:name/status", a.SetUserStatus)  // lock a user
+	g.PATCH("/user/:name/ouId", a.SetUserOuId)      // set a user's organizational unit Id
+	g.PATCH("/user/:name/roleId", a.SetUserRoleId)  // set a user's role Id
+	g.GET("/user/:name/status", a.GetUserStatus)    // get whether a user is locked or not
+	g.DELETE("/user/:name", a.DeleteUser)           // trash a user
+}
+
+func PublicRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 	// Architectures
 	g.GET("/architectures")    // get all architectures
 	g.GET("/architecture/:id") // get architecture by Id
@@ -39,8 +53,8 @@ func PublicRoutes(g *gin.RouterGroup, i *controllers.Allocator) {
 	g.GET("/organizationalUnits")           // get all organizational units
 	g.GET("/organizationalUnit/byId/:ouId") // get organizational unit by Id
 	// Roles
-	g.GET("/roles")             // get all roles
-	g.GET("/role/byId/:roleId") // get role by Id
+	g.GET("/roles", a.GetRoles)                // get all roles
+	g.GET("/role/byId/:roleId", a.GetRoleById) // get role by Id
 	// Systems
 	g.GET("/systems")                                // get all systems
 	g.GET("/systems/byVendorId/:vendorid")           // get systems by vendor Id
@@ -50,10 +64,11 @@ func PublicRoutes(g *gin.RouterGroup, i *controllers.Allocator) {
 	g.GET("/systems/byOuId/:ouId")                   // get systems by organizational unit Id
 	g.GET("/system/byId/:id")                        // get system by Id
 	// Users
-	g.GET("/users")                  // get all users
-	g.GET("/users/byOuId/:ouId")     // get all users by organizational unit Id
-	g.GET("/users/byRoleId/:roleId") // get all users by role Id
-	g.GET("/user/byId/:id")          // get a user by Id
+	g.GET("/users", a.GetUsers)                          // get all users
+	g.GET("/users/byOuId/:ouId", a.GetUsersByOuId)       // get all users by organizational unit Id
+	g.GET("/users/byRoleId/:roleId", a.GetUsersByRoleId) // get all users by role Id
+	g.GET("/user/byId/:id", a.GetUserById)               // get a user by Id
+	g.GET("/user/:name", a.GetUserByUserName)            // get a user by username
 	// vendors
 	g.GET("/vendors")         // get all vendors
 	g.GET("/vendor/byId/:id") // get a vendor by Id

@@ -23,3 +23,9 @@ go.work.sum
 
 # don't commit db to git
 *.db
+
+# don't track the binary
+allocatord
+
+# we don't check in our config.json
+config/config.json
