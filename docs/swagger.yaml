@@ -20,6 +20,26 @@ definitions:
       error:
         type: string
     type: object
+  model.OrgUnit:
+    properties:
+      Id:
+        type: integer
+      creationDate:
+        type: string
+      creatorId:
+        type: integer
+      description:
+        type: string
+      ouName:
+        type: string
+    type: object
+  model.OrgUnitList:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.OrgUnit'
+        type: array
+    type: object
   model.PasswordChange:
     properties:
       newPassword:
@@ -143,6 +163,101 @@ info:
   title: Allocator Daemon
   version: 0.0.1
 paths:
+  /organizationalUnit:
+    post:
+      consumes:
+      - application/json
+      description: Add a new organizational unit
+      parameters:
+      - description: Organizational Unit data
+        in: body
+        name: orgUnit
+        required: true
+        schema:
+          $ref: '#/definitions/model.OrgUnit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Register organizational unit
+      tags:
+      - orgs
+  /organizationalUnit/{ouId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an organizational unit
+      parameters:
+      - description: Organizational Unit Id
+        in: path
+        name: ouId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Delete OU
+      tags:
+      - orgs
+  /organizationalUnit/byId/{ouId}:
+    get:
+      description: Retrieve an organizational unit by its Id
+      parameters:
+      - description: Organizationl Unit ID
+        in: path
+        name: ouId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.OrgUnit'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      summary: Retrieve an organizational unit by its Id
+      tags:
+      - orgs
+  /organizationalUnits:
+    get:
+      description: Retrieve list of all organizational units
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.OrgUnitList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      summary: Retrieve list of all organizational units
+      tags:
+      - orgs
   /role:
     post:
       consumes:
