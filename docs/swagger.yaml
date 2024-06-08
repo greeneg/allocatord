@@ -151,6 +151,24 @@ definitions:
           $ref: '#/definitions/model.User'
         type: array
     type: object
+  model.Vendor:
+    properties:
+      Id:
+        type: integer
+      creationDate:
+        type: string
+      creatorId:
+        type: integer
+      vendorName:
+        type: string
+    type: object
+  model.VendorList:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.Vendor'
+        type: array
+    type: object
 host: localhost:5000
 info:
   contact:
@@ -697,6 +715,101 @@ paths:
       summary: Retrieve list of users by role Id
       tags:
       - user
+  /vendor:
+    post:
+      consumes:
+      - application/json
+      description: Add a new vendor
+      parameters:
+      - description: Vendor data
+        in: body
+        name: vendor
+        required: true
+        schema:
+          $ref: '#/definitions/model.Vendor'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Register vendor
+      tags:
+      - vendors
+  /vendor/{vendorId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a vendor
+      parameters:
+      - description: Vendor Id
+        in: path
+        name: vendorId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Delete Vendor
+      tags:
+      - vendors
+  /vendor/byId/{ouId}:
+    get:
+      description: Retrieve a vendor by its Id
+      parameters:
+      - description: Vendor ID
+        in: path
+        name: vendorId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Vendor'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      summary: Retrieve a vendor by its Id
+      tags:
+      - vendors
+  /vendorss:
+    get:
+      description: Retrieve list of all vendors
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.VendorList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      summary: Retrieve list of all vendors
+      tags:
+      - vendors
 securityDefinitions:
   BasicAuth:
     type: basic

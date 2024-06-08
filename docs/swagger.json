@@ -849,6 +849,155 @@
                     }
                 }
             }
+        },
+        "/vendor": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Add a new vendor",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vendors"
+                ],
+                "summary": "Register vendor",
+                "parameters": [
+                    {
+                        "description": "Vendor data",
+                        "name": "vendor",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Vendor"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/vendor/byId/{ouId}": {
+            "get": {
+                "description": "Retrieve a vendor by its Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vendors"
+                ],
+                "summary": "Retrieve a vendor by its Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Vendor ID",
+                        "name": "vendorId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Vendor"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/vendor/{vendorId}": {
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Delete a vendor",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vendors"
+                ],
+                "summary": "Delete Vendor",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Vendor Id",
+                        "name": "vendorId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/vendorss": {
+            "get": {
+                "description": "Retrieve list of all vendors",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vendors"
+                ],
+                "summary": "Retrieve list of all vendors",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.VendorList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1083,6 +1232,34 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.User"
+                    }
+                }
+            }
+        },
+        "model.Vendor": {
+            "type": "object",
+            "properties": {
+                "Id": {
+                    "type": "integer"
+                },
+                "creationDate": {
+                    "type": "string"
+                },
+                "creatorId": {
+                    "type": "integer"
+                },
+                "vendorName": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.VendorList": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Vendor"
                     }
                 }
             }

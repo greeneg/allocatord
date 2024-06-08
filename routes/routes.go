@@ -39,6 +39,9 @@ func PrivateRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 	g.PATCH("/user/:name/roleId", a.SetUserRoleId)  // set a user's role Id
 	g.GET("/user/:name/status", a.GetUserStatus)    // get whether a user is locked or not
 	g.DELETE("/user/:name", a.DeleteUser)           // trash a user
+	// Vendors
+	g.POST("/vendor", a.CreateVendor)             // create new vendor record
+	g.DELETE("/vendor/:vendorId", a.DeleteVendor) // delete a vendor record by Id
 }
 
 func PublicRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
@@ -74,8 +77,8 @@ func PublicRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 	g.GET("/user/byId/:id", a.GetUserById)               // get a user by Id
 	g.GET("/user/:name", a.GetUserByUserName)            // get a user by username
 	// vendors
-	g.GET("/vendors")         // get all vendors
-	g.GET("/vendor/byId/:id") // get a vendor by Id
+	g.GET("/vendors", a.GetVendors)            // get all vendors
+	g.GET("/vendor/byId/:id", a.GetVendorById) // get a vendor by Id
 	// service related routes
 	g.OPTIONS("/")   // API options
 	g.GET("/health") // service health API

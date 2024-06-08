@@ -100,6 +100,17 @@ type UserRoleIdMsg struct {
 	UserRoleId int    `json:"roleId"`
 }
 
+type Vendor struct {
+	Id           int    `json:"Id"`
+	VendorName   string `json:"vendorName"`
+	CreatorId    int    `json:"creatorId"`
+	CreationDate string `json:"creationDate"`
+}
+
+type VendorList struct {
+	Data []Vendor `json:"data"`
+}
+
 type FailureMsg struct {
 	Error string `json:"error"`
 }
