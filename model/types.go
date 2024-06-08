@@ -19,6 +19,17 @@ package model
 */
 
 // primary object structs
+type Architecture struct {
+	Id           int    `json:"Id"`
+	ISEName      string `json:"iseName"`
+	CreatorId    int    `json:"creatorId"`
+	CreationDate string `json:"creationDate"`
+}
+
+type ArchitectureList struct {
+	Data []Architecture `json:"data"`
+}
+
 type Building struct {
 	Id           int    `json:"Id"`
 	BuildingName string `json:"buildingName"`
@@ -45,6 +56,48 @@ type MachineRoleList struct {
 	Data []MachineRole `json:"data"`
 }
 
+type NetworkInterface struct {
+	Id           int    `json:"Id"`
+	DeviceModel  string `json:"deviceModel"`
+	DeviceId     string `json:"deviceId"`
+	MACAddress   string `json:"macAddress"`
+	SystemId     int    `json:"systemId"`
+	IpAddress    string `json:"ipAddress"`
+	Bitmask      int    `json:"bitmask"`
+	Gateway      string `json:"gateway"`
+	CreatorId    int    `json:"creatorId"`
+	CreationDate string `json:"creationDate"`
+}
+
+// Note that this is not stored in the DB, rather it is synthesized off the runtime data
+type NetworkInterfaces struct {
+	Interfaces []NetworkInterface `json:"interfaces"`
+}
+
+type OperatingSystemFamily struct {
+	Id           int    `json:"Id"`
+	OSFamilyName string `json:"osFamilyName"`
+	CreatorId    int    `json:"creatorId"`
+	CreationDate string `json:"creationDate"`
+}
+
+type OperatingSystemFamilyList struct {
+	Data []OperatingSystemFamily `json:"data"`
+}
+
+type OperatingSystem struct {
+	Id           int    `json:"Id"`
+	OSName       string `json:"osName"`
+	OSFamilyId   int    `json:"osFamilyId"`
+	OSImageUrl   string `json:"osImageUrl"`
+	CreatorId    int    `json:"creatorId"`
+	CreationDate string `json:"creationDate"`
+}
+
+type OperatingSystemList struct {
+	Data []OperatingSystem `json:"data"`
+}
+
 type OrgUnit struct {
 	Id           int    `json:"Id"`
 	OUName       string `json:"ouName"`
@@ -66,6 +119,45 @@ type Role struct {
 
 type RolesList struct {
 	Data []Role `json:"data"`
+}
+
+type StorageVolume struct {
+	Id           int    `json:"Id"`
+	StorageType  string `json:"storageType"`
+	DeviceModel  string `json:"deviceModel"`
+	DeviceId     string `json:"deviceId"`
+	MountPoint   string `json:"mountPoint"`
+	VolumeSize   int    `json:"volumeSize"`
+	VolumeFormat string `json:"volumeFormat"`
+	VolumeLabel  string `json:"volumeLabel"`
+	SystemId     int    `json:"systemId"`
+	CreatorId    int    `json:"creatorId"`
+	CreationDate string `json:"creationDate"`
+}
+
+// Note that this is not stored in the DB, it's synthesized from the data
+type StorageVolumes struct {
+	Volumes []StorageVolume `json:"volumes"`
+}
+
+type System struct {
+	Id                int    `json:"Id"`
+	SerialNumber      string `json:"serialNumber"`
+	ModelId           int    `json:"modelId"`
+	OperatingSystemId int    `json:"osId"`
+	Reimage           bool   `json:"reimage"`
+	HostVars          string `json:"HostVars"`
+	BilledToOrgUnitId int    `json:"billedToOrgUnitId"`
+	VendorId          int    `json:"vendorId"`
+	ArchitectureId    int    `json:"architectureId"`
+	RAM               int    `json:"ram"`
+	CpuCores          int    `json:"cpuCores"`
+	CreatorId         int    `json:"creatorId"`
+	CreationDate      string `json:"creationDate"`
+}
+
+type SystemList struct {
+	Data []System `json:"data"`
 }
 
 type PasswordChange struct {
