@@ -20,6 +20,26 @@ definitions:
       error:
         type: string
     type: object
+  model.MachineRole:
+    properties:
+      Id:
+        type: integer
+      creationDate:
+        type: string
+      creatorId:
+        type: integer
+      description:
+        type: string
+      machineRoleName:
+        type: string
+    type: object
+  model.MachineRoleList:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.MachineRole'
+        type: array
+    type: object
   model.OrgUnit:
     properties:
       Id:
@@ -181,6 +201,129 @@ info:
   title: Allocator Daemon
   version: 0.0.1
 paths:
+  /machineRole:
+    post:
+      consumes:
+      - application/json
+      description: Add a new machine role
+      parameters:
+      - description: Machine Role data
+        in: body
+        name: machineRole
+        required: true
+        schema:
+          $ref: '#/definitions/model.Vendor'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Register machine role
+      tags:
+      - machine-roles
+  /machineRole/{machineRoleId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a machine role by Id
+      parameters:
+      - description: Machine Role Id
+        in: path
+        name: machineRoleId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Delete machine role
+      tags:
+      - machine-roles
+    patch:
+      description: Update a machine role by its Id
+      parameters:
+      - description: Machine Role ID
+        in: path
+        name: machineRoleId
+        required: true
+        type: integer
+      - description: Machine Role data
+        in: body
+        name: machineRoleData
+        required: true
+        schema:
+          $ref: '#/definitions/model.MachineRole'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      summary: Update a machine role by its Id
+      tags:
+      - machine-roles
+  /machineRole/byId/{ouId}:
+    get:
+      description: Retrieve a machine role by its Id
+      parameters:
+      - description: Machine Role ID
+        in: path
+        name: machineRoleId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.MachineRole'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      summary: Retrieve a machine role by its Id
+      tags:
+      - machine-roles
+  /machineRoles:
+    get:
+      description: Retrieve list of all machine roles
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.MachineRoleList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      summary: Retrieve list of all machine roles
+      tags:
+      - machine-roles
   /organizationalUnit:
     post:
       consumes:

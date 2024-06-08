@@ -19,6 +19,18 @@ package model
 */
 
 // primary object structs
+type MachineRole struct {
+	Id              int    `json:"Id"`
+	MachineRoleName string `json:"machineRoleName"`
+	Description     string `json:"description"`
+	CreatorId       int    `json:"creatorId"`
+	CreationDate    string `json:"creationDate"`
+}
+
+type MachineRoleList struct {
+	Data []MachineRole `json:"data"`
+}
+
 type OrgUnit struct {
 	Id           int    `json:"Id"`
 	OUName       string `json:"ouName"`

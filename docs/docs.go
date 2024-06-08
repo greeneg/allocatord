@@ -22,6 +22,197 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/machineRole": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Add a new machine role",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "machine-roles"
+                ],
+                "summary": "Register machine role",
+                "parameters": [
+                    {
+                        "description": "Machine Role data",
+                        "name": "machineRole",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Vendor"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/machineRole/byId/{ouId}": {
+            "get": {
+                "description": "Retrieve a machine role by its Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "machine-roles"
+                ],
+                "summary": "Retrieve a machine role by its Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Machine Role ID",
+                        "name": "machineRoleId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.MachineRole"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/machineRole/{machineRoleId}": {
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Delete a machine role by Id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "machine-roles"
+                ],
+                "summary": "Delete machine role",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Machine Role Id",
+                        "name": "machineRoleId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update a machine role by its Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "machine-roles"
+                ],
+                "summary": "Update a machine role by its Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Machine Role ID",
+                        "name": "machineRoleId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Machine Role data",
+                        "name": "machineRoleData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.MachineRole"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/machineRoles": {
+            "get": {
+                "description": "Retrieve list of all machine roles",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "machine-roles"
+                ],
+                "summary": "Retrieve list of all machine roles",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.MachineRoleList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
         "/organizationalUnit": {
             "post": {
                 "security": [
@@ -1035,6 +1226,37 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "type": "string"
+                }
+            }
+        },
+        "model.MachineRole": {
+            "type": "object",
+            "properties": {
+                "Id": {
+                    "type": "integer"
+                },
+                "creationDate": {
+                    "type": "string"
+                },
+                "creatorId": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "machineRoleName": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MachineRoleList": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.MachineRole"
+                    }
                 }
             }
         },

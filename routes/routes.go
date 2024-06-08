@@ -25,8 +25,12 @@ import (
 )
 
 func PrivateRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
+	// Machine Roles
+	g.POST("/machineRole", a.CreateMachineRole)                     // create a new machine role
+	g.PATCH("/machineRole/:machineRoleId", a.UpdateMachineRoleById) // update a machine role by Id
+	g.DELETE("/machineRole/:machineRoleId", a.DeleteMachineRole)    // delete a machine role by Id
 	// Organizational Units
-	g.POST("/organizationalUnits", a.CreateOU)        // create a new organizational unit
+	g.POST("/organizationalUnit", a.CreateOU)         // create a new organizational unit
 	g.DELETE("/organizationalUnit/:ouId", a.DeleteOU) // delete an organizational unit by Id
 	// Roles
 	g.POST("/role", a.CreateRole)           // create new role
@@ -53,8 +57,8 @@ func PublicRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 	g.GET("/building/byId/:id")            // get building by Id
 	g.GET("/building/byShortName/:abbrev") // get building by abbreviation
 	// Machine Roles
-	g.GET("/machineRoles")         // get all machine roles
-	g.GET("/machineRole/byId/:id") // get a machine role by Id
+	g.GET("/machineRoles", a.GetMachineRoles)            // get all machine roles
+	g.GET("/machineRole/byId/:id", a.GetMachineRoleById) // get a machine role by Id
 	// Organizational Units
 	g.GET("/organizationalUnits", a.GetOUs)              // get all organizational units
 	g.GET("/organizationalUnit/byId/:ouId", a.GetOUById) // get organizational unit by Id
