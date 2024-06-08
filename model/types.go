@@ -19,6 +19,20 @@ package model
 */
 
 // primary object structs
+type Building struct {
+	Id           int    `json:"Id"`
+	BuildingName string `json:"buildingName"`
+	ShortName    string `json:"shortName"`
+	City         string `json:"city"`
+	Region       string `json:"region"`
+	CreatorId    int    `json:"creatorId"`
+	CreationDate string `json:"creationDate"`
+}
+
+type BuildingList struct {
+	Data []Building `json:"data"`
+}
+
 type MachineRole struct {
 	Id              int    `json:"Id"`
 	MachineRoleName string `json:"machineRoleName"`

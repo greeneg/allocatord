@@ -25,6 +25,10 @@ import (
 )
 
 func PrivateRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
+	// Buildings
+	g.POST("/building", a.CreateBuilding)                  // create a new building
+	g.PATCH("/building/:buildingId", a.UpdateBuildingById) // update a building by its Id
+	g.DELETE("/building/:buildingId", a.DeleteBuilding)    // delete a building by its Id
 	// Machine Roles
 	g.POST("/machineRole", a.CreateMachineRole)                     // create a new machine role
 	g.PATCH("/machineRole/:machineRoleId", a.UpdateMachineRoleById) // update a machine role by Id
@@ -53,9 +57,9 @@ func PublicRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 	g.GET("/architectures")    // get all architectures
 	g.GET("/architecture/:id") // get architecture by Id
 	// Buildings
-	g.GET("/buildings")                    // get all buildings
-	g.GET("/building/byId/:id")            // get building by Id
-	g.GET("/building/byShortName/:abbrev") // get building by abbreviation
+	g.GET("/buildings", a.GetBuildings)                              // get all buildings
+	g.GET("/building/byId/:id", a.GetBuildingById)                   // get building by Id
+	g.GET("/building/byShortName/:abbrev", a.GetBuildingByShortName) // get building by abbreviation
 	// Machine Roles
 	g.GET("/machineRoles", a.GetMachineRoles)            // get all machine roles
 	g.GET("/machineRole/byId/:id", a.GetMachineRoleById) // get a machine role by Id
