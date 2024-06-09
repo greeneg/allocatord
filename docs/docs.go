@@ -1006,6 +1006,11 @@ const docTemplate = `{
         },
         "/role/byId/{roleId}": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve a role by its Id",
                 "produces": [
                     "application/json"
@@ -1041,6 +1046,11 @@ const docTemplate = `{
         },
         "/role/byName/{roleName}": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve a role by its role name",
                 "produces": [
                     "application/json"
@@ -1119,6 +1129,11 @@ const docTemplate = `{
         },
         "/roles": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve list of all roles",
                 "produces": [
                     "application/json"
@@ -2202,7 +2217,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "0.1.2",
+	Version:          "0.1.3",
 	Host:             "localhost:5000",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},

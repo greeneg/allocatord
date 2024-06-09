@@ -99,6 +99,7 @@ func (a *Allocator) DeleteRole(c *gin.Context) {
 //	@Description	Retrieve list of all roles
 //	@Tags			role
 //	@Produce		json
+//	@Security		BasicAuth
 //	@Success		200	{object}	model.RolesList
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/roles [get]
@@ -128,6 +129,7 @@ func (a *Allocator) GetRoles(c *gin.Context) {
 //	@Tags			role
 //	@Produce		json
 //	@Param			roleId	path int true "Role ID"
+//	@Security		BasicAuth
 //	@Success		200	{object}	model.Role
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/role/byId/{roleId} [get]
@@ -159,6 +161,7 @@ func (a *Allocator) GetRoleById(c *gin.Context) {
 //	@Tags			role
 //	@Produce		json
 //	@Param			roleName	path int true "Role Name"
+//	@Security		BasicAuth
 //	@Success		200	{object}	model.Role
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/role/byName/{roleName} [get]
