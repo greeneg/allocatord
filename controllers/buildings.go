@@ -99,6 +99,7 @@ func (a *Allocator) DeleteBuilding(c *gin.Context) {
 //	@Description	Retrieve list of all building objects
 //	@Tags			buildings
 //	@Produce		json
+//	@Security		BasicAuth
 //	@Success		200	{object}	model.BuildingList
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/buildings [get]
@@ -123,6 +124,7 @@ func (a *Allocator) GetBuildings(c *gin.Context) {
 //	@Tags			buildings
 //	@Produce		json
 //	@Param			buildingId	path int true "Building ID"
+//	@Security		BasicAuth
 //	@Success		200	{object}	model.Building
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/building/byId/{buildingId} [get]
@@ -149,6 +151,7 @@ func (a *Allocator) GetBuildingById(c *gin.Context) {
 //	@Tags			buildings
 //	@Produce		json
 //	@Param			buildingShortName	path int true "Building abbreviation"
+//	@Security		BasicAuth
 //	@Success		200	{object}	model.Building
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/building/byShortName/{buildingShortName} [get]
@@ -175,6 +178,7 @@ func (a *Allocator) GetBuildingByShortName(c *gin.Context) {
 //	@Produce		json
 //	@Param			buildingId	path int true "Building ID"
 //	@Param			buildingData	body model.Building	true	"Building data"
+//	@Security		BasicAuth
 //	@Success		200	{object}	model.SuccessMsg
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/building/{buildingId} [patch]
@@ -197,6 +201,6 @@ func (a *Allocator) UpdateBuildingById(c *gin.Context) {
 	if status {
 		c.IndentedJSON(http.StatusOK, "machine role with Id '"+buildingId+"' has been updated")
 	} else {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update machine role with Id '" + buildingId + "'"})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update building with Id '" + buildingId + "'"})
 	}
 }

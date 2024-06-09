@@ -27,6 +27,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -65,6 +66,7 @@ import (
 // @schemas	http https
 
 func createDB(dbName string) (bool, error) {
+	log.Println("INFO: DB doesn't exist. Attempt to create it")
 	const schema string = `CREATE TABLE IF NOT EXISTS Architectures (
 		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
 							  NOT NULL
