@@ -64,6 +64,36 @@ definitions:
           $ref: '#/definitions/model.MachineRole'
         type: array
     type: object
+  model.NetworkInterface:
+    properties:
+      Id:
+        type: integer
+      bitmask:
+        type: integer
+      creationDate:
+        type: string
+      creatorId:
+        type: integer
+      deviceId:
+        type: string
+      deviceModel:
+        type: string
+      gateway:
+        type: string
+      ipAddress:
+        type: string
+      macAddress:
+        type: string
+      systemId:
+        type: integer
+    type: object
+  model.NetworkInterfaces:
+    properties:
+      interfaces:
+        items:
+          $ref: '#/definitions/model.NetworkInterface'
+        type: array
+    type: object
   model.OrgUnit:
     properties:
       Id:
@@ -494,6 +524,210 @@ paths:
       summary: Retrieve list of all machine roles
       tags:
       - machine-roles
+  /networkInterface:
+    post:
+      consumes:
+      - application/json
+      description: Add a new network interface
+      parameters:
+      - description: Network Interface data
+        in: body
+        name: networkInterface
+        required: true
+        schema:
+          $ref: '#/definitions/model.NetworkInterface'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Register network interface
+      tags:
+      - network-interfaces
+  /networkInterface/{networkInterfaceId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a network interface by Id
+      parameters:
+      - description: Network Interface Id
+        in: path
+        name: networkInterfaceId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Delete network interface
+      tags:
+      - network-interfaces
+    patch:
+      description: Update a network interface by its Id
+      parameters:
+      - description: Network Interface ID
+        in: path
+        name: networkInterfaceId
+        required: true
+        type: integer
+      - description: Network Interface data
+        in: body
+        name: networkInterfaceData
+        required: true
+        schema:
+          $ref: '#/definitions/model.MachineRole'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Update a network interface by its Id
+      tags:
+      - network-interfaces
+  /networkInterface/byId/{networkInterfaceId}:
+    get:
+      description: Retrieve a network interface by its Id
+      parameters:
+      - description: Network Interface ID
+        in: path
+        name: networkInterfaceId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.NetworkInterface'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve a network interface by its Id
+      tags:
+      - network-interfaces
+  /networkInterface/byIpAddress/{networkInterfaceIpAddress}:
+    get:
+      description: Retrieve a network interface by its IP Address
+      parameters:
+      - description: Network Interface IP Address
+        in: path
+        name: networkInterfaceIpAddress
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.NetworkInterface'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve a network interface by its IP Address
+      tags:
+      - network-interfaces
+  /networkInterface/byMACAddress/{networkInterfaceMACAddress}:
+    get:
+      description: Retrieve a network interface by its MAC Address
+      parameters:
+      - description: Network Interface MAC Address
+        in: path
+        name: networkInterfaceMACAddress
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.NetworkInterface'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve a network interface by its MAC Address
+      tags:
+      - network-interfaces
+  /networkInterfaces:
+    get:
+      description: Retrieve list of all network interfaces
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.NetworkInterfaces'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve list of all network interfaces
+      tags:
+      - network-interfaces
+  /networkInterfaces/{systemId}:
+    get:
+      description: Retrieve the list of network interfaces for a system's Id
+      parameters:
+      - description: System ID
+        in: path
+        name: systemId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.NetworkInterfaces'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve the list of network interfaces for a system's Id
+      tags:
+      - network-interfaces
   /organizationalUnit:
     post:
       consumes:

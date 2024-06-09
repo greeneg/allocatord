@@ -25,20 +25,47 @@ import (
 )
 
 func PrivateRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
+	// Architectures
+	g.GET("/architectures")    // get all architectures
+	g.GET("/architecture/:id") // get architecture by Id
 	// Buildings
-	g.POST("/building", a.CreateBuilding)                  // create a new building
-	g.PATCH("/building/:buildingId", a.UpdateBuildingById) // update a building by its Id
-	g.DELETE("/building/:buildingId", a.DeleteBuilding)    // delete a building by its Id
+	g.GET("/buildings", a.GetBuildings)                              // get all buildings
+	g.GET("/building/byId/:id", a.GetBuildingById)                   // get building by Id
+	g.GET("/building/byShortName/:abbrev", a.GetBuildingByShortName) // get building by abbreviation
+	g.POST("/building", a.CreateBuilding)                            // create a new building
+	g.PATCH("/building/:buildingId", a.UpdateBuildingById)           // update a building by its Id
+	g.DELETE("/building/:buildingId", a.DeleteBuilding)              // delete a building by its Id
 	// Machine Roles
+	g.GET("/machineRoles", a.GetMachineRoles)                       // get all machine roles
+	g.GET("/machineRole/byId/:id", a.GetMachineRoleById)            // get a machine role by Id
 	g.POST("/machineRole", a.CreateMachineRole)                     // create a new machine role
 	g.PATCH("/machineRole/:machineRoleId", a.UpdateMachineRoleById) // update a machine role by Id
 	g.DELETE("/machineRole/:machineRoleId", a.DeleteMachineRole)    // delete a machine role by Id
+	// Network Interfaces
+	g.GET("/networkInterfaces", a.GetNetworkInterfaces)
+	g.GET("/networkInterfaces/:systemId", a.GetNetworkInterfacesBySystemId)
+	g.GET("/networkInterface/byId/:networkInterfaceId", a.GetNetworkInterfaceById)
+	g.GET("/networkInterface/byIpAddress/:ipAddress", a.GetNetworkInterfaceByIpAddress)
+	g.GET("/networkInterface/byMACAddress/:macAddress", a.GetNetworkInterfaceByMACAddress)
+	g.POST("/networkInterface", a.CreateNetworkInterface)
+	g.PATCH("/networkInterface/:networkInterfaceId", a.UpdateNetworkInterface)
+	g.DELETE("/networkInterface/:networkInterfaceId", a.DeleteNetworkInterface)
 	// Organizational Units
-	g.POST("/organizationalUnit", a.CreateOU)         // create a new organizational unit
-	g.DELETE("/organizationalUnit/:ouId", a.DeleteOU) // delete an organizational unit by Id
+	g.GET("/organizationalUnits", a.GetOUs)              // get all organizational units
+	g.GET("/organizationalUnit/byId/:ouId", a.GetOUById) // get organizational unit by Id
+	g.POST("/organizationalUnit", a.CreateOU)            // create a new organizational unit
+	g.DELETE("/organizationalUnit/:ouId", a.DeleteOU)    // delete an organizational unit by Id
 	// Roles
-	g.POST("/role", a.CreateRole)           // create new role
-	g.DELETE("/role/:roleId", a.DeleteRole) // delete a role by Id
+	g.GET("/roles", a.GetRoles)                      // get all roles
+	g.GET("/role/byId/:roleId", a.GetRoleById)       // get role by Id
+	g.GET("/role/byName/:roleName", a.GetRoleByName) // get role by name
+	g.POST("/role", a.CreateRole)                    // create new role
+	g.DELETE("/role/:roleId", a.DeleteRole)          // delete a role by Id
+	// Storage Volumes
+	g.GET("/storageVolumes")
+	g.GET("/storageVolumes/:systemId")
+	g.GET("/storageVolume/byId/:storageVolumeId")
+	g.GET("/storageVolume/byLabel/:storageVolumeLabel")
 	// user related routes
 	g.POST("/user", a.CreateUser)                   // create new user
 	g.PATCH("/user/:name", a.ChangeAccountPassword) // update a user password
@@ -48,28 +75,13 @@ func PrivateRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 	g.GET("/user/:name/status", a.GetUserStatus)    // get whether a user is locked or not
 	g.DELETE("/user/:name", a.DeleteUser)           // trash a user
 	// Vendors
+	g.GET("/vendors", a.GetVendors)               // get all vendors
+	g.GET("/vendor/byId/:id", a.GetVendorById)    // get a vendor by Id
 	g.POST("/vendor", a.CreateVendor)             // create new vendor record
 	g.DELETE("/vendor/:vendorId", a.DeleteVendor) // delete a vendor record by Id
 }
 
 func PublicRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
-	// Architectures
-	g.GET("/architectures")    // get all architectures
-	g.GET("/architecture/:id") // get architecture by Id
-	// Buildings
-	g.GET("/buildings", a.GetBuildings)                              // get all buildings
-	g.GET("/building/byId/:id", a.GetBuildingById)                   // get building by Id
-	g.GET("/building/byShortName/:abbrev", a.GetBuildingByShortName) // get building by abbreviation
-	// Machine Roles
-	g.GET("/machineRoles", a.GetMachineRoles)            // get all machine roles
-	g.GET("/machineRole/byId/:id", a.GetMachineRoleById) // get a machine role by Id
-	// Organizational Units
-	g.GET("/organizationalUnits", a.GetOUs)              // get all organizational units
-	g.GET("/organizationalUnit/byId/:ouId", a.GetOUById) // get organizational unit by Id
-	// Roles
-	g.GET("/roles", a.GetRoles)                      // get all roles
-	g.GET("/role/byId/:roleId", a.GetRoleById)       // get role by Id
-	g.GET("/role/byName/:roleName", a.GetRoleByName) // get role by name
 	// Systems
 	g.GET("/systems")                                // get all systems
 	g.GET("/systems/byVendorId/:vendorid")           // get systems by vendor Id
@@ -84,9 +96,6 @@ func PublicRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 	g.GET("/users/byRoleId/:roleId", a.GetUsersByRoleId) // get all users by role Id
 	g.GET("/user/byId/:id", a.GetUserById)               // get a user by Id
 	g.GET("/user/:name", a.GetUserByUserName)            // get a user by username
-	// vendors
-	g.GET("/vendors", a.GetVendors)            // get all vendors
-	g.GET("/vendor/byId/:id", a.GetVendorById) // get a vendor by Id
 	// service related routes
 	g.OPTIONS("/")   // API options
 	g.GET("/health") // service health API

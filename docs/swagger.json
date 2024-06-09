@@ -433,6 +433,332 @@
                 }
             }
         },
+        "/networkInterface": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Add a new network interface",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "network-interfaces"
+                ],
+                "summary": "Register network interface",
+                "parameters": [
+                    {
+                        "description": "Network Interface data",
+                        "name": "networkInterface",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.NetworkInterface"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/networkInterface/byId/{networkInterfaceId}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve a network interface by its Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "network-interfaces"
+                ],
+                "summary": "Retrieve a network interface by its Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Network Interface ID",
+                        "name": "networkInterfaceId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.NetworkInterface"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/networkInterface/byIpAddress/{networkInterfaceIpAddress}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve a network interface by its IP Address",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "network-interfaces"
+                ],
+                "summary": "Retrieve a network interface by its IP Address",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Network Interface IP Address",
+                        "name": "networkInterfaceIpAddress",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.NetworkInterface"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/networkInterface/byMACAddress/{networkInterfaceMACAddress}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve a network interface by its MAC Address",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "network-interfaces"
+                ],
+                "summary": "Retrieve a network interface by its MAC Address",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Network Interface MAC Address",
+                        "name": "networkInterfaceMACAddress",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.NetworkInterface"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/networkInterface/{networkInterfaceId}": {
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Delete a network interface by Id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "network-interfaces"
+                ],
+                "summary": "Delete network interface",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Network Interface Id",
+                        "name": "networkInterfaceId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Update a network interface by its Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "network-interfaces"
+                ],
+                "summary": "Update a network interface by its Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Network Interface ID",
+                        "name": "networkInterfaceId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Network Interface data",
+                        "name": "networkInterfaceData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.MachineRole"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/networkInterfaces": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve list of all network interfaces",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "network-interfaces"
+                ],
+                "summary": "Retrieve list of all network interfaces",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.NetworkInterfaces"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/networkInterfaces/{systemId}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve the list of network interfaces for a system's Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "network-interfaces"
+                ],
+                "summary": "Retrieve the list of network interfaces for a system's Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "System ID",
+                        "name": "systemId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.NetworkInterfaces"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
         "/organizationalUnit": {
             "post": {
                 "security": [
@@ -1513,6 +1839,52 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.MachineRole"
+                    }
+                }
+            }
+        },
+        "model.NetworkInterface": {
+            "type": "object",
+            "properties": {
+                "Id": {
+                    "type": "integer"
+                },
+                "bitmask": {
+                    "type": "integer"
+                },
+                "creationDate": {
+                    "type": "string"
+                },
+                "creatorId": {
+                    "type": "integer"
+                },
+                "deviceId": {
+                    "type": "string"
+                },
+                "deviceModel": {
+                    "type": "string"
+                },
+                "gateway": {
+                    "type": "string"
+                },
+                "ipAddress": {
+                    "type": "string"
+                },
+                "macAddress": {
+                    "type": "string"
+                },
+                "systemId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.NetworkInterfaces": {
+            "type": "object",
+            "properties": {
+                "interfaces": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.NetworkInterface"
                     }
                 }
             }
