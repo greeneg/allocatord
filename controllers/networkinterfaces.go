@@ -112,7 +112,7 @@ func (a *Allocator) GetNetworkInterfaces(c *gin.Context) {
 		}
 
 		if networkInterfaces == nil {
-			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "No records found!"})
 		} else {
 			c.IndentedJSON(http.StatusOK, gin.H{"interfaces": networkInterfaces})
 		}
@@ -143,7 +143,7 @@ func (a *Allocator) GetNetworkInterfaceById(c *gin.Context) {
 		}
 
 		if networkInterface.DeviceModel == "" {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with network interface id " + strconv.Itoa(id)})
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found with network interface id " + strconv.Itoa(id)})
 		} else {
 			c.IndentedJSON(http.StatusOK, networkInterface)
 		}
@@ -174,7 +174,7 @@ func (a *Allocator) GetNetworkInterfaceByIpAddress(c *gin.Context) {
 		}
 
 		if networkInterface.DeviceModel == "" {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with IP Address " + ipAddr})
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found with IP Address " + ipAddr})
 		} else {
 			c.IndentedJSON(http.StatusOK, networkInterface)
 		}
@@ -205,7 +205,7 @@ func (a *Allocator) GetNetworkInterfaceByMACAddress(c *gin.Context) {
 		}
 
 		if networkInterface.DeviceModel == "" {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with MAC Address " + macAddress})
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found with MAC Address " + macAddress})
 		} else {
 			c.IndentedJSON(http.StatusOK, networkInterface)
 		}
@@ -236,7 +236,7 @@ func (a *Allocator) GetNetworkInterfacesBySystemId(c *gin.Context) {
 		}
 
 		if networkInterfaces == nil {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with system id " + strconv.Itoa(id)})
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found with system id " + strconv.Itoa(id)})
 		} else {
 			c.IndentedJSON(http.StatusOK, gin.H{"interfaces": networkInterfaces})
 		}
@@ -276,7 +276,7 @@ func (a *Allocator) UpdateNetworkInterface(c *gin.Context) {
 		}
 
 		if status {
-			c.IndentedJSON(http.StatusOK, "Network interface with Id '"+networkInterfaceId+"' has been updated")
+			c.IndentedJSON(http.StatusOK, gin.H{"message": "Network interface with Id '" + networkInterfaceId + "' has been updated"})
 		} else {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update network interface with Id '" + networkInterfaceId + "'"})
 		}

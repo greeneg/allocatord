@@ -149,7 +149,10 @@ func (a *Allocator) GetUserStatus(c *gin.Context) {
 		}
 
 		if status != "" {
-			c.IndentedJSON(http.StatusOK, gin.H{"message": "User status: " + status, "userStatus": status})
+			c.IndentedJSON(http.StatusOK, gin.H{
+				"message":    "User '" + username + "' has status " + status,
+				"userStatus": status,
+			})
 		} else {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to retrieve user status"})
 		}
@@ -188,7 +191,10 @@ func (a *Allocator) SetUserStatus(c *gin.Context) {
 		}
 
 		if status {
-			c.IndentedJSON(http.StatusOK, gin.H{"message": "User '" + username + "' has been " + json.Status})
+			c.IndentedJSON(http.StatusOK, gin.H{
+				"message":    "User '" + username + "' has been " + json.Status,
+				"userStatus": json.Status,
+			})
 		} else {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err})
 		}
@@ -309,7 +315,7 @@ func (a *Allocator) GetUsers(c *gin.Context) {
 		}
 
 		if users == nil {
-			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "No records found!"})
 		} else {
 			c.IndentedJSON(http.StatusOK, gin.H{"data": safeUsers})
 		}
@@ -351,7 +357,7 @@ func (a *Allocator) GetUsersByOuId(c *gin.Context) {
 
 		if users == nil {
 			strId := strconv.Itoa(ouId)
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found for users with organizational unit Id " + strId})
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found for users with organizational unit Id " + strId})
 		} else {
 			c.IndentedJSON(http.StatusOK, safeUsers)
 		}
@@ -393,9 +399,9 @@ func (a *Allocator) GetUsersByRoleId(c *gin.Context) {
 
 		if users == nil {
 			strId := strconv.Itoa(roleId)
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found for users with role Id " + strId})
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found for users with role Id " + strId})
 		} else {
-			c.IndentedJSON(http.StatusOK, safeUsers)
+			c.IndentedJSON(http.StatusOK, gin.H{"data": safeUsers})
 		}
 	} else {
 		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
@@ -428,7 +434,7 @@ func (a *Allocator) GetUserById(c *gin.Context) {
 
 	if ent.UserName == "" {
 		strId := strconv.Itoa(id)
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with user id " + strId})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found with user id " + strId})
 	} else {
 		c.IndentedJSON(http.StatusOK, safeUser)
 	}
@@ -459,7 +465,7 @@ func (a *Allocator) GetUserByUserName(c *gin.Context) {
 	safeUser.CreationDate = ent.CreationDate
 
 	if ent.UserName == "" {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with user name " + username})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found with user name " + username})
 	} else {
 		c.IndentedJSON(http.StatusOK, safeUser)
 	}

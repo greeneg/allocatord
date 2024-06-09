@@ -49,7 +49,7 @@ import (
 )
 
 //	@title			Allocator Daemon
-//	@version		0.1.4
+//	@version		0.1.5
 //	@description	An API for managing OS imaging
 
 //	@contact.name	Gary Greene
@@ -192,6 +192,7 @@ func createDB(dbName string) (bool, error) {
 		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
 							  UNIQUE
 							  NOT NULL,
+		VolumeName   STRING   NOT NULL,
 		StorageType  STRING   NOT NULL,
 		DeviceModel  STRING   NOT NULL,
 		DeviceId     STRING   NOT NULL,

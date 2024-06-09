@@ -86,7 +86,7 @@ func (a *Allocator) DeleteRole(c *gin.Context) {
 			roleIdStr := strconv.Itoa(roleId)
 			c.IndentedJSON(http.StatusOK, gin.H{"message": "Role Id " + roleIdStr + " has been removed from system"})
 		} else {
-			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Unable to remove user!"})
+			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Unable to remove role!"})
 		}
 	} else {
 		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
@@ -113,7 +113,7 @@ func (a *Allocator) GetRoles(c *gin.Context) {
 		}
 
 		if roles == nil {
-			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "No records found!"})
 		} else {
 			c.IndentedJSON(http.StatusOK, gin.H{"data": roles})
 		}
@@ -145,7 +145,7 @@ func (a *Allocator) GetRoleById(c *gin.Context) {
 
 		if role.RoleName == "" {
 			strId := strconv.Itoa(id)
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with role id " + strId})
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found with role id " + strId})
 		} else {
 			c.IndentedJSON(http.StatusOK, role)
 		}
@@ -176,7 +176,7 @@ func (a *Allocator) GetRoleByName(c *gin.Context) {
 		}
 
 		if role.RoleName == "" {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with role name " + roleName})
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found with role name " + roleName})
 		} else {
 			c.IndentedJSON(http.StatusOK, role)
 		}

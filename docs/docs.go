@@ -1392,7 +1392,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.StorageVolume"
+                            "$ref": "#/definitions/model.StorageVolumes"
                         }
                     },
                     "400": {
@@ -2515,7 +2515,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "0.1.3",
+	Version:          "0.1.5",
 	Host:             "localhost:5000",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},

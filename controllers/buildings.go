@@ -113,7 +113,7 @@ func (a *Allocator) GetBuildings(c *gin.Context) {
 		}
 
 		if buildingList == nil {
-			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "No records found!"})
 		} else {
 			c.IndentedJSON(http.StatusOK, gin.H{"data": buildingList})
 		}
@@ -145,7 +145,7 @@ func (a *Allocator) GetBuildingById(c *gin.Context) {
 
 		if building.BuildingName == "" {
 			strId := strconv.Itoa(id)
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with building id " + strId})
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found with building id " + strId})
 		} else {
 			c.IndentedJSON(http.StatusOK, building)
 		}
@@ -176,7 +176,7 @@ func (a *Allocator) GetBuildingByShortName(c *gin.Context) {
 		}
 
 		if building.BuildingName == "" {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with building abbreviation " + buildingShortName})
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found with building abbreviation " + buildingShortName})
 		} else {
 			c.IndentedJSON(http.StatusOK, building)
 		}
@@ -216,7 +216,7 @@ func (a *Allocator) UpdateBuildingById(c *gin.Context) {
 		}
 
 		if status {
-			c.IndentedJSON(http.StatusOK, "machine role with Id '"+buildingId+"' has been updated")
+			c.IndentedJSON(http.StatusOK, gin.H{"message": "Building with Id '" + buildingId + "' has been updated"})
 		} else {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update building with Id '" + buildingId + "'"})
 		}

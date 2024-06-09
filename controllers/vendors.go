@@ -113,7 +113,7 @@ func (a *Allocator) GetVendors(c *gin.Context) {
 		}
 
 		if vendorList == nil {
-			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "No records found!"})
 		} else {
 			c.IndentedJSON(http.StatusOK, gin.H{"data": vendorList})
 		}
@@ -145,7 +145,7 @@ func (a *Allocator) GetVendorById(c *gin.Context) {
 
 		if vendor.VendorName == "" {
 			strId := strconv.Itoa(id)
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with vendor id " + strId})
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found with vendor id " + strId})
 		} else {
 			c.IndentedJSON(http.StatusOK, vendor)
 		}

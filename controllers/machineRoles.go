@@ -113,7 +113,7 @@ func (a *Allocator) GetMachineRoles(c *gin.Context) {
 		}
 
 		if vendorList == nil {
-			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "No records found!"})
 		} else {
 			c.IndentedJSON(http.StatusOK, gin.H{"data": vendorList})
 		}
@@ -145,7 +145,7 @@ func (a *Allocator) GetMachineRoleById(c *gin.Context) {
 
 		if machineRole.MachineRoleName == "" {
 			strId := strconv.Itoa(id)
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with machine role id " + strId})
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found with machine role id " + strId})
 		} else {
 			c.IndentedJSON(http.StatusOK, machineRole)
 		}
@@ -185,7 +185,7 @@ func (a *Allocator) UpdateMachineRoleById(c *gin.Context) {
 		}
 
 		if status {
-			c.IndentedJSON(http.StatusOK, "machine role with Id '"+machineRoleId+"' has been updated")
+			c.IndentedJSON(http.StatusOK, gin.H{"message": "Machine role with Id '" + machineRoleId + "' has been updated"})
 		} else {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update machine role with Id '" + machineRoleId + "'"})
 		}

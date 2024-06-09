@@ -199,6 +199,7 @@ CREATE TABLE IF NOT EXISTS StorageVolumes (
     Id           INTEGER  PRIMARY KEY AUTOINCREMENT
                           UNIQUE
                           NOT NULL,
+    VolumeName   STRING   NOT NULL,
     StorageType  STRING   NOT NULL,
     DeviceModel  STRING   NOT NULL,
     DeviceId     STRING   NOT NULL,

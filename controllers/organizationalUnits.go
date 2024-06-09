@@ -84,9 +84,9 @@ func (a *Allocator) DeleteOU(c *gin.Context) {
 
 		if status {
 			ouIdStr := strconv.Itoa(ouId)
-			c.IndentedJSON(http.StatusOK, gin.H{"message": "Role Id " + ouIdStr + " has been removed from system"})
+			c.IndentedJSON(http.StatusOK, gin.H{"message": "Organizational Unit Id " + ouIdStr + " has been removed from system"})
 		} else {
-			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Unable to remove user!"})
+			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Unable to remove organizational unit!"})
 		}
 	} else {
 		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
@@ -113,7 +113,7 @@ func (a *Allocator) GetOUs(c *gin.Context) {
 		}
 
 		if ouList == nil {
-			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "No records found!"})
 		} else {
 			c.IndentedJSON(http.StatusOK, gin.H{"data": ouList})
 		}
@@ -145,7 +145,7 @@ func (a *Allocator) GetOUById(c *gin.Context) {
 
 		if ou.OUName == "" {
 			strId := strconv.Itoa(id)
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with organizational unit id " + strId})
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found with organizational unit id " + strId})
 		} else {
 			c.IndentedJSON(http.StatusOK, ou)
 		}

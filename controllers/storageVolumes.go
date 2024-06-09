@@ -83,7 +83,7 @@ func (a *Allocator) DeleteStorageVolume(c *gin.Context) {
 		}
 
 		if status {
-			c.IndentedJSON(http.StatusOK, gin.H{"message": "Storage Volume with Id " + strconv.Itoa(storageVolumeId) + " has been removed from system"})
+			c.IndentedJSON(http.StatusOK, gin.H{"message": "Storage Volume with ID " + strconv.Itoa(storageVolumeId) + " has been removed from system"})
 		} else {
 			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Unable to remove storage volume!"})
 		}
@@ -112,7 +112,7 @@ func (a *Allocator) GetStorageVolumes(c *gin.Context) {
 		}
 
 		if volumes == nil {
-			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "No records found!"})
 		} else {
 			c.IndentedJSON(http.StatusOK, gin.H{"data": volumes})
 		}
@@ -143,7 +143,7 @@ func (a *Allocator) GetStorageVolumeById(c *gin.Context) {
 		}
 
 		if volume.VolumeName == "" {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with storage volume id " + strconv.Itoa(id)})
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found with storage volume ID " + strconv.Itoa(id)})
 		} else {
 			c.IndentedJSON(http.StatusOK, volume)
 		}
@@ -176,7 +176,7 @@ func (a *Allocator) GetStorageVolumeByLabel(c *gin.Context) {
 		}
 
 		if volume.VolumeName == "" {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with storage volume having label " + label})
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found with storage volume having label " + label})
 		} else {
 			c.IndentedJSON(http.StatusOK, volume)
 		}
@@ -193,7 +193,7 @@ func (a *Allocator) GetStorageVolumeByLabel(c *gin.Context) {
 //	@Produce		json
 //	@Param			systemId	path int true "System ID"
 //	@Security		BasicAuth
-//	@Success		200	{object}	model.StorageVolume
+//	@Success		200	{object}	model.StorageVolumes
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/storageVolumes/{systemId} [get]
 func (a *Allocator) GetStorageVolumesBySystemId(c *gin.Context) {
@@ -207,9 +207,9 @@ func (a *Allocator) GetStorageVolumesBySystemId(c *gin.Context) {
 		}
 
 		if volumes == nil {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with storage volumes for system ID " + strconv.Itoa(systemId)})
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found with storage volumes for system ID " + strconv.Itoa(systemId)})
 		} else {
-			c.IndentedJSON(http.StatusOK, volumes)
+			c.IndentedJSON(http.StatusOK, gin.H{"volumes": volumes})
 		}
 	} else {
 		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
