@@ -24,7 +24,9 @@ package main
 */
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -46,7 +48,7 @@ import (
 )
 
 //	@title			Allocator Daemon
-//	@version		0.0.1
+//	@version		0.1.1
 //	@description	An API for managing OS imaging
 
 //	@contact.name	Gary Greene
@@ -61,6 +63,233 @@ import (
 //	@BasePath	/api/v1
 
 // @schemas	http https
+
+func createDB(dbName string) (bool, error) {
+	const schema string = `CREATE TABLE IF NOT EXISTS Architectures (
+		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
+							  NOT NULL
+							  UNIQUE,
+		ISEName      STRING   UNIQUE
+							  NOT NULL,
+		CreatorId    INTEGER  NOT NULL
+							  REFERENCES Users (Id),
+		CreationDate DATETIME NOT NULL
+							  DEFAULT (CURRENT_TIMESTAMP) 
+	);
+	CREATE TABLE IF NOT EXISTS Audit (
+		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
+							  NOT NULL
+							  UNIQUE,
+		ChangedById  INTEGER  REFERENCES Users (Id) 
+							  NOT NULL,
+		TableChanged STRING   NOT NULL,
+		ChangeClass  STRING   NOT NULL,
+		ChangeDate   DATETIME NOT NULL
+							  DEFAULT (CURRENT_TIMESTAMP) 
+	);
+	CREATE TABLE IF NOT EXISTS Buildings (
+		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
+							  UNIQUE
+							  NOT NULL,
+		BuildingName STRING   NOT NULL
+							  UNIQUE,
+		ShortName    STRING   NOT NULL
+							  UNIQUE,
+		City         STRING   NOT NULL,
+		Region       STRING   NOT NULL,
+		CreatorId    INTEGER  REFERENCES Users (Id) 
+							  NOT NULL,
+		CreationDate DATETIME NOT NULL
+							  DEFAULT (CURRENT_TIMESTAMP) 
+	);
+	CREATE TABLE IF NOT EXISTS MachineRoles (
+		Id              INTEGER  PRIMARY KEY AUTOINCREMENT
+								 UNIQUE
+								 NOT NULL,
+		MachineRoleName STRING   UNIQUE
+								 NOT NULL,
+		Description     STRING   NOT NULL,
+		CreatorId       INTEGER  REFERENCES Users (Id) 
+								 NOT NULL,
+		CreationDate    DATETIME NOT NULL
+								 DEFAULT (CURRENT_TIMESTAMP) 
+	);
+	CREATE TABLE IF NOT EXISTS NetworkInterfaces (
+		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
+							  NOT NULL
+							  UNIQUE,
+		DeviceModel  STRING   NOT NULL,
+		DeviceId     STRING   NOT NULL,
+		MACAddress   STRING   NOT NULL
+							  UNIQUE,
+		SystemId     INTEGER  REFERENCES Systems (Id) 
+							  NOT NULL,
+		IpAddress    STRING   NOT NULL,
+		Bitmask      INTEGER  NOT NULL,
+		Gateway      STRING   NOT NULL,
+		CreatorId    INTEGER  REFERENCES Users (Id) 
+							  NOT NULL,
+		CreationDate DATETIME NOT NULL
+							  DEFAULT (CURRENT_TIMESTAMP) 
+	);
+	CREATE TABLE IF NOT EXISTS OperatingSystemFamilies (
+		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
+							  UNIQUE
+							  NOT NULL,
+		OSFamilyName STRING   UNIQUE
+							  NOT NULL,
+		CreatorId    INTEGER  REFERENCES Users (Id) 
+							  NOT NULL,
+		CreationDate DATETIME NOT NULL
+							  DEFAULT (CURRENT_TIMESTAMP) 
+	);
+	CREATE TABLE IF NOT EXISTS OperatingSystems (
+		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
+							  UNIQUE
+							  NOT NULL,
+		OSName       STRING   UNIQUE
+							  NOT NULL,
+		OSFamilyId   INTEGER  REFERENCES OperatingSystemFamilies (Id) 
+							  NOT NULL,
+		OSImageUrl   STRING   UNIQUE
+							  NOT NULL,
+		CreatorId    INTEGER  REFERENCES Users (Id) 
+							  NOT NULL,
+		CreationDate DATETIME NOT NULL
+							  DEFAULT (CURRENT_TIMESTAMP) 
+	);
+	CREATE TABLE IF NOT EXISTS OrganizationalUnits (
+		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
+							  NOT NULL
+							  UNIQUE,
+		OUName       STRING   UNIQUE
+							  NOT NULL,
+		Description  STRING   NOT NULL,
+		CreatorId    INTEGER  REFERENCES Users (Id) 
+							  NOT NULL,
+		CreationDate DATETIME NOT NULL
+							  DEFAULT (CURRENT_TIMESTAMP) 
+	);
+
+	INSERT INTO OrganizationalUnits (Id, OUName, Description, CreatorId, CreationDate)
+		VALUES ( 1, 'Unassigned', 'The OU used as a place holder when a system changes hands', 1, '2024-06-01 15:38:42' );
+
+	CREATE TABLE IF NOT EXISTS Roles (
+		Id           INTEGER  PRIMARY KEY AUTOINCREMENT,
+		RoleName     STRING   UNIQUE
+							  NOT NULL,
+		Description  STRING   NOT NULL,
+		CreationDate DATETIME NOT NULL
+							  DEFAULT (CURRENT_TIMESTAMP) 
+	);
+
+	INSERT INTO Roles (Id, RoleName, Description, CreationDate)
+		VALUES ( 1, 'SYSTEM', 'Built-in system role', '2024-06-01 14:57:41' );
+
+	CREATE TABLE IF NOT EXISTS StorageVolumes (
+		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
+							  UNIQUE
+							  NOT NULL,
+		StorageType  STRING   NOT NULL,
+		DeviceModel  STRING   NOT NULL,
+		DeviceId     STRING   NOT NULL,
+		MountPoint   STRING   NOT NULL,
+		VolumeSize   INTEGER  NOT NULL,
+		VolumeFormat STRING   NOT NULL,
+		VolumeLabel  STRING   NOT NULL,
+		SystemId     INTEGER  REFERENCES Systems (Id) 
+							  NOT NULL,
+		CreatorId    INTEGER  REFERENCES Users (Id) 
+							  NOT NULL,
+		CreationDate DATETIME NOT NULL
+							  DEFAULT (CURRENT_TIMESTAMP) 
+	);
+	CREATE TABLE IF NOT EXISTS SystemModels (
+		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
+							  UNIQUE
+							  NOT NULL,
+		ModelName    STRING   NOT NULL
+							  UNIQUE,
+		CreatorId    INTEGER  REFERENCES Users (Id) 
+							  NOT NULL,
+		CreationDate DATETIME NOT NULL
+							  DEFAULT (CURRENT_TIMESTAMP) 
+	);
+	CREATE TABLE IF NOT EXISTS Systems (
+		Id                INTEGER  PRIMARY KEY AUTOINCREMENT
+								   UNIQUE
+								   NOT NULL,
+		SerialNumber      STRING   NOT NULL
+								   UNIQUE,
+		ModelId           INTEGER  REFERENCES SystemModels (Id) 
+								   NOT NULL,
+		OperatingSystemId INTEGER  NOT NULL
+								   REFERENCES OperatingSystems (Id),
+		Reimage           BOOL     NOT NULL
+								   DEFAULT (FALSE),
+		HostVars          STRING   NOT NULL,
+		BilledToOrgUnitId INTEGER  REFERENCES OrganizationalUnits (Id) 
+								   NOT NULL,
+		MachineRoleId     INTEGER  NOT NULL
+								   REFERENCES MachineRoles (Id),
+		BuildingId        INTEGER  REFERENCES Buildings (Id) 
+								   NOT NULL,
+		VendorId          INTEGER  NOT NULL
+								   REFERENCES Vendors (Id),
+		ArchitectureId    INTEGER  REFERENCES Architectures (Id) 
+								   NOT NULL,
+		RAM               INTEGER  NOT NULL,
+		CPUCores          INTEGER  NOT NULL,
+		CreatorId         INTEGER  REFERENCES Users (Id) 
+								   NOT NULL,
+		CreationDate      DATETIME NOT NULL
+								   DEFAULT (CURRENT_TIMESTAMP) 
+	);
+	CREATE TABLE IF NOT EXISTS Users (
+		Id                      INTEGER  PRIMARY KEY AUTOINCREMENT
+										 UNIQUE
+										 NOT NULL,
+		UserName                STRING   NOT NULL
+										 UNIQUE,
+		FullName                STRING   NOT NULL,
+		Status                  STRING   NOT NULL
+										 DEFAULT enabled,
+		OrgUnitId               INTEGER  REFERENCES OrganizationalUnits (Id) 
+										 NOT NULL,
+		RoleId                  INTEGER  REFERENCES Roles (Id) 
+										 NOT NULL,
+		PasswordHash            STRING   NOT NULL,
+		CreationDate            DATETIME NOT NULL
+										 DEFAULT (CURRENT_TIMESTAMP),
+		LastPasswordChangedDate DATETIME NOT NULL
+										 DEFAULT (CURRENT_TIMESTAMP) 
+	);
+
+	INSERT INTO Users (Id, UserName, FullName, Status, OrgUnitId, RoleId, PasswordHash, CreationDate, LastPasswordChangedDate)
+		VALUES ( 1, 'SYSTEM', 'Allocator System', 'enabled', 1, 1, '!', '2024-06-01 14:58:36', '2024-06-01 14:58:36' );
+
+	CREATE TABLE IF NOT EXISTS Vendors (
+		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
+							  NOT NULL
+							  UNIQUE,
+		VendorName   STRING   UNIQUE
+							  NOT NULL,
+		CreatorId    INTEGER  REFERENCES Users (Id),
+		CreationDate DATETIME NOT NULL
+							  DEFAULT (CURRENT_TIMESTAMP) 
+	);
+	`
+
+	db, err := sql.Open("sqlite3", dbName)
+	if err != nil {
+		helpers.FatalCheckError(err)
+	}
+	if _, err := db.Exec(schema); err != nil {
+		helpers.FatalCheckError(err)
+	}
+	return true, err
+}
+
 func main() {
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
@@ -85,6 +314,13 @@ func main() {
 	Allocator.AppPath = appdir
 	Allocator.ConfigPath = configDir
 	Allocator.ConfStruct = config
+
+	if _, err := os.Stat(Allocator.ConfStruct.DbPath); errors.Is(err, os.ErrNotExist) {
+		_, err := createDB(Allocator.ConfStruct.DbPath)
+		if err != nil {
+			helpers.FatalCheckError(err)
+		}
+	}
 
 	err = model.ConnectDatabase(Allocator.ConfStruct.DbPath)
 	helpers.FatalCheckError(err)

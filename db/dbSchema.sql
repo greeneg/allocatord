@@ -1,5 +1,5 @@
 --
--- File generated with SQLiteStudio v3.4.4 on Sun Jun 2 17:37:34 2024
+-- File generated with SQLiteStudio v3.4.4 on Sun Jun 9 13:32:53 2024
 --
 -- Text encoding used: UTF-8
 --
@@ -45,8 +45,10 @@ CREATE TABLE IF NOT EXISTS Buildings (
     Id           INTEGER  PRIMARY KEY AUTOINCREMENT
                           UNIQUE
                           NOT NULL,
-    Name         STRING   NOT NULL,
-    ShortName    STRING   NOT NULL,
+    BuildingName STRING   NOT NULL
+                          UNIQUE,
+    ShortName    STRING   NOT NULL
+                          UNIQUE,
     City         STRING   NOT NULL,
     Region       STRING   NOT NULL,
     CreatorId    INTEGER  REFERENCES Users (Id) 
@@ -70,6 +72,65 @@ CREATE TABLE IF NOT EXISTS MachineRoles (
                              NOT NULL,
     CreationDate    DATETIME NOT NULL
                              DEFAULT (CURRENT_TIMESTAMP) 
+);
+
+
+-- Table: NetworkInterfaces
+DROP TABLE IF EXISTS NetworkInterfaces;
+
+CREATE TABLE IF NOT EXISTS NetworkInterfaces (
+    Id           INTEGER  PRIMARY KEY AUTOINCREMENT
+                          NOT NULL
+                          UNIQUE,
+    DeviceModel  STRING   NOT NULL,
+    DeviceId     STRING   NOT NULL,
+    MACAddress   STRING   NOT NULL
+                          UNIQUE,
+    SystemId     INTEGER  REFERENCES Systems (Id) 
+                          NOT NULL,
+    IpAddress    STRING   NOT NULL,
+    Bitmask      INTEGER  NOT NULL,
+    Gateway      STRING   NOT NULL,
+    CreatorId    INTEGER  REFERENCES Users (Id) 
+                          NOT NULL,
+    CreationDate DATETIME NOT NULL
+                          DEFAULT (CURRENT_TIMESTAMP) 
+);
+
+
+-- Table: OperatingSystemFamilies
+DROP TABLE IF EXISTS OperatingSystemFamilies;
+
+CREATE TABLE IF NOT EXISTS OperatingSystemFamilies (
+    Id           INTEGER  PRIMARY KEY AUTOINCREMENT
+                          UNIQUE
+                          NOT NULL,
+    OSFamilyName STRING   UNIQUE
+                          NOT NULL,
+    CreatorId    INTEGER  REFERENCES Users (Id) 
+                          NOT NULL,
+    CreationDate DATETIME NOT NULL
+                          DEFAULT (CURRENT_TIMESTAMP) 
+);
+
+
+-- Table: OperatingSystems
+DROP TABLE IF EXISTS OperatingSystems;
+
+CREATE TABLE IF NOT EXISTS OperatingSystems (
+    Id           INTEGER  PRIMARY KEY AUTOINCREMENT
+                          UNIQUE
+                          NOT NULL,
+    OSName       STRING   UNIQUE
+                          NOT NULL,
+    OSFamilyId   INTEGER  REFERENCES OperatingSystemFamilies (Id) 
+                          NOT NULL,
+    OSImageUrl   STRING   UNIQUE
+                          NOT NULL,
+    CreatorId    INTEGER  REFERENCES Users (Id) 
+                          NOT NULL,
+    CreationDate DATETIME NOT NULL
+                          DEFAULT (CURRENT_TIMESTAMP) 
 );
 
 
@@ -131,6 +192,45 @@ INSERT INTO Roles (
                   );
 
 
+-- Table: StorageVolumes
+DROP TABLE IF EXISTS StorageVolumes;
+
+CREATE TABLE IF NOT EXISTS StorageVolumes (
+    Id           INTEGER  PRIMARY KEY AUTOINCREMENT
+                          UNIQUE
+                          NOT NULL,
+    StorageType  STRING   NOT NULL,
+    DeviceModel  STRING   NOT NULL,
+    DeviceId     STRING   NOT NULL,
+    MountPoint   STRING   NOT NULL,
+    VolumeSize   INTEGER  NOT NULL,
+    VolumeFormat STRING   NOT NULL,
+    VolumeLabel  STRING   NOT NULL,
+    SystemId     INTEGER  REFERENCES Systems (Id) 
+                          NOT NULL,
+    CreatorId    INTEGER  REFERENCES Users (Id) 
+                          NOT NULL,
+    CreationDate DATETIME NOT NULL
+                          DEFAULT (CURRENT_TIMESTAMP) 
+);
+
+
+-- Table: SystemModels
+DROP TABLE IF EXISTS SystemModels;
+
+CREATE TABLE IF NOT EXISTS SystemModels (
+    Id           INTEGER  PRIMARY KEY AUTOINCREMENT
+                          UNIQUE
+                          NOT NULL,
+    ModelName    STRING   NOT NULL
+                          UNIQUE,
+    CreatorId    INTEGER  REFERENCES Users (Id) 
+                          NOT NULL,
+    CreationDate DATETIME NOT NULL
+                          DEFAULT (CURRENT_TIMESTAMP) 
+);
+
+
 -- Table: Systems
 DROP TABLE IF EXISTS Systems;
 
@@ -140,7 +240,10 @@ CREATE TABLE IF NOT EXISTS Systems (
                                NOT NULL,
     SerialNumber      STRING   NOT NULL
                                UNIQUE,
-    OSName            STRING   NOT NULL,
+    ModelId           INTEGER  REFERENCES SystemModels (Id) 
+                               NOT NULL,
+    OperatingSystemId INTEGER  NOT NULL
+                               REFERENCES OperatingSystems (Id),
     Reimage           BOOL     NOT NULL
                                DEFAULT (FALSE),
     HostVars          STRING   NOT NULL,
@@ -156,8 +259,6 @@ CREATE TABLE IF NOT EXISTS Systems (
                                NOT NULL,
     RAM               INTEGER  NOT NULL,
     CPUCores          INTEGER  NOT NULL,
-    Storage           STRING   NOT NULL,
-    NetworkInterfaces STRING   NOT NULL,
     CreatorId         INTEGER  REFERENCES Users (Id) 
                                NOT NULL,
     CreationDate      DATETIME NOT NULL
