@@ -104,16 +104,21 @@ func (a *Allocator) DeleteBuilding(c *gin.Context) {
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/buildings [get]
 func (a *Allocator) GetBuildings(c *gin.Context) {
-	buildingList, err := model.GetBuildings()
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		buildingList, err := model.GetBuildings()
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
+			return
+		}
 
-	if buildingList == nil {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+		if buildingList == nil {
+			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+		} else {
+			c.IndentedJSON(http.StatusOK, gin.H{"data": buildingList})
+		}
 	} else {
-		c.IndentedJSON(http.StatusOK, gin.H{"data": buildingList})
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -129,18 +134,23 @@ func (a *Allocator) GetBuildings(c *gin.Context) {
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/building/byId/{buildingId} [get]
 func (a *Allocator) GetBuildingById(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("buildingId"))
-	building, err := model.GetBuildingById(id)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		id, _ := strconv.Atoi(c.Param("buildingId"))
+		building, err := model.GetBuildingById(id)
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
+			return
+		}
 
-	if building.BuildingName == "" {
-		strId := strconv.Itoa(id)
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with building id " + strId})
+		if building.BuildingName == "" {
+			strId := strconv.Itoa(id)
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with building id " + strId})
+		} else {
+			c.IndentedJSON(http.StatusOK, building)
+		}
 	} else {
-		c.IndentedJSON(http.StatusOK, building)
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -156,17 +166,22 @@ func (a *Allocator) GetBuildingById(c *gin.Context) {
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/building/byShortName/{buildingShortName} [get]
 func (a *Allocator) GetBuildingByShortName(c *gin.Context) {
-	buildingShortName := c.Param("buildingShortName")
-	building, err := model.GetBuildingByShortName(buildingShortName)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		buildingShortName := c.Param("buildingShortName")
+		building, err := model.GetBuildingByShortName(buildingShortName)
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
+			return
+		}
 
-	if building.BuildingName == "" {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with building abbreviation " + buildingShortName})
+		if building.BuildingName == "" {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with building abbreviation " + buildingShortName})
+		} else {
+			c.IndentedJSON(http.StatusOK, building)
+		}
 	} else {
-		c.IndentedJSON(http.StatusOK, building)
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -183,24 +198,29 @@ func (a *Allocator) GetBuildingByShortName(c *gin.Context) {
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/building/{buildingId} [patch]
 func (a *Allocator) UpdateBuildingById(c *gin.Context) {
-	buildingId := c.Param("buildingId")
-	id, _ := strconv.Atoi(buildingId)
-	var json model.Building
-	if err := c.ShouldBindJSON(&json); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		buildingId := c.Param("buildingId")
+		id, _ := strconv.Atoi(buildingId)
+		var json model.Building
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 
-	status, err := model.UpdateBuildingById(id, json)
-	if err != nil {
-		log.Println("ERROR: Cannot update building with Id '" + buildingId + "': " + string(err.Error()))
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update building: " + string(err.Error())})
-		return
-	}
+		status, err := model.UpdateBuildingById(id, json)
+		if err != nil {
+			log.Println("ERROR: Cannot update building with Id '" + buildingId + "': " + string(err.Error()))
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update building: " + string(err.Error())})
+			return
+		}
 
-	if status {
-		c.IndentedJSON(http.StatusOK, "machine role with Id '"+buildingId+"' has been updated")
+		if status {
+			c.IndentedJSON(http.StatusOK, "machine role with Id '"+buildingId+"' has been updated")
+		} else {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update building with Id '" + buildingId + "'"})
+		}
 	} else {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update building with Id '" + buildingId + "'"})
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }

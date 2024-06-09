@@ -49,7 +49,7 @@ import (
 )
 
 //	@title			Allocator Daemon
-//	@version		0.1.1
+//	@version		0.1.2
 //	@description	An API for managing OS imaging
 
 //	@contact.name	Gary Greene

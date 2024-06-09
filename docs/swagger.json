@@ -11,7 +11,7 @@
             "name": "Apache 2.0",
             "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
         },
-        "version": "0.1.1"
+        "version": "0.1.2"
     },
     "host": "localhost:5000",
     "basePath": "/api/v1",
@@ -63,6 +63,11 @@
         },
         "/building/byId/{buildingId}": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve a building by its Id",
                 "produces": [
                     "application/json"
@@ -98,6 +103,11 @@
         },
         "/building/byShortName/{buildingShortName}": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve a building by its abbreviated name",
                 "produces": [
                     "application/json"
@@ -174,6 +184,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Update a building by its Id",
                 "produces": [
                     "application/json"
@@ -218,6 +233,11 @@
         },
         "/buildings": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve list of all building objects",
                 "produces": [
                     "application/json"
@@ -289,6 +309,11 @@
         },
         "/machineRole/byId/{ouId}": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve a machine role by its Id",
                 "produces": [
                     "application/json"
@@ -365,6 +390,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Update a machine role by its Id",
                 "produces": [
                     "application/json"
@@ -409,6 +439,11 @@
         },
         "/machineRoles": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve list of all machine roles",
                 "produces": [
                     "application/json"
@@ -806,6 +841,11 @@
         },
         "/organizationalUnit/byId/{ouId}": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve an organizational unit by its Id",
                 "produces": [
                     "application/json"
@@ -884,6 +924,11 @@
         },
         "/organizationalUnits": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve list of all organizational units",
                 "produces": [
                     "application/json"
@@ -1250,11 +1295,6 @@
                 }
             },
             "patch": {
-                "security": [
-                    {
-                        "BasicAuth": []
-                    }
-                ],
                 "description": "Change password",
                 "consumes": [
                     "application/json"
@@ -1499,6 +1539,11 @@
         },
         "/users": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve list of all users",
                 "produces": [
                     "application/json"
@@ -1525,6 +1570,11 @@
         },
         "/users/byOuId/{ouId}": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve list of users by Organizational Unit Id",
                 "produces": [
                     "application/json"
@@ -1560,6 +1610,11 @@
         },
         "/users/byRoleId/{roleId}": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve list of users by role Id",
                 "produces": [
                     "application/json"
@@ -1640,6 +1695,11 @@
         },
         "/vendor/byId/{ouId}": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve a vendor by its Id",
                 "produces": [
                     "application/json"
@@ -1718,6 +1778,11 @@
         },
         "/vendorss": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve list of all vendors",
                 "produces": [
                     "application/json"

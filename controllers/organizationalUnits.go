@@ -99,20 +99,26 @@ func (a *Allocator) DeleteOU(c *gin.Context) {
 //	@Description	Retrieve list of all organizational units
 //	@Tags			orgs
 //	@Produce		json
+//	@Security		BasicAuth
 //	@Success		200	{object}	model.OrgUnitList
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/organizationalUnits [get]
 func (a *Allocator) GetOUs(c *gin.Context) {
-	ouList, err := model.GetOUs()
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		ouList, err := model.GetOUs()
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
+			return
+		}
 
-	if ouList == nil {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+		if ouList == nil {
+			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+		} else {
+			c.IndentedJSON(http.StatusOK, gin.H{"data": ouList})
+		}
 	} else {
-		c.IndentedJSON(http.StatusOK, gin.H{"data": ouList})
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -123,21 +129,27 @@ func (a *Allocator) GetOUs(c *gin.Context) {
 //	@Tags			orgs
 //	@Produce		json
 //	@Param			ouId	path int true "Organizationl Unit ID"
+//	@Security		BasicAuth
 //	@Success		200	{object}	model.OrgUnit
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/organizationalUnit/byId/{ouId} [get]
 func (a *Allocator) GetOUById(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("ouId"))
-	ou, err := model.GetOUById(id)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		id, _ := strconv.Atoi(c.Param("ouId"))
+		ou, err := model.GetOUById(id)
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
+			return
+		}
 
-	if ou.OUName == "" {
-		strId := strconv.Itoa(id)
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with organizational unit id " + strId})
+		if ou.OUName == "" {
+			strId := strconv.Itoa(id)
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with organizational unit id " + strId})
+		} else {
+			c.IndentedJSON(http.StatusOK, ou)
+		}
 	} else {
-		c.IndentedJSON(http.StatusOK, ou)
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }

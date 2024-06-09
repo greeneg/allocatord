@@ -99,20 +99,26 @@ func (a *Allocator) DeleteMachineRole(c *gin.Context) {
 //	@Description	Retrieve list of all machine roles
 //	@Tags			machine-roles
 //	@Produce		json
+//	@Security		BasicAuth
 //	@Success		200	{object}	model.MachineRoleList
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/machineRoles [get]
 func (a *Allocator) GetMachineRoles(c *gin.Context) {
-	vendorList, err := model.GetMachineRoles()
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		vendorList, err := model.GetMachineRoles()
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
+			return
+		}
 
-	if vendorList == nil {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+		if vendorList == nil {
+			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+		} else {
+			c.IndentedJSON(http.StatusOK, gin.H{"data": vendorList})
+		}
 	} else {
-		c.IndentedJSON(http.StatusOK, gin.H{"data": vendorList})
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -123,22 +129,28 @@ func (a *Allocator) GetMachineRoles(c *gin.Context) {
 //	@Tags			machine-roles
 //	@Produce		json
 //	@Param			machineRoleId	path int true "Machine Role ID"
+//	@Security		BasicAuth
 //	@Success		200	{object}	model.MachineRole
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/machineRole/byId/{ouId} [get]
 func (a *Allocator) GetMachineRoleById(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("machineRoleId"))
-	machineRole, err := model.GetMachineRoleById(id)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		id, _ := strconv.Atoi(c.Param("machineRoleId"))
+		machineRole, err := model.GetMachineRoleById(id)
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
+			return
+		}
 
-	if machineRole.MachineRoleName == "" {
-		strId := strconv.Itoa(id)
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with machine role id " + strId})
+		if machineRole.MachineRoleName == "" {
+			strId := strconv.Itoa(id)
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with machine role id " + strId})
+		} else {
+			c.IndentedJSON(http.StatusOK, machineRole)
+		}
 	} else {
-		c.IndentedJSON(http.StatusOK, machineRole)
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -150,28 +162,34 @@ func (a *Allocator) GetMachineRoleById(c *gin.Context) {
 //	@Produce		json
 //	@Param			machineRoleId	path int true "Machine Role ID"
 //	@Param			machineRoleData	body model.MachineRole	true	"Machine Role data"
+//	@Security		BasicAuth
 //	@Success		200	{object}	model.SuccessMsg
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/machineRole/{machineRoleId} [patch]
 func (a *Allocator) UpdateMachineRoleById(c *gin.Context) {
-	machineRoleId := c.Param("machineRoleId")
-	id, _ := strconv.Atoi(machineRoleId)
-	var json model.MachineRole
-	if err := c.ShouldBindJSON(&json); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		machineRoleId := c.Param("machineRoleId")
+		id, _ := strconv.Atoi(machineRoleId)
+		var json model.MachineRole
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 
-	status, err := model.UpdateMachineRoleById(id, json)
-	if err != nil {
-		log.Println("ERROR: Cannot update machine role with Id '" + machineRoleId + "': " + string(err.Error()))
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update machine role: " + string(err.Error())})
-		return
-	}
+		status, err := model.UpdateMachineRoleById(id, json)
+		if err != nil {
+			log.Println("ERROR: Cannot update machine role with Id '" + machineRoleId + "': " + string(err.Error()))
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update machine role: " + string(err.Error())})
+			return
+		}
 
-	if status {
-		c.IndentedJSON(http.StatusOK, "machine role with Id '"+machineRoleId+"' has been updated")
+		if status {
+			c.IndentedJSON(http.StatusOK, "machine role with Id '"+machineRoleId+"' has been updated")
+		} else {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update machine role with Id '" + machineRoleId + "'"})
+		}
 	} else {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update machine role with Id '" + machineRoleId + "'"})
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }

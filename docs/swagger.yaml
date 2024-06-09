@@ -253,7 +253,7 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   title: Allocator Daemon
-  version: 0.1.1
+  version: 0.1.2
 paths:
   /building:
     post:
@@ -335,6 +335,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
       summary: Update a building by its Id
       tags:
       - buildings
@@ -358,6 +360,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
       summary: Retrieve a building by its Id
       tags:
       - buildings
@@ -381,6 +385,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
       summary: Retrieve a building by its abbreviated name
       tags:
       - buildings
@@ -398,6 +404,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
       summary: Retrieve list of all building objects
       tags:
       - buildings
@@ -481,6 +489,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
       summary: Update a machine role by its Id
       tags:
       - machine-roles
@@ -504,6 +514,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
       summary: Retrieve a machine role by its Id
       tags:
       - machine-roles
@@ -521,6 +533,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
       summary: Retrieve list of all machine roles
       tags:
       - machine-roles
@@ -803,6 +817,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
       summary: Retrieve an organizational unit by its Id
       tags:
       - orgs
@@ -820,6 +836,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
       summary: Retrieve list of all organizational units
       tags:
       - orgs
@@ -1023,8 +1041,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/model.FailureMsg'
-      security:
-      - BasicAuth: []
       summary: Change password
       tags:
       - user
@@ -1213,6 +1229,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
       summary: Retrieve list of all users
       tags:
       - user
@@ -1236,6 +1254,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
       summary: Retrieve list of users by Organizational Unit Id
       tags:
       - user
@@ -1259,6 +1279,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
       summary: Retrieve list of users by role Id
       tags:
       - user
@@ -1337,6 +1359,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
       summary: Retrieve a vendor by its Id
       tags:
       - vendors
@@ -1354,6 +1378,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
       summary: Retrieve list of all vendors
       tags:
       - vendors

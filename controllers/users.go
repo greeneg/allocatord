@@ -41,17 +41,22 @@ import (
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/user [post]
 func (a *Allocator) CreateUser(c *gin.Context) {
-	var json model.ProposedUser
-	if err := c.ShouldBindJSON(&json); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		var json model.ProposedUser
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 
-	s, err := model.CreateUser(json)
-	if s {
-		c.IndentedJSON(http.StatusOK, gin.H{"message": "User has been added to system"})
+		s, err := model.CreateUser(json)
+		if s {
+			c.IndentedJSON(http.StatusOK, gin.H{"message": "User has been added to system"})
+		} else {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		}
 	} else {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -64,7 +69,6 @@ func (a *Allocator) CreateUser(c *gin.Context) {
 //	@Produce		json
 //	@Param			name	path	string	true	"User name"
 //	@Param			changePassword	body	model.PasswordChange	true	"Password data"
-//	@Security		BasicAuth
 //	@Success		200	{object}	model.SuccessMsg
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/user/{name} [patch]
@@ -102,18 +106,23 @@ func (a *Allocator) ChangeAccountPassword(c *gin.Context) {
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/user/{name} [delete]
 func (a *Allocator) DeleteUser(c *gin.Context) {
-	username := c.Param("name")
-	status, err := model.DeleteUser(username)
-	if err != nil {
-		log.Println("ERROR: Cannot delete user: " + string(err.Error()))
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Unable to remove user! " + string(err.Error())})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		username := c.Param("name")
+		status, err := model.DeleteUser(username)
+		if err != nil {
+			log.Println("ERROR: Cannot delete user: " + string(err.Error()))
+			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Unable to remove user! " + string(err.Error())})
+			return
+		}
 
-	if status {
-		c.IndentedJSON(http.StatusOK, gin.H{"message": "User " + username + " has been removed from system"})
+		if status {
+			c.IndentedJSON(http.StatusOK, gin.H{"message": "User " + username + " has been removed from system"})
+		} else {
+			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Unable to remove user!"})
+		}
 	} else {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Unable to remove user!"})
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -130,17 +139,22 @@ func (a *Allocator) DeleteUser(c *gin.Context) {
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/user/{name}/status [get]
 func (a *Allocator) GetUserStatus(c *gin.Context) {
-	username := c.Param("name")
-	status, err := model.GetUserStatus(username)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Unable to get the user " + username + " status: " + string(err.Error())})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		username := c.Param("name")
+		status, err := model.GetUserStatus(username)
+		if err != nil {
+			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Unable to get the user " + username + " status: " + string(err.Error())})
+			return
+		}
 
-	if status != "" {
-		c.IndentedJSON(http.StatusOK, gin.H{"message": "User status: " + status, "userStatus": status})
+		if status != "" {
+			c.IndentedJSON(http.StatusOK, gin.H{"message": "User status: " + status, "userStatus": status})
+		} else {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to retrieve user status"})
+		}
 	} else {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to retrieve user status"})
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -158,23 +172,28 @@ func (a *Allocator) GetUserStatus(c *gin.Context) {
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/user/{name}/status [patch]
 func (a *Allocator) SetUserStatus(c *gin.Context) {
-	username := c.Param("name")
-	var json model.UserStatus
-	if err := c.ShouldBindJSON(&json); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		username := c.Param("name")
+		var json model.UserStatus
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 
-	status, err := model.SetUserStatus(username, json)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": string(err.Error())})
-		return
-	}
+		status, err := model.SetUserStatus(username, json)
+		if err != nil {
+			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": string(err.Error())})
+			return
+		}
 
-	if status {
-		c.IndentedJSON(http.StatusOK, gin.H{"message": "User '" + username + "' has been " + json.Status})
+		if status {
+			c.IndentedJSON(http.StatusOK, gin.H{"message": "User '" + username + "' has been " + json.Status})
+		} else {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err})
+		}
 	} else {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -192,25 +211,30 @@ func (a *Allocator) SetUserStatus(c *gin.Context) {
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/user/{name}/ouId [patch]
 func (a *Allocator) SetUserOuId(c *gin.Context) {
-	username := c.Param("name")
-	var json model.UserOrgUnitId
-	if err := c.ShouldBindJSON(&json); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		username := c.Param("name")
+		var json model.UserOrgUnitId
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		}
 
-	status, err := model.SetUserOuId(username, json)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": string(err.Error())})
-	}
+		status, err := model.SetUserOuId(username, json)
+		if err != nil {
+			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": string(err.Error())})
+		}
 
-	if status {
-		orgIdStr := strconv.Itoa(json.OrgUnitId)
-		c.IndentedJSON(http.StatusOK, gin.H{
-			"message":   "User '" + username + "' has been set to organizational unit Id '" + orgIdStr + "'",
-			"orgUnitId": json.OrgUnitId,
-		})
+		if status {
+			orgIdStr := strconv.Itoa(json.OrgUnitId)
+			c.IndentedJSON(http.StatusOK, gin.H{
+				"message":   "User '" + username + "' has been set to organizational unit Id '" + orgIdStr + "'",
+				"orgUnitId": json.OrgUnitId,
+			})
+		} else {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err})
+		}
 	} else {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -228,25 +252,30 @@ func (a *Allocator) SetUserOuId(c *gin.Context) {
 //	@Failure		400 {object}	model.FailureMsg
 //	@Router			/user/{name}/roleId [patch]
 func (a *Allocator) SetUserRoleId(c *gin.Context) {
-	username := c.Param("name")
-	var json model.UserRoleId
-	if err := c.ShouldBindJSON(&json); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		username := c.Param("name")
+		var json model.UserRoleId
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		}
 
-	status, err := model.SetUserRoleId(username, json)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": string(err.Error())})
-	}
+		status, err := model.SetUserRoleId(username, json)
+		if err != nil {
+			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": string(err.Error())})
+		}
 
-	if status {
-		roleId := strconv.Itoa(json.RoleId)
-		c.Copy().IndentedJSON(http.StatusOK, gin.H{
-			"message": "User '" + username + "' has been set to role Id '" + roleId + "'",
-			"roleId":  json.RoleId,
-		})
+		if status {
+			roleId := strconv.Itoa(json.RoleId)
+			c.Copy().IndentedJSON(http.StatusOK, gin.H{
+				"message": "User '" + username + "' has been set to role Id '" + roleId + "'",
+				"roleId":  json.RoleId,
+			})
+		} else {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err})
+		}
 	} else {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -256,30 +285,36 @@ func (a *Allocator) SetUserRoleId(c *gin.Context) {
 //	@Description	Retrieve list of all users
 //	@Tags			user
 //	@Produce		json
+//	@Security		BasicAuth
 //	@Success		200	{object}	model.UsersList
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/users [get]
 func (a *Allocator) GetUsers(c *gin.Context) {
-	users, err := model.GetUsers()
-	helpers.FatalCheckError(err)
+	_, authed := a.GetUserId(c)
+	if authed {
+		users, err := model.GetUsers()
+		helpers.FatalCheckError(err)
 
-	safeUsers := make([]SafeUser, 0)
-	for _, user := range users {
-		safeUser := SafeUser{}
-		safeUser.Id = user.Id
-		safeUser.UserName = user.UserName
-		safeUser.FullName = user.FullName
-		safeUser.OrgUnitId = user.OrgUnitId
-		safeUser.RoleId = user.RoleId
-		safeUser.CreationDate = user.CreationDate
+		safeUsers := make([]SafeUser, 0)
+		for _, user := range users {
+			safeUser := SafeUser{}
+			safeUser.Id = user.Id
+			safeUser.UserName = user.UserName
+			safeUser.FullName = user.FullName
+			safeUser.OrgUnitId = user.OrgUnitId
+			safeUser.RoleId = user.RoleId
+			safeUser.CreationDate = user.CreationDate
 
-		safeUsers = append(safeUsers, safeUser)
-	}
+			safeUsers = append(safeUsers, safeUser)
+		}
 
-	if users == nil {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+		if users == nil {
+			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+		} else {
+			c.IndentedJSON(http.StatusOK, gin.H{"data": safeUsers})
+		}
 	} else {
-		c.IndentedJSON(http.StatusOK, gin.H{"data": safeUsers})
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -290,32 +325,38 @@ func (a *Allocator) GetUsers(c *gin.Context) {
 //	@Tags           user
 //	@Produce        json
 //	@Param          ouId	path int true "Organizational Unit Id"
+//	@Security		BasicAuth
 //	@Success        200 {object}	model.UsersList
 //	@Failure		400 {object}	model.FailureMsg
 //	@Router			/users/byOuId/{ouId} [get]
 func (a *Allocator) GetUsersByOuId(c *gin.Context) {
-	ouId, _ := strconv.Atoi(c.Param("ouId"))
-	users, err := model.GetUsersByOuId(ouId)
-	helpers.FatalCheckError(err)
+	_, authed := a.GetUserId(c)
+	if authed {
+		ouId, _ := strconv.Atoi(c.Param("ouId"))
+		users, err := model.GetUsersByOuId(ouId)
+		helpers.FatalCheckError(err)
 
-	safeUsers := make([]SafeUser, 0)
-	for _, user := range users {
-		safeUser := SafeUser{}
-		safeUser.Id = user.Id
-		safeUser.UserName = user.UserName
-		safeUser.FullName = user.FullName
-		safeUser.OrgUnitId = user.OrgUnitId
-		safeUser.RoleId = user.RoleId
-		safeUser.CreationDate = user.CreationDate
+		safeUsers := make([]SafeUser, 0)
+		for _, user := range users {
+			safeUser := SafeUser{}
+			safeUser.Id = user.Id
+			safeUser.UserName = user.UserName
+			safeUser.FullName = user.FullName
+			safeUser.OrgUnitId = user.OrgUnitId
+			safeUser.RoleId = user.RoleId
+			safeUser.CreationDate = user.CreationDate
 
-		safeUsers = append(safeUsers, safeUser)
-	}
+			safeUsers = append(safeUsers, safeUser)
+		}
 
-	if users == nil {
-		strId := strconv.Itoa(ouId)
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found for users with organizational unit Id " + strId})
+		if users == nil {
+			strId := strconv.Itoa(ouId)
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found for users with organizational unit Id " + strId})
+		} else {
+			c.IndentedJSON(http.StatusOK, safeUsers)
+		}
 	} else {
-		c.IndentedJSON(http.StatusOK, safeUsers)
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -326,32 +367,38 @@ func (a *Allocator) GetUsersByOuId(c *gin.Context) {
 //	@Tags           user
 //	@Produce        json
 //	@Param          roleId	path int true "Role Id"
+//	@Security		BasicAuth
 //	@Success        200 {object}	model.UsersList
 //	@Failure		400 {object}	model.FailureMsg
 //	@Router			/users/byRoleId/{roleId} [get]
 func (a *Allocator) GetUsersByRoleId(c *gin.Context) {
-	roleId, _ := strconv.Atoi(c.Param("roleId"))
-	users, err := model.GetUsersByRoleId(roleId)
-	helpers.FatalCheckError(err)
+	_, authed := a.GetUserId(c)
+	if authed {
+		roleId, _ := strconv.Atoi(c.Param("roleId"))
+		users, err := model.GetUsersByRoleId(roleId)
+		helpers.FatalCheckError(err)
 
-	safeUsers := make([]SafeUser, 0)
-	for _, user := range users {
-		safeUser := SafeUser{}
-		safeUser.Id = user.Id
-		safeUser.UserName = user.UserName
-		safeUser.FullName = user.FullName
-		safeUser.OrgUnitId = user.OrgUnitId
-		safeUser.RoleId = user.RoleId
-		safeUser.CreationDate = user.CreationDate
+		safeUsers := make([]SafeUser, 0)
+		for _, user := range users {
+			safeUser := SafeUser{}
+			safeUser.Id = user.Id
+			safeUser.UserName = user.UserName
+			safeUser.FullName = user.FullName
+			safeUser.OrgUnitId = user.OrgUnitId
+			safeUser.RoleId = user.RoleId
+			safeUser.CreationDate = user.CreationDate
 
-		safeUsers = append(safeUsers, safeUser)
-	}
+			safeUsers = append(safeUsers, safeUser)
+		}
 
-	if users == nil {
-		strId := strconv.Itoa(roleId)
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found for users with role Id " + strId})
+		if users == nil {
+			strId := strconv.Itoa(roleId)
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found for users with role Id " + strId})
+		} else {
+			c.IndentedJSON(http.StatusOK, safeUsers)
+		}
 	} else {
-		c.IndentedJSON(http.StatusOK, safeUsers)
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 

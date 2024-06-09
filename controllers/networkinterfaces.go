@@ -103,16 +103,21 @@ func (a *Allocator) DeleteNetworkInterface(c *gin.Context) {
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/networkInterfaces [get]
 func (a *Allocator) GetNetworkInterfaces(c *gin.Context) {
-	networkInterfaces, err := model.GetNetworkInterfaces()
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		networkInterfaces, err := model.GetNetworkInterfaces()
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
+			return
+		}
 
-	if networkInterfaces == nil {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+		if networkInterfaces == nil {
+			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+		} else {
+			c.IndentedJSON(http.StatusOK, gin.H{"interfaces": networkInterfaces})
+		}
 	} else {
-		c.IndentedJSON(http.StatusOK, gin.H{"interfaces": networkInterfaces})
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -128,17 +133,22 @@ func (a *Allocator) GetNetworkInterfaces(c *gin.Context) {
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/networkInterface/byId/{networkInterfaceId} [get]
 func (a *Allocator) GetNetworkInterfaceById(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("networkInterfaceId"))
-	networkInterface, err := model.GetNetworkInterfaceById(id)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		id, _ := strconv.Atoi(c.Param("networkInterfaceId"))
+		networkInterface, err := model.GetNetworkInterfaceById(id)
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
+			return
+		}
 
-	if networkInterface.DeviceModel == "" {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with network interface id " + strconv.Itoa(id)})
+		if networkInterface.DeviceModel == "" {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with network interface id " + strconv.Itoa(id)})
+		} else {
+			c.IndentedJSON(http.StatusOK, networkInterface)
+		}
 	} else {
-		c.IndentedJSON(http.StatusOK, networkInterface)
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -154,17 +164,22 @@ func (a *Allocator) GetNetworkInterfaceById(c *gin.Context) {
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/networkInterface/byIpAddress/{networkInterfaceIpAddress} [get]
 func (a *Allocator) GetNetworkInterfaceByIpAddress(c *gin.Context) {
-	ipAddr := c.Param("networkInterfaceIpAddress")
-	networkInterface, err := model.GetNetworkInterfaceByIpAddress(ipAddr)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		ipAddr := c.Param("networkInterfaceIpAddress")
+		networkInterface, err := model.GetNetworkInterfaceByIpAddress(ipAddr)
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
+			return
+		}
 
-	if networkInterface.DeviceModel == "" {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with IP Address " + ipAddr})
+		if networkInterface.DeviceModel == "" {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with IP Address " + ipAddr})
+		} else {
+			c.IndentedJSON(http.StatusOK, networkInterface)
+		}
 	} else {
-		c.IndentedJSON(http.StatusOK, networkInterface)
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -180,17 +195,22 @@ func (a *Allocator) GetNetworkInterfaceByIpAddress(c *gin.Context) {
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/networkInterface/byMACAddress/{networkInterfaceMACAddress} [get]
 func (a *Allocator) GetNetworkInterfaceByMACAddress(c *gin.Context) {
-	macAddress := c.Param("networkInterfaceId")
-	networkInterface, err := model.GetNetworkInterfaceByMACAddress(macAddress)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		macAddress := c.Param("networkInterfaceId")
+		networkInterface, err := model.GetNetworkInterfaceByMACAddress(macAddress)
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
+			return
+		}
 
-	if networkInterface.DeviceModel == "" {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with MAC Address " + macAddress})
+		if networkInterface.DeviceModel == "" {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with MAC Address " + macAddress})
+		} else {
+			c.IndentedJSON(http.StatusOK, networkInterface)
+		}
 	} else {
-		c.IndentedJSON(http.StatusOK, networkInterface)
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -206,17 +226,22 @@ func (a *Allocator) GetNetworkInterfaceByMACAddress(c *gin.Context) {
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/networkInterfaces/{systemId} [get]
 func (a *Allocator) GetNetworkInterfacesBySystemId(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("systemId"))
-	networkInterfaces, err := model.GetNetworkInterfacesBySystemId(id)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		id, _ := strconv.Atoi(c.Param("systemId"))
+		networkInterfaces, err := model.GetNetworkInterfacesBySystemId(id)
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
+			return
+		}
 
-	if networkInterfaces.DeviceModel == "" {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with system id " + strconv.Itoa(id)})
+		if networkInterfaces.DeviceModel == "" {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with system id " + strconv.Itoa(id)})
+		} else {
+			c.IndentedJSON(http.StatusOK, gin.H{"interfaces": networkInterfaces})
+		}
 	} else {
-		c.IndentedJSON(http.StatusOK, gin.H{"interfaces": networkInterfaces})
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -233,24 +258,29 @@ func (a *Allocator) GetNetworkInterfacesBySystemId(c *gin.Context) {
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/networkInterface/{networkInterfaceId} [patch]
 func (a *Allocator) UpdateNetworkInterface(c *gin.Context) {
-	networkInterfaceId := c.Param("networkInterfaceId")
-	id, _ := strconv.Atoi(networkInterfaceId)
-	var json model.NetworkInterface
-	if err := c.ShouldBindJSON(&json); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		networkInterfaceId := c.Param("networkInterfaceId")
+		id, _ := strconv.Atoi(networkInterfaceId)
+		var json model.NetworkInterface
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 
-	status, err := model.UpdateNetworkInterface(id, json)
-	if err != nil {
-		log.Println("ERROR: Cannot update network interface with Id '" + networkInterfaceId + "': " + string(err.Error()))
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update network interface: " + string(err.Error())})
-		return
-	}
+		status, err := model.UpdateNetworkInterface(id, json)
+		if err != nil {
+			log.Println("ERROR: Cannot update network interface with Id '" + networkInterfaceId + "': " + string(err.Error()))
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update network interface: " + string(err.Error())})
+			return
+		}
 
-	if status {
-		c.IndentedJSON(http.StatusOK, "Network interface with Id '"+networkInterfaceId+"' has been updated")
+		if status {
+			c.IndentedJSON(http.StatusOK, "Network interface with Id '"+networkInterfaceId+"' has been updated")
+		} else {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update network interface with Id '" + networkInterfaceId + "'"})
+		}
 	} else {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update network interface with Id '" + networkInterfaceId + "'"})
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }

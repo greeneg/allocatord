@@ -67,13 +67,15 @@ func PrivateRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 	g.GET("/storageVolume/byId/:storageVolumeId")
 	g.GET("/storageVolume/byLabel/:storageVolumeLabel")
 	// user related routes
-	g.POST("/user", a.CreateUser)                   // create new user
-	g.PATCH("/user/:name", a.ChangeAccountPassword) // update a user password
-	g.PATCH("/user/:name/status", a.SetUserStatus)  // lock a user
-	g.PATCH("/user/:name/ouId", a.SetUserOuId)      // set a user's organizational unit Id
-	g.PATCH("/user/:name/roleId", a.SetUserRoleId)  // set a user's role Id
-	g.GET("/user/:name/status", a.GetUserStatus)    // get whether a user is locked or not
-	g.DELETE("/user/:name", a.DeleteUser)           // trash a user
+	g.GET("/users", a.GetUsers)                          // get all users
+	g.GET("/users/byOuId/:ouId", a.GetUsersByOuId)       // get all users by organizational unit Id
+	g.GET("/users/byRoleId/:roleId", a.GetUsersByRoleId) // get all users by role Id
+	g.GET("/user/:name/status", a.GetUserStatus)         // get whether a user is locked or not
+	g.POST("/user", a.CreateUser)                        // create new user
+	g.PATCH("/user/:name/status", a.SetUserStatus)       // lock a user
+	g.PATCH("/user/:name/ouId", a.SetUserOuId)           // set a user's organizational unit Id
+	g.PATCH("/user/:name/roleId", a.SetUserRoleId)       // set a user's role Id
+	g.DELETE("/user/:name", a.DeleteUser)                // trash a user
 	// Vendors
 	g.GET("/vendors", a.GetVendors)               // get all vendors
 	g.GET("/vendor/byId/:id", a.GetVendorById)    // get a vendor by Id
@@ -82,6 +84,10 @@ func PrivateRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 }
 
 func PublicRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
+	// User related routes
+	g.GET("/user/byId/:id", a.GetUserById)          // get a user by Id
+	g.GET("/user/:name", a.GetUserByUserName)       // get a user by username
+	g.PATCH("/user/:name", a.ChangeAccountPassword) // update a user password
 	// Systems
 	g.GET("/systems")                                // get all systems
 	g.GET("/systems/byVendorId/:vendorid")           // get systems by vendor Id
@@ -90,12 +96,6 @@ func PublicRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 	g.GET("/systems/byMachineRoleId/:machineRoleId") // get systems by the machine's role Id
 	g.GET("/systems/byOuId/:ouId")                   // get systems by organizational unit Id
 	g.GET("/system/byId/:id")                        // get system by Id
-	// Users
-	g.GET("/users", a.GetUsers)                          // get all users
-	g.GET("/users/byOuId/:ouId", a.GetUsersByOuId)       // get all users by organizational unit Id
-	g.GET("/users/byRoleId/:roleId", a.GetUsersByRoleId) // get all users by role Id
-	g.GET("/user/byId/:id", a.GetUserById)               // get a user by Id
-	g.GET("/user/:name", a.GetUserByUserName)            // get a user by username
 	// service related routes
 	g.OPTIONS("/")   // API options
 	g.GET("/health") // service health API

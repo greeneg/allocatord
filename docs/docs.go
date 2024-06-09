@@ -69,6 +69,11 @@ const docTemplate = `{
         },
         "/building/byId/{buildingId}": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve a building by its Id",
                 "produces": [
                     "application/json"
@@ -104,6 +109,11 @@ const docTemplate = `{
         },
         "/building/byShortName/{buildingShortName}": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve a building by its abbreviated name",
                 "produces": [
                     "application/json"
@@ -180,6 +190,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Update a building by its Id",
                 "produces": [
                     "application/json"
@@ -224,6 +239,11 @@ const docTemplate = `{
         },
         "/buildings": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve list of all building objects",
                 "produces": [
                     "application/json"
@@ -295,6 +315,11 @@ const docTemplate = `{
         },
         "/machineRole/byId/{ouId}": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve a machine role by its Id",
                 "produces": [
                     "application/json"
@@ -371,6 +396,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Update a machine role by its Id",
                 "produces": [
                     "application/json"
@@ -415,6 +445,11 @@ const docTemplate = `{
         },
         "/machineRoles": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve list of all machine roles",
                 "produces": [
                     "application/json"
@@ -812,6 +847,11 @@ const docTemplate = `{
         },
         "/organizationalUnit/byId/{ouId}": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve an organizational unit by its Id",
                 "produces": [
                     "application/json"
@@ -890,6 +930,11 @@ const docTemplate = `{
         },
         "/organizationalUnits": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve list of all organizational units",
                 "produces": [
                     "application/json"
@@ -1256,11 +1301,6 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "security": [
-                    {
-                        "BasicAuth": []
-                    }
-                ],
                 "description": "Change password",
                 "consumes": [
                     "application/json"
@@ -1505,6 +1545,11 @@ const docTemplate = `{
         },
         "/users": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve list of all users",
                 "produces": [
                     "application/json"
@@ -1531,6 +1576,11 @@ const docTemplate = `{
         },
         "/users/byOuId/{ouId}": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve list of users by Organizational Unit Id",
                 "produces": [
                     "application/json"
@@ -1566,6 +1616,11 @@ const docTemplate = `{
         },
         "/users/byRoleId/{roleId}": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve list of users by role Id",
                 "produces": [
                     "application/json"
@@ -1646,6 +1701,11 @@ const docTemplate = `{
         },
         "/vendor/byId/{ouId}": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve a vendor by its Id",
                 "produces": [
                     "application/json"
@@ -1724,6 +1784,11 @@ const docTemplate = `{
         },
         "/vendorss": {
             "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Retrieve list of all vendors",
                 "produces": [
                     "application/json"
@@ -2137,7 +2202,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "0.1.1",
+	Version:          "0.1.2",
 	Host:             "localhost:5000",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},

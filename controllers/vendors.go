@@ -99,20 +99,26 @@ func (a *Allocator) DeleteVendor(c *gin.Context) {
 //	@Description	Retrieve list of all vendors
 //	@Tags			vendors
 //	@Produce		json
+//	@Security		BasicAuth
 //	@Success		200	{object}	model.VendorList
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/vendorss [get]
 func (a *Allocator) GetVendors(c *gin.Context) {
-	vendorList, err := model.GetVendors()
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		vendorList, err := model.GetVendors()
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
+			return
+		}
 
-	if vendorList == nil {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+		if vendorList == nil {
+			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no records found!"})
+		} else {
+			c.IndentedJSON(http.StatusOK, gin.H{"data": vendorList})
+		}
 	} else {
-		c.IndentedJSON(http.StatusOK, gin.H{"data": vendorList})
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
 
@@ -123,21 +129,27 @@ func (a *Allocator) GetVendors(c *gin.Context) {
 //	@Tags			vendors
 //	@Produce		json
 //	@Param			vendorId	path int true "Vendor ID"
+//	@Security		BasicAuth
 //	@Success		200	{object}	model.Vendor
 //	@Failure		400	{object}	model.FailureMsg
 //	@Router			/vendor/byId/{ouId} [get]
 func (a *Allocator) GetVendorById(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("vendorId"))
-	vendor, err := model.GetVendorById(id)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
-		return
-	}
+	_, authed := a.GetUserId(c)
+	if authed {
+		id, _ := strconv.Atoi(c.Param("vendorId"))
+		vendor, err := model.GetVendorById(id)
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
+			return
+		}
 
-	if vendor.VendorName == "" {
-		strId := strconv.Itoa(id)
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with vendor id " + strId})
+		if vendor.VendorName == "" {
+			strId := strconv.Itoa(id)
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with vendor id " + strId})
+		} else {
+			c.IndentedJSON(http.StatusOK, vendor)
+		}
 	} else {
-		c.IndentedJSON(http.StatusOK, vendor)
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
