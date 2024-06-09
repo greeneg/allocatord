@@ -219,39 +219,50 @@ func GetNetworkInterfaceByMACAddress(macAddress string) (NetworkInterface, error
 	return networkInterface, nil
 }
 
-func GetNetworkInterfacesBySystemId(systemId int) (NetworkInterface, error) {
+func GetNetworkInterfacesBySystemId(systemId int) ([]NetworkInterface, error) {
 	log.Println("INFO: Network Interfaces by System Id requested: " + strconv.Itoa(systemId))
 	rec, err := DB.Prepare("SELECT * FROM NetworkInterfaces WHERE SystemId = ?")
 	if err != nil {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
-		return NetworkInterface{}, err
+		return nil, err
 	}
 
-	networkInterface := NetworkInterface{}
-	err = rec.QueryRow(systemId).Scan(
-		&networkInterface.Id,
-		&networkInterface.DeviceModel,
-		&networkInterface.DeviceId,
-		&networkInterface.MACAddress,
-		&networkInterface.SystemId,
-		&networkInterface.IpAddress,
-		&networkInterface.Bitmask,
-		&networkInterface.Gateway,
-		&networkInterface.CreatorId,
-		&networkInterface.CreationDate,
-	)
+	rows, err := rec.Query(systemId)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			log.Println("ERROR: No such network interface found in DB: " + string(err.Error()))
-			return NetworkInterface{}, nil
-		}
-		log.Println("ERROR: Cannot retrieve network interface from DB: " + string(err.Error()))
-		return NetworkInterface{}, err
+		log.Println("ERROR: Could not query DB: " + string(err.Error()))
+		return nil, err
 	}
 
-	networkInterface.CreationDate = ConvertSqliteTimestamp(networkInterface.CreationDate)
+	networkInterfaces := make([]NetworkInterface, 0)
+	for rows.Next() {
+		networkInterface := NetworkInterface{}
+		err = rows.Scan(
+			&networkInterface.Id,
+			&networkInterface.DeviceModel,
+			&networkInterface.DeviceId,
+			&networkInterface.MACAddress,
+			&networkInterface.SystemId,
+			&networkInterface.IpAddress,
+			&networkInterface.Bitmask,
+			&networkInterface.Gateway,
+			&networkInterface.CreatorId,
+			&networkInterface.CreationDate,
+		)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				log.Println("ERROR: No such network interface found in DB: " + string(err.Error()))
+				return nil, nil
+			}
+			log.Println("ERROR: Cannot retrieve network interface from DB: " + string(err.Error()))
+			return nil, err
+		}
 
-	return networkInterface, nil
+		networkInterface.CreationDate = ConvertSqliteTimestamp(networkInterface.CreationDate)
+
+		networkInterfaces = append(networkInterfaces, networkInterface)
+	}
+
+	return networkInterfaces, nil
 }
 
 func UpdateNetworkInterface(networkInterfaceId int, n NetworkInterface) (bool, error) {

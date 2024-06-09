@@ -1152,6 +1152,252 @@
                 }
             }
         },
+        "/storageVolume": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Add a new storage volume",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "storage-volumes"
+                ],
+                "summary": "Register storage volume",
+                "parameters": [
+                    {
+                        "description": "Storage Volume data",
+                        "name": "storageVolume",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Role"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/storageVolume/byId/{storageVolumeId}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve a storage volume by its Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "storage-volumes"
+                ],
+                "summary": "Retrieve a storage volume by its Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Storage Volume ID",
+                        "name": "storageVolumeId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.StorageVolume"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/storageVolume/{storageVolumeId}": {
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Delete a storage volume",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "storage-volumes"
+                ],
+                "summary": "Delete storage volume",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Storage Volume Id",
+                        "name": "storageVolumeId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/storageVolume/{systemId}/byLabel/{storageVolumeLabel}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve a storage volume by its volume label",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "storage-volumes"
+                ],
+                "summary": "Retrieve a storage volume by its volume label",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "System ID",
+                        "name": "systemId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Storage Volume Label",
+                        "name": "storageVolumeLabel",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.StorageVolume"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/storageVolumes": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve list of all storage volumes",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "storage-volumes"
+                ],
+                "summary": "Retrieve list of all storage volumes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.StorageVolumes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/storageVolumes/{systemId}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve storage volumes by system Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "storage-volumes"
+                ],
+                "summary": "Retrieve storage volumes by system Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "System ID",
+                        "name": "systemId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.StorageVolume"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
         "/user": {
             "post": {
                 "security": [
@@ -2061,6 +2307,58 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.Role"
+                    }
+                }
+            }
+        },
+        "model.StorageVolume": {
+            "type": "object",
+            "properties": {
+                "Id": {
+                    "type": "integer"
+                },
+                "creationDate": {
+                    "type": "string"
+                },
+                "creatorId": {
+                    "type": "integer"
+                },
+                "deviceId": {
+                    "type": "string"
+                },
+                "deviceModel": {
+                    "type": "string"
+                },
+                "mountPoint": {
+                    "type": "string"
+                },
+                "storageType": {
+                    "type": "string"
+                },
+                "systemId": {
+                    "type": "integer"
+                },
+                "volumeFormat": {
+                    "type": "string"
+                },
+                "volumeLabel": {
+                    "type": "string"
+                },
+                "volumeName": {
+                    "type": "string"
+                },
+                "volumeSize": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.StorageVolumes": {
+            "type": "object",
+            "properties": {
+                "volumes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.StorageVolume"
                     }
                 }
             }

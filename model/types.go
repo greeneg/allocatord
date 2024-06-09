@@ -123,6 +123,7 @@ type RolesList struct {
 
 type StorageVolume struct {
 	Id           int    `json:"Id"`
+	VolumeName   string `json:"volumeName"`
 	StorageType  string `json:"storageType"`
 	DeviceModel  string `json:"deviceModel"`
 	DeviceId     string `json:"deviceId"`

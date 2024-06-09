@@ -156,6 +156,40 @@ definitions:
           $ref: '#/definitions/model.Role'
         type: array
     type: object
+  model.StorageVolume:
+    properties:
+      Id:
+        type: integer
+      creationDate:
+        type: string
+      creatorId:
+        type: integer
+      deviceId:
+        type: string
+      deviceModel:
+        type: string
+      mountPoint:
+        type: string
+      storageType:
+        type: string
+      systemId:
+        type: integer
+      volumeFormat:
+        type: string
+      volumeLabel:
+        type: string
+      volumeName:
+        type: string
+      volumeSize:
+        type: integer
+    type: object
+  model.StorageVolumes:
+    properties:
+      volumes:
+        items:
+          $ref: '#/definitions/model.StorageVolume'
+        type: array
+    type: object
   model.SuccessMsg:
     properties:
       message:
@@ -965,6 +999,160 @@ paths:
       summary: Retrieve list of all roles
       tags:
       - role
+  /storageVolume:
+    post:
+      consumes:
+      - application/json
+      description: Add a new storage volume
+      parameters:
+      - description: Storage Volume data
+        in: body
+        name: storageVolume
+        required: true
+        schema:
+          $ref: '#/definitions/model.Role'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Register storage volume
+      tags:
+      - storage-volumes
+  /storageVolume/{storageVolumeId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a storage volume
+      parameters:
+      - description: Storage Volume Id
+        in: path
+        name: storageVolumeId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Delete storage volume
+      tags:
+      - storage-volumes
+  /storageVolume/{systemId}/byLabel/{storageVolumeLabel}:
+    get:
+      description: Retrieve a storage volume by its volume label
+      parameters:
+      - description: System ID
+        in: path
+        name: systemId
+        required: true
+        type: string
+      - description: Storage Volume Label
+        in: path
+        name: storageVolumeLabel
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StorageVolume'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve a storage volume by its volume label
+      tags:
+      - storage-volumes
+  /storageVolume/byId/{storageVolumeId}:
+    get:
+      description: Retrieve a storage volume by its Id
+      parameters:
+      - description: Storage Volume ID
+        in: path
+        name: storageVolumeId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StorageVolume'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve a storage volume by its Id
+      tags:
+      - storage-volumes
+  /storageVolumes:
+    get:
+      description: Retrieve list of all storage volumes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StorageVolumes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve list of all storage volumes
+      tags:
+      - storage-volumes
+  /storageVolumes/{systemId}:
+    get:
+      description: Retrieve storage volumes by system Id
+      parameters:
+      - description: System ID
+        in: path
+        name: systemId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StorageVolume'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve storage volumes by system Id
+      tags:
+      - storage-volumes
   /user:
     post:
       consumes:

@@ -235,7 +235,7 @@ func (a *Allocator) GetNetworkInterfacesBySystemId(c *gin.Context) {
 			return
 		}
 
-		if networkInterfaces.DeviceModel == "" {
+		if networkInterfaces == nil {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "no records found with system id " + strconv.Itoa(id)})
 		} else {
 			c.IndentedJSON(http.StatusOK, gin.H{"interfaces": networkInterfaces})
