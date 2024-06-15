@@ -157,10 +157,10 @@ func GetMachineRoleByName(machineRoleName string) (MachineRole, error) {
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			log.Println("ERROR: No such user found in DB: " + string(err.Error()))
+			log.Println("ERROR: No such machine role found in DB: " + string(err.Error()))
 			return MachineRole{}, nil
 		}
-		log.Println("ERROR: Cannot retrieve user from DB: " + string(err.Error()))
+		log.Println("ERROR: Cannot retrieve machine role from DB: " + string(err.Error()))
 		return MachineRole{}, err
 	}
 

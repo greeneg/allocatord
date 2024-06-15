@@ -106,16 +106,16 @@ func (a *Allocator) DeleteMachineRole(c *gin.Context) {
 func (a *Allocator) GetMachineRoles(c *gin.Context) {
 	_, authed := a.GetUserId(c)
 	if authed {
-		vendorList, err := model.GetMachineRoles()
+		machineRoleList, err := model.GetMachineRoles()
 		if err != nil {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
 			return
 		}
 
-		if vendorList == nil {
+		if machineRoleList == nil {
 			c.IndentedJSON(http.StatusNotFound, gin.H{"error": "No records found!"})
 		} else {
-			c.IndentedJSON(http.StatusOK, gin.H{"data": vendorList})
+			c.IndentedJSON(http.StatusOK, gin.H{"data": machineRoleList})
 		}
 	} else {
 		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
@@ -132,7 +132,7 @@ func (a *Allocator) GetMachineRoles(c *gin.Context) {
 //	@Security		BasicAuth
 //	@Success		200	{object}	model.MachineRole
 //	@Failure		400	{object}	model.FailureMsg
-//	@Router			/machineRole/byId/{ouId} [get]
+//	@Router			/machineRole/byId/{machineRoleId} [get]
 func (a *Allocator) GetMachineRoleById(c *gin.Context) {
 	_, authed := a.GetUserId(c)
 	if authed {
