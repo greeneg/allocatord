@@ -73,7 +73,7 @@ func DeleteStorageVolume(storageVolumeId int) (bool, error) {
 
 	t.Commit()
 
-	log.Println("INFO: Role with Id '" + strconv.Itoa(storageVolumeId) + "' has been deleted")
+	log.Println("INFO: Storage Volume with Id '" + strconv.Itoa(storageVolumeId) + "' has been deleted")
 	return true, nil
 }
 

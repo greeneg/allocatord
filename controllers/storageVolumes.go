@@ -34,7 +34,7 @@ import (
 //	@Tags			storage-volumes
 //	@Accept			json
 //	@Produce		json
-//	@Param			storageVolume	body	model.Role	true	"Storage Volume data"
+//	@Param			storageVolume	body	model.StorageVolume	true	"Storage Volume data"
 //	@Security		BasicAuth
 //	@Success		200	{object}	model.SuccessMsg
 //	@Failure		400	{object}	model.FailureMsg
@@ -121,7 +121,7 @@ func (a *Allocator) GetStorageVolumes(c *gin.Context) {
 	}
 }
 
-// GetStorageVolumesById Retrieve a storage volume by its Id
+// GetStorageVolumeById Retrieve a storage volume by its Id
 //
 //	@Summary		Retrieve a storage volume by its Id
 //	@Description	Retrieve a storage volume by its Id
@@ -152,13 +152,13 @@ func (a *Allocator) GetStorageVolumeById(c *gin.Context) {
 	}
 }
 
-// GetStorageVolumesByLabel Retrieve a storage volume by its volume label
+// GetStorageVolumeByLabel Retrieve a storage volume by its volume label and system Id
 //
-//	@Summary		Retrieve a storage volume by its volume label
-//	@Description	Retrieve a storage volume by its volume label
+//	@Summary		Retrieve a storage volume by its volume label and system Id
+//	@Description	Retrieve a storage volume by its volume label and system Id
 //	@Tags			storage-volumes
 //	@Produce		json
-//	@Param			systemId	path	string	true	"System ID"
+//	@Param			systemId	path	int	true	"System ID"
 //	@Param			storageVolumeLabel	path	string	true	"Storage Volume Label"
 //	@Security		BasicAuth
 //	@Success		200	{object}	model.StorageVolume

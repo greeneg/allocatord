@@ -114,6 +114,24 @@ definitions:
           $ref: '#/definitions/model.NetworkInterface'
         type: array
     type: object
+  model.OperatingSystemFamily:
+    properties:
+      Id:
+        type: integer
+      creationDate:
+        type: string
+      creatorId:
+        type: integer
+      osFamilyName:
+        type: string
+    type: object
+  model.OperatingSystemFamilyList:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.OperatingSystemFamily'
+        type: array
+    type: object
   model.OrgUnit:
     properties:
       Id:
@@ -1019,6 +1037,130 @@ paths:
       summary: Retrieve list of all organizational units
       tags:
       - orgs
+  /osFamilies:
+    get:
+      description: Retrieve list of all storage volumes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.OperatingSystemFamilyList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve list of all storage volumes
+      tags:
+      - operating-system-families
+  /osFamily:
+    post:
+      consumes:
+      - application/json
+      description: Add a new operating system family
+      parameters:
+      - description: Operating System Family data
+        in: body
+        name: osFamily
+        required: true
+        schema:
+          $ref: '#/definitions/model.OperatingSystemFamily'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Register operating system family
+      tags:
+      - operating-system-families
+  /osFamily/{storageVolumeId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an operating system family
+      parameters:
+      - description: Operating System Family Id
+        in: path
+        name: osFamilyId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Delete operating system family
+      tags:
+      - operating-system-families
+  /osFamily/byId/{osFamilyId}:
+    get:
+      description: Retrieve an operating system family by its Id
+      parameters:
+      - description: Operating System Family ID
+        in: path
+        name: osFamilyId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.OperatingSystemFamily'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve an operating system family by its Id
+      tags:
+      - operating-system-families
+  /osFamily/byName/{osFamilyName}:
+    get:
+      description: Retrieve an operating system family by its name
+      parameters:
+      - description: Operating System Family Name
+        in: path
+        name: osFamilyName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.OperatingSystemFamily'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve an operating system family by its name
+      tags:
+      - operating-system-families
   /role:
     post:
       consumes:
@@ -1154,7 +1296,7 @@ paths:
         name: storageVolume
         required: true
         schema:
-          $ref: '#/definitions/model.Role'
+          $ref: '#/definitions/model.StorageVolume'
       produces:
       - application/json
       responses:
@@ -1230,13 +1372,13 @@ paths:
       - storage-volumes
   /storageVolume/{systemId}/byLabel/{storageVolumeLabel}:
     get:
-      description: Retrieve a storage volume by its volume label
+      description: Retrieve a storage volume by its volume label and system Id
       parameters:
       - description: System ID
         in: path
         name: systemId
         required: true
-        type: string
+        type: integer
       - description: Storage Volume Label
         in: path
         name: storageVolumeLabel
@@ -1255,7 +1397,7 @@ paths:
             $ref: '#/definitions/model.FailureMsg'
       security:
       - BasicAuth: []
-      summary: Retrieve a storage volume by its volume label
+      summary: Retrieve a storage volume by its volume label and system Id
       tags:
       - storage-volumes
   /storageVolume/byId/{storageVolumeId}:

@@ -1158,6 +1158,205 @@ const docTemplate = `{
                 }
             }
         },
+        "/osFamilies": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve list of all storage volumes",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operating-system-families"
+                ],
+                "summary": "Retrieve list of all storage volumes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.OperatingSystemFamilyList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/osFamily": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Add a new operating system family",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operating-system-families"
+                ],
+                "summary": "Register operating system family",
+                "parameters": [
+                    {
+                        "description": "Operating System Family data",
+                        "name": "osFamily",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.OperatingSystemFamily"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/osFamily/byId/{osFamilyId}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve an operating system family by its Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operating-system-families"
+                ],
+                "summary": "Retrieve an operating system family by its Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Operating System Family ID",
+                        "name": "osFamilyId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.OperatingSystemFamily"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/osFamily/byName/{osFamilyName}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve an operating system family by its name",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operating-system-families"
+                ],
+                "summary": "Retrieve an operating system family by its name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Operating System Family Name",
+                        "name": "osFamilyName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.OperatingSystemFamily"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/osFamily/{storageVolumeId}": {
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Delete an operating system family",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operating-system-families"
+                ],
+                "summary": "Delete operating system family",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Operating System Family Id",
+                        "name": "osFamilyId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
         "/role": {
             "post": {
                 "security": [
@@ -1382,7 +1581,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Role"
+                            "$ref": "#/definitions/model.StorageVolume"
                         }
                     }
                 ],
@@ -1539,17 +1738,17 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Retrieve a storage volume by its volume label",
+                "description": "Retrieve a storage volume by its volume label and system Id",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "storage-volumes"
                 ],
-                "summary": "Retrieve a storage volume by its volume label",
+                "summary": "Retrieve a storage volume by its volume label and system Id",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "System ID",
                         "name": "systemId",
                         "in": "path",
@@ -2494,6 +2693,34 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.NetworkInterface"
+                    }
+                }
+            }
+        },
+        "model.OperatingSystemFamily": {
+            "type": "object",
+            "properties": {
+                "Id": {
+                    "type": "integer"
+                },
+                "creationDate": {
+                    "type": "string"
+                },
+                "creatorId": {
+                    "type": "integer"
+                },
+                "osFamilyName": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.OperatingSystemFamilyList": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.OperatingSystemFamily"
                     }
                 }
             }
