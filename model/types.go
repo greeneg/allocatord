@@ -90,6 +90,7 @@ type OperatingSystem struct {
 	Id               int    `json:"Id"`
 	OSName           string `json:"osName"`
 	OSFamilyId       int    `json:"osFamilyId"`
+	VendorId         int    `json:"vendorId"`
 	OSImageUrl       string `json:"osImageUrl"`
 	ImageUriProtocol string `json:"imageUriProtocol"`
 	CreatorId        int    `json:"creatorId"`

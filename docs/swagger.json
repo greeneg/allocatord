@@ -2960,6 +2960,9 @@
                 },
                 "osName": {
                     "type": "string"
+                },
+                "vendorId": {
+                    "type": "integer"
                 }
             }
         },

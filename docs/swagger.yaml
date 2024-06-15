@@ -130,6 +130,8 @@ definitions:
         type: string
       osName:
         type: string
+      vendorId:
+        type: integer
     type: object
   model.OperatingSystemFamily:
     properties:

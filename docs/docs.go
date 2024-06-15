@@ -2966,6 +2966,9 @@ const docTemplate = `{
                 },
                 "osName": {
                     "type": "string"
+                },
+                "vendorId": {
+                    "type": "integer"
                 }
             }
         },
