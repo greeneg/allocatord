@@ -158,6 +158,26 @@ definitions:
           $ref: '#/definitions/model.OperatingSystem'
         type: array
     type: object
+  model.OperatingSystemVersion:
+    properties:
+      Id:
+        type: integer
+      creationDate:
+        type: string
+      creatorId:
+        type: integer
+      osId:
+        type: integer
+      versionNumber:
+        type: string
+    type: object
+  model.OperatingSystemVersionList:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.OperatingSystemVersion'
+        type: array
+    type: object
   model.OrgUnit:
     properties:
       Id:
@@ -1049,31 +1069,6 @@ paths:
       summary: Update an operating system by its Id
       tags:
       - operating-systems
-  /operatingSystem/byFamilyId/{osFamilyId}:
-    get:
-      description: Retrieve an operating system by its family Id
-      parameters:
-      - description: Operating System Family ID
-        in: path
-        name: osFamilyId
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.OperatingSystem'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/model.FailureMsg'
-      security:
-      - BasicAuth: []
-      summary: Retrieve an operating system by its family Id
-      tags:
-      - operating-systems
   /operatingSystem/byId/{osId}:
     get:
       description: Retrieve an operating system by its Id
@@ -1116,6 +1111,56 @@ paths:
       security:
       - BasicAuth: []
       summary: Retrieve list of all operating systems
+      tags:
+      - operating-systems
+  /operatingSystems/byFamilyId/{osFamilyId}:
+    get:
+      description: Retrieve operating systems by family Id
+      parameters:
+      - description: Operating System Family ID
+        in: path
+        name: osFamilyId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.OperatingSystemList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve operating systems by family Id
+      tags:
+      - operating-systems
+  /operatingSystems/byVendorId/{osVendorId}:
+    get:
+      description: Retrieve an operating system by its vendor Id
+      parameters:
+      - description: Operating System Vendor ID
+        in: path
+        name: osVendorId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.OperatingSystemList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve an operating system by its vendor Id
       tags:
       - operating-systems
   /organizationalUnit:
@@ -1341,6 +1386,130 @@ paths:
       summary: Retrieve an operating system family by its name
       tags:
       - operating-system-families
+  /osVersion:
+    post:
+      consumes:
+      - application/json
+      description: Add a new operating system version
+      parameters:
+      - description: Operating System Version data
+        in: body
+        name: osVersion
+        required: true
+        schema:
+          $ref: '#/definitions/model.OperatingSystemVersion'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Register operating system version
+      tags:
+      - operating-system-versions
+  /osVersion/{osVersionId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an operating system version by Id
+      parameters:
+      - description: Operating System Version Id
+        in: path
+        name: osVersionId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Delete operating system version
+      tags:
+      - operating-system-versions
+  /osVersion/byId/{osVersionId}:
+    get:
+      description: Retrieve an operating system version by its Id
+      parameters:
+      - description: Operating System Version ID
+        in: path
+        name: osVersionId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.OperatingSystemVersion'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve an operating system version by its Id
+      tags:
+      - operating-system-versions
+  /osVersions:
+    get:
+      description: Retrieve list of all operating systems versions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.OperatingSystemVersionList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve list of all operating systems versions
+      tags:
+      - operating-system-versions
+  /osVersions/byOSId/{osId}:
+    get:
+      description: Retrieve operating system versions by operating system Id
+      parameters:
+      - description: Operating System ID
+        in: path
+        name: osId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.OperatingSystem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve operating system versions by operating system Id
+      tags:
+      - operating-system-versions
   /role:
     post:
       consumes:

@@ -147,7 +147,7 @@ func GetOperatingSystemById(id int) (OperatingSystem, error) {
 
 func GetOperatingSystemsByFamilyId(osFamilyId int) ([]OperatingSystem, error) {
 	log.Println("INFO: Operating Systems by Name requested: " + strconv.Itoa(osFamilyId))
-	rec, err := DB.Prepare("SELECT * FROM MachineRoles WHERE MachineRoleName = ?")
+	rec, err := DB.Prepare("SELECT * FROM OperatingSystems WHERE OSFamilyId = ?")
 	if err != nil {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return nil, err
@@ -178,6 +178,50 @@ func GetOperatingSystemsByFamilyId(osFamilyId int) ([]OperatingSystem, error) {
 				return nil, err
 			}
 			log.Println("ERROR: Cannot retrieve Operating System with family Id '" + strconv.Itoa(osFamilyId) + "' from DB: " + string(err.Error()))
+			return nil, err
+		}
+
+		os.CreationDate = ConvertSqliteTimestamp(os.CreationDate)
+
+		operatingSystems = append(operatingSystems, os)
+	}
+
+	return operatingSystems, nil
+}
+
+func GetOperatingSystemsByVendorId(osVendorId int) ([]OperatingSystem, error) {
+	log.Println("INFO: Operating Systems by Vendor Id requested: " + strconv.Itoa(osVendorId))
+	rec, err := DB.Prepare("SELECT * FROM OperatingSystems WHERE VendorId = ?")
+	if err != nil {
+		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
+		return nil, err
+	}
+
+	rows, err := rec.Query(osVendorId)
+	if err != nil {
+		log.Println("ERROR: Could not query DB: " + string(err.Error()))
+		return nil, err
+	}
+
+	operatingSystems := make([]OperatingSystem, 0)
+	for rows.Next() {
+		os := OperatingSystem{}
+		err = rec.QueryRow(osVendorId).Scan(
+			&os.Id,
+			&os.OSName,
+			&os.OSFamilyId,
+			&os.VendorId,
+			&os.OSImageUrl,
+			&os.ImageUriProtocol,
+			&os.CreatorId,
+			&os.CreationDate,
+		)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				log.Println("ERROR: No such Operating System with family Id '" + strconv.Itoa(osVendorId) + "' found in DB: " + string(err.Error()))
+				return nil, err
+			}
+			log.Println("ERROR: Cannot retrieve Operating System with family Id '" + strconv.Itoa(osVendorId) + "' from DB: " + string(err.Error()))
 			return nil, err
 		}
 

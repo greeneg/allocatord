@@ -86,6 +86,18 @@ type OperatingSystemFamilyList struct {
 	Data []OperatingSystemFamily `json:"data"`
 }
 
+type OperatingSystemVersion struct {
+	Id                int    `json:"Id"`
+	OperatingSystemId int    `json:"osId"`
+	VersionNumber     string `json:"versionNumber"`
+	CreatorId         int    `json:"creatorId"`
+	CreationDate      string `json:"creationDate"`
+}
+
+type OperatingSystemVersionList struct {
+	Data []OperatingSystemVersion `json:"data"`
+}
+
 type OperatingSystem struct {
 	Id               int    `json:"Id"`
 	OSName           string `json:"osName"`

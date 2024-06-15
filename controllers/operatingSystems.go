@@ -152,17 +152,17 @@ func (a *Allocator) GetOperatingSystemById(c *gin.Context) {
 	}
 }
 
-// GetOperatingSystemByFamilyId Retrieve an operating system by its family Id
+// GetOperatingSystemByFamilyId Retrieve operating systems by family Id
 //
-//	@Summary		Retrieve an operating system by its family Id
-//	@Description	Retrieve an operating system by its family Id
+//	@Summary		Retrieve operating systems by family Id
+//	@Description	Retrieve operating systems by family Id
 //	@Tags			operating-systems
 //	@Produce		json
 //	@Param			osFamilyId	path int true "Operating System Family ID"
 //	@Security		BasicAuth
-//	@Success		200	{object}	model.OperatingSystem
+//	@Success		200	{object}	model.OperatingSystemList
 //	@Failure		400	{object}	model.FailureMsg
-//	@Router			/operatingSystem/byFamilyId/{osFamilyId} [get]
+//	@Router			/operatingSystems/byFamilyId/{osFamilyId} [get]
 func (a *Allocator) GetOperatingSystemsByFamilyId(c *gin.Context) {
 	_, authed := a.GetUserId(c)
 	if authed {
@@ -175,6 +175,37 @@ func (a *Allocator) GetOperatingSystemsByFamilyId(c *gin.Context) {
 
 		if operatingSystem == nil {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found with Operating System name " + strconv.Itoa(id)})
+		} else {
+			c.IndentedJSON(http.StatusOK, gin.H{"data": operatingSystem})
+		}
+	} else {
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
+	}
+}
+
+// GetOperatingSystemsByVendorId Retrieve operating systems by vendor Id
+//
+//	@Summary		Retrieve an operating system by its vendor Id
+//	@Description	Retrieve an operating system by its vendor Id
+//	@Tags			operating-systems
+//	@Produce		json
+//	@Param			osVendorId	path int true "Operating System Vendor ID"
+//	@Security		BasicAuth
+//	@Success		200	{object}	model.OperatingSystemList
+//	@Failure		400	{object}	model.FailureMsg
+//	@Router			/operatingSystems/byVendorId/{osVendorId} [get]
+func (a *Allocator) GetOperatingSystemsByVendorId(c *gin.Context) {
+	_, authed := a.GetUserId(c)
+	if authed {
+		id, _ := strconv.Atoi(c.Param("osVendorId"))
+		operatingSystem, err := model.GetOperatingSystemsByVendorId(id)
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": string(err.Error())})
+			return
+		}
+
+		if operatingSystem == nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found with Operating System vendor Id " + strconv.Itoa(id)})
 		} else {
 			c.IndentedJSON(http.StatusOK, gin.H{"data": operatingSystem})
 		}

@@ -62,16 +62,17 @@ func PrivateRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 	// Operating Systems
 	g.GET("/operatingSystems", a.GetOperatingSystems)                                  // get all operating systems
 	g.GET("/operatingSystems/byFamilyId/:osFamilyId", a.GetOperatingSystemsByFamilyId) // get operating sytems by OS Family Id
+	g.GET("/operatingSystems/byVendorId/:vendorId", a.GetOperatingSystemsByVendorId)   // get operating system by its vendor Id
 	g.GET("/operatingSystem/byId/:osId", a.GetOperatingSystemById)                     // get operating systems by Id
 	g.POST("/operatingSystem", a.CreateOperatingSystem)                                // create operating system
 	g.PATCH("/operatingSystem/:osId", a.UpdateOperatingSystemById)                     // update an operating system by Id
 	g.DELETE("/operatingSystem/:osId", a.DeleteOperatingSystem)                        // delete an operating system
 	// Operating System Versions
-	g.GET("/osVersions")
-	g.GET("/osVersion/byId/:osVersionId")
-	g.GET("/osVersion/byOSId/:osId")
-	g.POST("/osVersion")
-	g.DELETE("/osVersion/:osVersionId")
+	g.GET("/osVersions", a.GetOSVersions)                     // get operating system versions
+	g.GET("/osVersion/byId/:osVersionId", a.GetOSVersionById) // get operating system version by Id
+	g.GET("/osVersion/byOSId/:osId", a.GetOSVersionsByOSId)   // get operating system version by Operating System Id
+	g.POST("/osVersion", a.CreateOSVersion)                   // create operating system versions
+	g.DELETE("/osVersion/:osVersionId", a.DeleteOSVersion)    // delete operating system versions
 	// Organizational Units
 	g.GET("/organizationalUnits", a.GetOUs)              // get all organizational units
 	g.GET("/organizationalUnit/byId/:ouId", a.GetOUById) // get organizational unit by Id

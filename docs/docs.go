@@ -1044,46 +1044,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/operatingSystem/byFamilyId/{osFamilyId}": {
-            "get": {
-                "security": [
-                    {
-                        "BasicAuth": []
-                    }
-                ],
-                "description": "Retrieve an operating system by its family Id",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "operating-systems"
-                ],
-                "summary": "Retrieve an operating system by its family Id",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Operating System Family ID",
-                        "name": "osFamilyId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.OperatingSystem"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/model.FailureMsg"
-                        }
-                    }
-                }
-            }
-        },
         "/operatingSystem/byId/{osId}": {
             "get": {
                 "security": [
@@ -1229,6 +1189,86 @@ const docTemplate = `{
                     "operating-systems"
                 ],
                 "summary": "Retrieve list of all operating systems",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.OperatingSystemList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/operatingSystems/byFamilyId/{osFamilyId}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve operating systems by family Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operating-systems"
+                ],
+                "summary": "Retrieve operating systems by family Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Operating System Family ID",
+                        "name": "osFamilyId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.OperatingSystemList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/operatingSystems/byVendorId/{osVendorId}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve an operating system by its vendor Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operating-systems"
+                ],
+                "summary": "Retrieve an operating system by its vendor Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Operating System Vendor ID",
+                        "name": "osVendorId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1592,6 +1632,205 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/osVersion": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Add a new operating system version",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operating-system-versions"
+                ],
+                "summary": "Register operating system version",
+                "parameters": [
+                    {
+                        "description": "Operating System Version data",
+                        "name": "osVersion",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.OperatingSystemVersion"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/osVersion/byId/{osVersionId}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve an operating system version by its Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operating-system-versions"
+                ],
+                "summary": "Retrieve an operating system version by its Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Operating System Version ID",
+                        "name": "osVersionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.OperatingSystemVersion"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/osVersion/{osVersionId}": {
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Delete an operating system version by Id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operating-system-versions"
+                ],
+                "summary": "Delete operating system version",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Operating System Version Id",
+                        "name": "osVersionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/osVersions": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve list of all operating systems versions",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operating-system-versions"
+                ],
+                "summary": "Retrieve list of all operating systems versions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.OperatingSystemVersionList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/osVersions/byOSId/{osId}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve operating system versions by operating system Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operating-system-versions"
+                ],
+                "summary": "Retrieve operating system versions by operating system Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Operating System ID",
+                        "name": "osId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.OperatingSystem"
                         }
                     },
                     "400": {
@@ -3007,6 +3246,37 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.OperatingSystem"
+                    }
+                }
+            }
+        },
+        "model.OperatingSystemVersion": {
+            "type": "object",
+            "properties": {
+                "Id": {
+                    "type": "integer"
+                },
+                "creationDate": {
+                    "type": "string"
+                },
+                "creatorId": {
+                    "type": "integer"
+                },
+                "osId": {
+                    "type": "integer"
+                },
+                "versionNumber": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.OperatingSystemVersionList": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.OperatingSystemVersion"
                     }
                 }
             }
