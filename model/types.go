@@ -22,6 +22,7 @@ package model
 type Architecture struct {
 	Id           int    `json:"Id"`
 	ISEName      string `json:"iseName"`
+	RegisterSize int    `json:"registerSize"`
 	CreatorId    int    `json:"creatorId"`
 	CreationDate string `json:"creationDate"`
 }

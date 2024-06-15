@@ -15,6 +15,26 @@ definitions:
       userName:
         type: string
     type: object
+  model.Architecture:
+    properties:
+      Id:
+        type: integer
+      creationDate:
+        type: string
+      creatorId:
+        type: integer
+      iseName:
+        type: string
+      registerSize:
+        type: integer
+    type: object
+  model.ArchitectureList:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.Architecture'
+        type: array
+    type: object
   model.Building:
     properties:
       Id:
@@ -289,6 +309,130 @@ info:
   title: Allocator Daemon
   version: 0.1.5
 paths:
+  /architecture:
+    post:
+      consumes:
+      - application/json
+      description: Add a new architecture
+      parameters:
+      - description: Architecture data
+        in: body
+        name: architecture
+        required: true
+        schema:
+          $ref: '#/definitions/model.Architecture'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Register architecture
+      tags:
+      - architectures
+  /architecture/{architectureId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an architecture by Id
+      parameters:
+      - description: Architecture Id
+        in: path
+        name: architectureId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Delete architecture
+      tags:
+      - architectures
+  /architecture/byId/{architectureId}:
+    get:
+      description: Retrieve an architecture by its Id
+      parameters:
+      - description: Architecture ID
+        in: path
+        name: architectureId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Architecture'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve an architecture by its Id
+      tags:
+      - architectures
+  /architecture/byName/{architectureName}:
+    get:
+      description: Retrieve an architecture by its name
+      parameters:
+      - description: Architecture Name
+        in: path
+        name: architectureName
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Architecture'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve an architecture by its name
+      tags:
+      - architectures
+  /architectures:
+    get:
+      description: Retrieve list of all architectures
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ArchitectureList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve list of all architectures
+      tags:
+      - architectures
   /building:
     post:
       consumes:
@@ -528,7 +672,7 @@ paths:
       summary: Update a machine role by its Id
       tags:
       - machine-roles
-  /machineRole/byId/{ouId}:
+  /machineRole/byId/{machineRoleId}:
     get:
       description: Retrieve a machine role by its Id
       parameters:

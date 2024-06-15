@@ -26,8 +26,11 @@ import (
 
 func PrivateRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 	// Architectures
-	g.GET("/architectures")    // get all architectures
-	g.GET("/architecture/:id") // get architecture by Id
+	g.GET("/architectures", a.GetArchitectures)                              // get all architectures
+	g.GET("/architecture/byId/:architectureId", a.GetArchitectureById)       // get architecture by Id
+	g.GET("/architecture/byName/:architectureName", a.GetArchitectureByName) // get architectures by name
+	g.POST("/architecture", a.CreateArchitecture)                            // create a new architecture record
+	g.DELETE("/architecture/:architectureId", a.DeleteArchitecture)          // delete an architecture by Id
 	// Buildings
 	g.GET("/buildings", a.GetBuildings)                              // get all buildings
 	g.GET("/building/byId/:id", a.GetBuildingById)                   // get building by Id
@@ -50,6 +53,9 @@ func PrivateRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 	g.POST("/networkInterface", a.CreateNetworkInterface)                                  // create a new network interface
 	g.PATCH("/networkInterface/:networkInterfaceId", a.UpdateNetworkInterface)             // update a network interface
 	g.DELETE("/networkInterface/:networkInterfaceId", a.DeleteNetworkInterface)            // delete a network interface
+	// Operating System Families
+	// Operating Systems
+	// Operating System Versions
 	// Organizational Units
 	g.GET("/organizationalUnits", a.GetOUs)              // get all organizational units
 	g.GET("/organizationalUnit/byId/:ouId", a.GetOUById) // get organizational unit by Id

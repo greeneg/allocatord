@@ -22,6 +22,205 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/architecture": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Add a new architecture",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "architectures"
+                ],
+                "summary": "Register architecture",
+                "parameters": [
+                    {
+                        "description": "Architecture data",
+                        "name": "architecture",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Architecture"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/architecture/byId/{architectureId}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve an architecture by its Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "architectures"
+                ],
+                "summary": "Retrieve an architecture by its Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Architecture ID",
+                        "name": "architectureId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Architecture"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/architecture/byName/{architectureName}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve an architecture by its name",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "architectures"
+                ],
+                "summary": "Retrieve an architecture by its name",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Architecture Name",
+                        "name": "architectureName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Architecture"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/architecture/{architectureId}": {
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Delete an architecture by Id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "architectures"
+                ],
+                "summary": "Delete architecture",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Architecture Id",
+                        "name": "architectureId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/architectures": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve list of all architectures",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "architectures"
+                ],
+                "summary": "Retrieve list of all architectures",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ArchitectureList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
         "/building": {
             "post": {
                 "security": [
@@ -313,7 +512,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/machineRole/byId/{ouId}": {
+        "/machineRole/byId/{machineRoleId}": {
             "get": {
                 "security": [
                     {
@@ -2096,6 +2295,37 @@ const docTemplate = `{
                 },
                 "userName": {
                     "type": "string"
+                }
+            }
+        },
+        "model.Architecture": {
+            "type": "object",
+            "properties": {
+                "Id": {
+                    "type": "integer"
+                },
+                "creationDate": {
+                    "type": "string"
+                },
+                "creatorId": {
+                    "type": "integer"
+                },
+                "iseName": {
+                    "type": "string"
+                },
+                "registerSize": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.ArchitectureList": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Architecture"
+                    }
                 }
             }
         },
