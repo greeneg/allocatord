@@ -1198,6 +1198,36 @@ paths:
       summary: Delete storage volume
       tags:
       - storage-volumes
+    patch:
+      description: Update a storage volume by its Id
+      parameters:
+      - description: Storage Volume ID
+        in: path
+        name: storageVolumeId
+        required: true
+        type: integer
+      - description: Storage Volume data
+        in: body
+        name: storageVolumeData
+        required: true
+        schema:
+          $ref: '#/definitions/model.StorageVolume'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Update a storage volume by its Id
+      tags:
+      - storage-volumes
   /storageVolume/{systemId}/byLabel/{storageVolumeLabel}:
     get:
       description: Retrieve a storage volume by its volume label

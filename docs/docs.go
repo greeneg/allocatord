@@ -1483,6 +1483,53 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Update a storage volume by its Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "storage-volumes"
+                ],
+                "summary": "Update a storage volume by its Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Storage Volume ID",
+                        "name": "storageVolumeId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Storage Volume data",
+                        "name": "storageVolumeData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.StorageVolume"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
             }
         },
         "/storageVolume/{systemId}/byLabel/{storageVolumeLabel}": {

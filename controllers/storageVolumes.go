@@ -215,3 +215,43 @@ func (a *Allocator) GetStorageVolumesBySystemId(c *gin.Context) {
 		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
 	}
 }
+
+// UpdateStorageVolume Update a storage volume by its Id
+//
+//	@Summary		Update a storage volume by its Id
+//	@Description	Update a storage volume by its Id
+//	@Tags			storage-volumes
+//	@Produce		json
+//	@Param			storageVolumeId	path int true "Storage Volume ID"
+//	@Param			storageVolumeData	body model.StorageVolume	true	"Storage Volume data"
+//	@Security		BasicAuth
+//	@Success		200	{object}	model.SuccessMsg
+//	@Failure		400	{object}	model.FailureMsg
+//	@Router			/storageVolume/{storageVolumeId} [patch]
+func (a *Allocator) UpdateStorageVolume(c *gin.Context) {
+	_, authed := a.GetUserId(c)
+	if authed {
+		storageVolumeId := c.Param("storageVolumeId")
+		id, _ := strconv.Atoi(storageVolumeId)
+		var json model.StorageVolume
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		status, err := model.UpdateStorageVolume(id, json)
+		if err != nil {
+			log.Println("ERROR: Cannot update storage volume with Id '" + storageVolumeId + "': " + string(err.Error()))
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update storage volume: " + string(err.Error())})
+			return
+		}
+
+		if status {
+			c.IndentedJSON(http.StatusOK, gin.H{"message": "Machine role with Id '" + strconv.Itoa(id) + "' has been updated"})
+		} else {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to update machine role with Id '" + strconv.Itoa(id) + "'"})
+		}
+	} else {
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
+	}
+}

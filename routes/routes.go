@@ -54,8 +54,18 @@ func PrivateRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 	g.PATCH("/networkInterface/:networkInterfaceId", a.UpdateNetworkInterface)             // update a network interface
 	g.DELETE("/networkInterface/:networkInterfaceId", a.DeleteNetworkInterface)            // delete a network interface
 	// Operating System Families
+	g.GET("/osFamilies")
+	g.GET("/osFamily/byId/:osFamilyId")
+	g.GET("/osFamily/byName/:osFamilyName")
+	g.POST("/osFamily")
+	g.DELETE("/osFamily/:osFamilyId")
 	// Operating Systems
 	// Operating System Versions
+	g.GET("/osVersions")
+	g.GET("/osVersion/byId/:osVersionId")
+	g.GET("/osVersion/byOSId/:osId")
+	g.POST("/osVersion")
+	g.DELETE("/osVersion/:osVersionId")
 	// Organizational Units
 	g.GET("/organizationalUnits", a.GetOUs)              // get all organizational units
 	g.GET("/organizationalUnit/byId/:ouId", a.GetOUById) // get organizational unit by Id
@@ -73,7 +83,7 @@ func PrivateRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 	g.GET("/storageVolume/byId/:storageVolumeId", a.GetStorageVolumeById)                    // get a storage volume by Id
 	g.GET("/storageVolume/:systemId/byLabel/:storageVolumeLabel", a.GetStorageVolumeByLabel) // get a storage volume by label
 	g.POST("/storageVolume", a.CreateStorageVolume)                                          // create a new storage volume
-	g.PATCH("/storageVolume/:storageVolumeId")                                               // update a storage volume
+	g.PATCH("/storageVolume/:storageVolumeId", a.UpdateStorageVolume)                        // update a storage volume
 	g.DELETE("/storageVolume/:storageVolumeId", a.DeleteStorageVolume)                       // delete a storage volume
 	// user related routes
 	g.GET("/users", a.GetUsers)                          // get all users

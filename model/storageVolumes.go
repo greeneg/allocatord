@@ -20,6 +20,7 @@ package model
 
 import (
 	"database/sql"
+	"encoding/json"
 	"log"
 	"strconv"
 )
@@ -234,4 +235,30 @@ func GetStorageVolumesBySystemId(systemId int) ([]StorageVolume, error) {
 	}
 
 	return storageVolumes, nil
+}
+
+func UpdateStorageVolume(id int, s StorageVolume) (bool, error) {
+	log.Println("INFO: Update storage volume by Id requested: " + strconv.Itoa(id))
+	t, err := DB.Begin()
+	if err != nil {
+		return false, err
+	}
+
+	q, err := t.Prepare("UPDATE StorageVolumes SET VolumeName = ?, StorageType = ?, DeviceModel = ?, DeviceId = ?, MountPoint = ?, VolumeSize = ?, VolumeFormat = ?, VolumeLabel = ?, SystemId = ? WHERE Id = ?")
+	if err != nil {
+		return false, err
+	}
+
+	storageVolume, err := json.Marshal(s)
+	if err != nil {
+		return false, err
+	}
+	_, err = q.Exec(storageVolume, id)
+	if err != nil {
+		return false, err
+	}
+
+	t.Commit()
+
+	return true, nil
 }
