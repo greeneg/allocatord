@@ -34,7 +34,7 @@ import (
 //	@Tags			machine-roles
 //	@Accept			json
 //	@Produce		json
-//	@Param			machineRole	body	model.Vendor	true	"Machine Role data"
+//	@Param			machineRole	body	model.MachineRole	true	"Machine Role data"
 //	@Security		BasicAuth
 //	@Success		200	{object}	model.SuccessMsg
 //	@Failure		400	{object}	model.FailureMsg
@@ -122,7 +122,7 @@ func (a *Allocator) GetMachineRoles(c *gin.Context) {
 	}
 }
 
-// GetMachineRolesById Retrieve a machine role by its Id
+// GetMachineRoleById Retrieve a machine role by its Id
 //
 //	@Summary		Retrieve a machine role by its Id
 //	@Description	Retrieve a machine role by its Id
@@ -154,7 +154,7 @@ func (a *Allocator) GetMachineRoleById(c *gin.Context) {
 	}
 }
 
-// UpdateMachineRoleById Retrieve a machine role by its Id
+// UpdateMachineRoleById Update a machine role by its Id
 //
 //	@Summary		Update a machine role by its Id
 //	@Description	Update a machine role by its Id

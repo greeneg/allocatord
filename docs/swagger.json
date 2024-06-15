@@ -486,7 +486,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Vendor"
+                            "$ref": "#/definitions/model.MachineRole"
                         }
                     }
                 ],
@@ -982,6 +982,252 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.NetworkInterfaces"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/operatingSystem": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Add a new operating system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operating-systems"
+                ],
+                "summary": "Register operating system",
+                "parameters": [
+                    {
+                        "description": "Operating System data",
+                        "name": "operatingSystem",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.OperatingSystem"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/operatingSystem/byFamilyId/{osFamilyId}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve an operating system by its family Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operating-systems"
+                ],
+                "summary": "Retrieve an operating system by its family Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Operating System Family ID",
+                        "name": "osFamilyId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.OperatingSystem"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/operatingSystem/byId/{osId}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve an operating system by its Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operating-systems"
+                ],
+                "summary": "Retrieve an operating system by its Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Operating System ID",
+                        "name": "osId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.OperatingSystem"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/operatingSystem/{osId}": {
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Delete an operating system by Id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operating-systems"
+                ],
+                "summary": "Delete operating system",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Operating System Id",
+                        "name": "osId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Update an operating system by its Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operating-systems"
+                ],
+                "summary": "Update an operating system by its Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Operating System ID",
+                        "name": "operatingSystemId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Operating System data",
+                        "name": "operatingSystemData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.OperatingSystem"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SuccessMsg"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/operatingSystems": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve list of all operating systems",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operating-systems"
+                ],
+                "summary": "Retrieve list of all operating systems",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.OperatingSystemList"
                         }
                     },
                     "400": {
@@ -2691,6 +2937,32 @@
                 }
             }
         },
+        "model.OperatingSystem": {
+            "type": "object",
+            "properties": {
+                "Id": {
+                    "type": "integer"
+                },
+                "creationDate": {
+                    "type": "string"
+                },
+                "creatorId": {
+                    "type": "integer"
+                },
+                "imageUriProtocol": {
+                    "type": "string"
+                },
+                "osFamilyId": {
+                    "type": "integer"
+                },
+                "osImageUrl": {
+                    "type": "string"
+                },
+                "osName": {
+                    "type": "string"
+                }
+            }
+        },
         "model.OperatingSystemFamily": {
             "type": "object",
             "properties": {
@@ -2715,6 +2987,17 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.OperatingSystemFamily"
+                    }
+                }
+            }
+        },
+        "model.OperatingSystemList": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.OperatingSystem"
                     }
                 }
             }

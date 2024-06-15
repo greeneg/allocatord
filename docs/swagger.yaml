@@ -114,6 +114,23 @@ definitions:
           $ref: '#/definitions/model.NetworkInterface'
         type: array
     type: object
+  model.OperatingSystem:
+    properties:
+      Id:
+        type: integer
+      creationDate:
+        type: string
+      creatorId:
+        type: integer
+      imageUriProtocol:
+        type: string
+      osFamilyId:
+        type: integer
+      osImageUrl:
+        type: string
+      osName:
+        type: string
+    type: object
   model.OperatingSystemFamily:
     properties:
       Id:
@@ -130,6 +147,13 @@ definitions:
       data:
         items:
           $ref: '#/definitions/model.OperatingSystemFamily'
+        type: array
+    type: object
+  model.OperatingSystemList:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.OperatingSystem'
         type: array
     type: object
   model.OrgUnit:
@@ -616,7 +640,7 @@ paths:
         name: machineRole
         required: true
         schema:
-          $ref: '#/definitions/model.Vendor'
+          $ref: '#/definitions/model.MachineRole'
       produces:
       - application/json
       responses:
@@ -938,6 +962,160 @@ paths:
       summary: Retrieve the list of network interfaces for a system's Id
       tags:
       - network-interfaces
+  /operatingSystem:
+    post:
+      consumes:
+      - application/json
+      description: Add a new operating system
+      parameters:
+      - description: Operating System data
+        in: body
+        name: operatingSystem
+        required: true
+        schema:
+          $ref: '#/definitions/model.OperatingSystem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Register operating system
+      tags:
+      - operating-systems
+  /operatingSystem/{osId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an operating system by Id
+      parameters:
+      - description: Operating System Id
+        in: path
+        name: osId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Delete operating system
+      tags:
+      - operating-systems
+    patch:
+      description: Update an operating system by its Id
+      parameters:
+      - description: Operating System ID
+        in: path
+        name: operatingSystemId
+        required: true
+        type: integer
+      - description: Operating System data
+        in: body
+        name: operatingSystemData
+        required: true
+        schema:
+          $ref: '#/definitions/model.OperatingSystem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Update an operating system by its Id
+      tags:
+      - operating-systems
+  /operatingSystem/byFamilyId/{osFamilyId}:
+    get:
+      description: Retrieve an operating system by its family Id
+      parameters:
+      - description: Operating System Family ID
+        in: path
+        name: osFamilyId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.OperatingSystem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve an operating system by its family Id
+      tags:
+      - operating-systems
+  /operatingSystem/byId/{osId}:
+    get:
+      description: Retrieve an operating system by its Id
+      parameters:
+      - description: Operating System ID
+        in: path
+        name: osId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.OperatingSystem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve an operating system by its Id
+      tags:
+      - operating-systems
+  /operatingSystems:
+    get:
+      description: Retrieve list of all operating systems
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.OperatingSystemList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve list of all operating systems
+      tags:
+      - operating-systems
   /organizationalUnit:
     post:
       consumes:

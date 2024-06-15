@@ -60,6 +60,12 @@ func PrivateRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 	g.POST("/osFamily", a.CreateOSFamily)                        // create a new operating system family
 	g.DELETE("/osFamily/:osFamilyId", a.DeleteOSFamily)          // delete an operating system by Id
 	// Operating Systems
+	g.GET("/operatingSystems", a.GetOperatingSystems)                                  // get all operating systems
+	g.GET("/operatingSystems/byFamilyId/:osFamilyId", a.GetOperatingSystemsByFamilyId) // get operating sytems by OS Family Id
+	g.GET("/operatingSystem/byId/:osId", a.GetOperatingSystemById)                     // get operating systems by Id
+	g.POST("/operatingSystem", a.CreateOperatingSystem)                                // create operating system
+	g.PATCH("/operatingSystem/:osId", a.UpdateOperatingSystemById)                     // update an operating system by Id
+	g.DELETE("/operatingSystem/:osId", a.DeleteOperatingSystem)                        // delete an operating system
 	// Operating System Versions
 	g.GET("/osVersions")
 	g.GET("/osVersion/byId/:osVersionId")
