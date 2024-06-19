@@ -24,8 +24,9 @@ go.work.sum
 # don't commit db to git
 *.db
 
-# don't track the binary
+# don't track the binaries
 allocatord
+tools/setuptool/setuptool
 
 # we don't check in our config.json
 config/config.json
