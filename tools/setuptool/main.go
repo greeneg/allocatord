@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"strconv"
 	"strings"
 
 	"github.com/pborman/getopt/v2"
@@ -229,10 +228,6 @@ func main() {
 			os.Exit(1)
 		}
 
-		infoPrintln("Account: admin")
-		infoPrintln("FullName: System Administrator")
-		infoPrintln("Role Id: " + strconv.Itoa(roleRecord.Id))
-		infoPrintln("OU Id: " + strconv.Itoa(ouRecord.Id))
 		accountRecord, err := createAccount("admin", "System Administrator", roleRecord.Id, ouRecord.Id, string(input))
 		if err != nil {
 			errPrintln("Encountered error when creating account: " + string(err.Error()))
