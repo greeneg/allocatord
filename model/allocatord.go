@@ -20,6 +20,7 @@ package model
 
 import (
 	"database/sql"
+	"log"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -27,7 +28,40 @@ import (
 var DB *sql.DB
 
 func ConnectDatabase(dbPath string) error {
-	db, err := sql.Open("sqlite3", "file:"+dbPath+"?_foreign_keys=on")
+	db, err := sql.Open("sqlite3", "file:"+dbPath+"?_foreign_keys=on&cache=shared&mode=rwc&_journal_mode=WAL&_tx_locking_mode=EXCLUSIVE&_busy_timeout=5000&_temp_store=MEMORY&_auto_vacuum=FULL&_synchronous=NORMAL")
+	if err != nil {
+		return err
+	}
+
+	// Set the appropriate pragmas for SQLite
+	log.Println("NOTICE: Setting foreign keys to ON")
+	_, err = db.Exec("PRAGMA foreign_keys = ON")
+	if err != nil {
+		return err
+	}
+	log.Println("NOTICE: Setting journal mode to WAL")
+	_, err = db.Exec("PRAGMA journal_mode = WAL")
+	if err != nil {
+		return err
+	}
+	log.Println("NOTICE: Settting tx_locking mode to EXCLUSIVE")
+	log.Println("NOTICE: Setting busy timeout to 5000ms")
+	_, err = db.Exec("PRAGMA busy_timeout = 5000")
+	if err != nil {
+		return err
+	}
+	log.Println("NOTICE: Setting temp store to MEMORY")
+	_, err = db.Exec("PRAGMA temp_store = MEMORY")
+	if err != nil {
+		return err
+	}
+	log.Println("NOTICE: Setting auto_vacuum to FULL")
+	_, err = db.Exec("PRAGMA auto_vacuum = FULL")
+	if err != nil {
+		return err
+	}
+	log.Println("NOTICE: Setting synchronous to NORMAL")
+	_, err = db.Exec("PRAGMA synchronous = NORMAL")
 	if err != nil {
 		return err
 	}
