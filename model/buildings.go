@@ -32,6 +32,16 @@ func CreateBuilding(b Building, id int) (bool, error) {
 		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := t.Prepare("INSERT INTO Buildings (BuildingName, ShortName, City, Region, CreatorId) VALUES (?, ?, ?, ?, ?)")
 	if err != nil {
@@ -45,7 +55,11 @@ func CreateBuilding(b Building, id int) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
 	log.Println("INFO: Building '" + b.BuildingName + "' created")
 	return true, nil
@@ -58,6 +72,16 @@ func DeleteBuilding(buildingId int) (bool, error) {
 		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := DB.Prepare("DELETE FROM Buildings WHERE Id IS ?")
 	if err != nil {
@@ -71,7 +95,11 @@ func DeleteBuilding(buildingId int) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
 	log.Println("INFO: Building with Id '" + strconv.Itoa(buildingId) + "' has been deleted")
 	return true, nil
@@ -84,6 +112,7 @@ func GetBuildings() ([]Building, error) {
 		log.Println("ERROR: Could not run the DB query!" + string(err.Error()))
 		return nil, err
 	}
+	defer rows.Close()
 
 	buildings := make([]Building, 0)
 	for rows.Next() {
@@ -118,17 +147,10 @@ func GetBuildingById(id int) (Building, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return Building{}, err
 	}
+	defer rec.Close()
 
 	building := Building{}
-	err = rec.QueryRow(id).Scan(
-		&building.Id,
-		&building.BuildingName,
-		&building.ShortName,
-		&building.City,
-		&building.Region,
-		&building.CreatorId,
-		&building.CreationDate,
-	)
+	r, err := rec.Query(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Println("ERROR: No such building found in DB: " + string(err.Error()))
@@ -137,6 +159,17 @@ func GetBuildingById(id int) (Building, error) {
 		log.Println("ERROR: Cannot retrieve building from DB: " + string(err.Error()))
 		return Building{}, err
 	}
+	defer r.Close()
+
+	r.Scan(
+		&building.Id,
+		&building.BuildingName,
+		&building.ShortName,
+		&building.City,
+		&building.Region,
+		&building.CreatorId,
+		&building.CreationDate,
+	)
 
 	building.CreationDate = ConvertSqliteTimestamp(building.CreationDate)
 
@@ -150,17 +183,11 @@ func GetBuildingByShortName(buildingShortName string) (Building, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return Building{}, err
 	}
+	defer rec.Close()
 
 	building := Building{}
-	err = rec.QueryRow(buildingShortName).Scan(
-		&building.Id,
-		&building.BuildingName,
-		&building.ShortName,
-		&building.City,
-		&building.Region,
-		&building.CreatorId,
-		&building.CreationDate,
-	)
+
+	r, err := rec.Query(buildingShortName)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Println("ERROR: No such building found in DB: " + string(err.Error()))
@@ -169,6 +196,17 @@ func GetBuildingByShortName(buildingShortName string) (Building, error) {
 		log.Println("ERROR: Cannot retrieve building from DB: " + string(err.Error()))
 		return Building{}, err
 	}
+	defer r.Close()
+
+	r.Scan(
+		&building.Id,
+		&building.BuildingName,
+		&building.ShortName,
+		&building.City,
+		&building.Region,
+		&building.CreatorId,
+		&building.CreationDate,
+	)
 
 	building.CreationDate = ConvertSqliteTimestamp(building.CreationDate)
 
@@ -181,22 +219,41 @@ func UpdateBuildingById(buildingId int, b Building) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := t.Prepare("UPDATE Buildings SET BuildingName = ?, ShortName = ?, City = ?, Region = ? WHERE Id = ?")
 	if err != nil {
+		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return false, err
 	}
 
 	building, err := json.Marshal(b)
 	if err != nil {
+		log.Println("ERROR: Cannot marshal the building object!" + string(err.Error()))
 		return false, err
 	}
+
 	_, err = q.Exec(building, buildingId)
 	if err != nil {
+		log.Println("ERROR: Cannot update building with Id '" + strconv.Itoa(buildingId) + "': " + string(err.Error()))
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
+	log.Println("INFO: Building with Id '" + strconv.Itoa(buildingId) + "' has been updated")
 	return true, nil
 }
