@@ -31,6 +31,16 @@ func CreateArchitecture(a Architecture, id int) (bool, error) {
 		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := t.Prepare("INSERT INTO Architectures (ISEName, RegisterSize, CreatorId) VALUES (?, ?, ?)")
 	if err != nil {
@@ -44,7 +54,11 @@ func CreateArchitecture(a Architecture, id int) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
 	log.Println("INFO: Architecture '" + a.ISEName + "' created")
 	return true, nil
@@ -57,6 +71,16 @@ func DeleteArchitecture(architectureId int) (bool, error) {
 		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := DB.Prepare("DELETE FROM Architectures WHERE Id IS ?")
 	if err != nil {
@@ -70,7 +94,11 @@ func DeleteArchitecture(architectureId int) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
 	log.Println("INFO: Architecture with Id '" + strconv.Itoa(architectureId) + "' has been deleted")
 	return true, nil
@@ -83,6 +111,7 @@ func GetArchitectures() ([]Architecture, error) {
 		log.Println("ERROR: Could not run the DB query!" + string(err.Error()))
 		return nil, err
 	}
+	defer rows.Close()
 
 	architectures := make([]Architecture, 0)
 	for rows.Next() {
@@ -115,15 +144,11 @@ func GetArchitectureById(id int) (Architecture, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return Architecture{}, err
 	}
+	defer rec.Close()
 
 	architecture := Architecture{}
-	err = rec.QueryRow(id).Scan(
-		&architecture.Id,
-		&architecture.ISEName,
-		&architecture.RegisterSize,
-		&architecture.CreatorId,
-		&architecture.CreationDate,
-	)
+
+	r, err := rec.Query(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Println("ERROR: No such architecture found in DB: " + string(err.Error()))
@@ -132,6 +157,15 @@ func GetArchitectureById(id int) (Architecture, error) {
 		log.Println("ERROR: Cannot retrieve architecture from DB: " + string(err.Error()))
 		return Architecture{}, err
 	}
+	defer r.Close()
+
+	r.Scan(
+		&architecture.Id,
+		&architecture.ISEName,
+		&architecture.RegisterSize,
+		&architecture.CreatorId,
+		&architecture.CreationDate,
+	)
 
 	architecture.CreationDate = ConvertSqliteTimestamp(architecture.CreationDate)
 
@@ -145,15 +179,11 @@ func GetArchitectureByName(architectureName string) (Architecture, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return Architecture{}, err
 	}
+	defer rec.Close()
 
 	architecture := Architecture{}
-	err = rec.QueryRow(architectureName).Scan(
-		&architecture.Id,
-		&architecture.ISEName,
-		&architecture.RegisterSize,
-		&architecture.CreatorId,
-		&architecture.CreationDate,
-	)
+
+	r, err := rec.Query(architectureName)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Println("ERROR: No such architecture found in DB: " + string(err.Error()))
@@ -162,6 +192,15 @@ func GetArchitectureByName(architectureName string) (Architecture, error) {
 		log.Println("ERROR: Cannot retrieve architecture from DB: " + string(err.Error()))
 		return Architecture{}, err
 	}
+	defer r.Close()
+
+	r.Scan(
+		&architecture.Id,
+		&architecture.ISEName,
+		&architecture.RegisterSize,
+		&architecture.CreatorId,
+		&architecture.CreationDate,
+	)
 
 	architecture.CreationDate = ConvertSqliteTimestamp(architecture.CreationDate)
 
