@@ -32,6 +32,16 @@ func CreateMachineRole(m MachineRole, id int) (bool, error) {
 		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := t.Prepare("INSERT INTO MachineRoles (MachineRoleName, Description, CreatorId) VALUES (?, ?, ?)")
 	if err != nil {
@@ -45,7 +55,11 @@ func CreateMachineRole(m MachineRole, id int) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
 	log.Println("INFO: Machine Role '" + m.MachineRoleName + "' created")
 	return true, nil
@@ -58,6 +72,16 @@ func DeleteMachineRole(machineRoleId int) (bool, error) {
 		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := DB.Prepare("DELETE FROM MachineRoles WHERE Id IS ?")
 	if err != nil {
@@ -71,7 +95,11 @@ func DeleteMachineRole(machineRoleId int) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
 	log.Println("INFO: Machine Role with Id '" + strconv.Itoa(machineRoleId) + "' has been deleted")
 	return true, nil
@@ -84,6 +112,7 @@ func GetMachineRoles() ([]MachineRole, error) {
 		log.Println("ERROR: Could not run the DB query!" + string(err.Error()))
 		return nil, err
 	}
+	defer rows.Close()
 
 	machineRoles := make([]MachineRole, 0)
 	for rows.Next() {
@@ -116,15 +145,11 @@ func GetMachineRoleById(id int) (MachineRole, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return MachineRole{}, err
 	}
+	defer rec.Close()
 
 	machineRole := MachineRole{}
-	err = rec.QueryRow(id).Scan(
-		&machineRole.Id,
-		&machineRole.MachineRoleName,
-		&machineRole.Description,
-		&machineRole.CreatorId,
-		&machineRole.CreationDate,
-	)
+
+	r, err := rec.Query(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Println("ERROR: No such machine role found in DB: " + string(err.Error()))
@@ -133,9 +158,19 @@ func GetMachineRoleById(id int) (MachineRole, error) {
 		log.Println("ERROR: Cannot retrieve machine role from DB: " + string(err.Error()))
 		return MachineRole{}, err
 	}
+	defer r.Close()
+
+	r.Scan(
+		&machineRole.Id,
+		&machineRole.MachineRoleName,
+		&machineRole.Description,
+		&machineRole.CreatorId,
+		&machineRole.CreationDate,
+	)
 
 	machineRole.CreationDate = ConvertSqliteTimestamp(machineRole.CreationDate)
 
+	log.Println("INFO: Machine Role with Id '" + strconv.Itoa(id) + "' retrieved")
 	return machineRole, nil
 }
 
@@ -146,15 +181,11 @@ func GetMachineRoleByName(machineRoleName string) (MachineRole, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return MachineRole{}, err
 	}
+	defer rec.Close()
 
 	machineRole := MachineRole{}
-	err = rec.QueryRow(machineRoleName).Scan(
-		&machineRole.Id,
-		&machineRole.MachineRoleName,
-		&machineRole.Description,
-		&machineRole.CreatorId,
-		&machineRole.CreationDate,
-	)
+
+	r, err := rec.Query(machineRoleName)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Println("ERROR: No such machine role found in DB: " + string(err.Error()))
@@ -163,9 +194,19 @@ func GetMachineRoleByName(machineRoleName string) (MachineRole, error) {
 		log.Println("ERROR: Cannot retrieve machine role from DB: " + string(err.Error()))
 		return MachineRole{}, err
 	}
+	defer r.Close()
+
+	r.Scan(
+		&machineRole.Id,
+		&machineRole.MachineRoleName,
+		&machineRole.Description,
+		&machineRole.CreatorId,
+		&machineRole.CreationDate,
+	)
 
 	machineRole.CreationDate = ConvertSqliteTimestamp(machineRole.CreationDate)
 
+	log.Println("INFO: Machine Role '" + machineRoleName + "' retrieved")
 	return machineRole, nil
 }
 
@@ -173,24 +214,43 @@ func UpdateMachineRoleById(machineRoleId int, m MachineRole) (bool, error) {
 	log.Println("INFO: Update machine role by Id requested: " + strconv.Itoa(machineRoleId))
 	t, err := DB.Begin()
 	if err != nil {
+		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := t.Prepare("UPDATE MachineRoles SET MachineRoleName = ?, Description =? WHERE Id = ?")
 	if err != nil {
+		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return false, err
 	}
 
 	machineRole, err := json.Marshal(m)
 	if err != nil {
+		log.Println("ERROR: Cannot marshal the machine role objects!" + string(err.Error()))
 		return false, err
 	}
 	_, err = q.Exec(machineRole, machineRoleId)
 	if err != nil {
+		log.Println("ERROR: Cannot update machine role '" + strconv.Itoa(machineRoleId) + "': " + string(err.Error()))
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
+	log.Println("INFO: Machine Role with Id '" + strconv.Itoa(machineRoleId) + "' has been updated")
 	return true, nil
 }
