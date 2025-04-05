@@ -32,6 +32,16 @@ func CreateStorageVolume(s StorageVolume, id int) (bool, error) {
 		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := t.Prepare("INSERT INTO StorageVolumes (VolumeName, StorageType, DeviceModel, DeviceId, MountPoint, VolumeSize, VolumeFormat, VolumeLabel, SystemId, CreatorId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
@@ -45,7 +55,11 @@ func CreateStorageVolume(s StorageVolume, id int) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
 	log.Println("INFO: Storage Volume '" + s.VolumeName + "' created")
 	return true, nil
@@ -58,6 +72,16 @@ func DeleteStorageVolume(storageVolumeId int) (bool, error) {
 		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := DB.Prepare("DELETE FROM StorageVolumes WHERE Id IS ?")
 	if err != nil {
@@ -71,7 +95,11 @@ func DeleteStorageVolume(storageVolumeId int) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
 	log.Println("INFO: Storage Volume with Id '" + strconv.Itoa(storageVolumeId) + "' has been deleted")
 	return true, nil
@@ -84,6 +112,7 @@ func GetStorageVolumes() ([]StorageVolume, error) {
 		log.Println("ERROR: Could not run the DB query!" + string(err.Error()))
 		return nil, err
 	}
+	defer rows.Close()
 
 	volumes := make([]StorageVolume, 0)
 	for rows.Next() {
@@ -123,9 +152,22 @@ func GetStorageVolumeById(id int) (StorageVolume, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return StorageVolume{}, err
 	}
+	defer rec.Close()
 
 	volume := StorageVolume{}
-	err = rec.QueryRow(id).Scan(
+
+	r, err := rec.Query(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Println("ERROR: No such storage volume found in DB: " + string(err.Error()))
+			return StorageVolume{}, nil
+		}
+		log.Println("ERROR: Cannot retrieve storage volume from DB: " + string(err.Error()))
+		return StorageVolume{}, err
+	}
+	defer r.Close()
+
+	r.Scan(
 		&volume.Id,
 		&volume.VolumeName,
 		&volume.StorageType,
@@ -139,14 +181,6 @@ func GetStorageVolumeById(id int) (StorageVolume, error) {
 		&volume.CreatorId,
 		&volume.CreationDate,
 	)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			log.Println("ERROR: No such storage volume found in DB: " + string(err.Error()))
-			return StorageVolume{}, nil
-		}
-		log.Println("ERROR: Cannot retrieve storage volume from DB: " + string(err.Error()))
-		return StorageVolume{}, err
-	}
 
 	volume.CreationDate = ConvertSqliteTimestamp(volume.CreationDate)
 
@@ -160,9 +194,22 @@ func GetStorageVolumeByLabel(label string, id int) (StorageVolume, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return StorageVolume{}, err
 	}
+	defer rec.Close()
 
 	volume := StorageVolume{}
-	err = rec.QueryRow(id, label).Scan(
+
+	r, err := rec.Query(id, label)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Println("ERROR: No such storage volume found in DB: " + string(err.Error()))
+			return StorageVolume{}, nil
+		}
+		log.Println("ERROR: Cannot retrieve storage volume from DB: " + string(err.Error()))
+		return StorageVolume{}, err
+	}
+	defer r.Close()
+
+	r.Scan(
 		&volume.Id,
 		&volume.VolumeName,
 		&volume.StorageType,
@@ -176,17 +223,10 @@ func GetStorageVolumeByLabel(label string, id int) (StorageVolume, error) {
 		&volume.CreatorId,
 		&volume.CreationDate,
 	)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			log.Println("ERROR: No such storage volume found in DB: " + string(err.Error()))
-			return StorageVolume{}, nil
-		}
-		log.Println("ERROR: Cannot retrieve storage volume from DB: " + string(err.Error()))
-		return StorageVolume{}, err
-	}
 
 	volume.CreationDate = ConvertSqliteTimestamp(volume.CreationDate)
 
+	log.Println("INFO: Storage Volume with Id '" + strconv.Itoa(volume.Id) + "' has been retrieved")
 	return volume, nil
 }
 
@@ -197,14 +237,17 @@ func GetStorageVolumesBySystemId(systemId int) ([]StorageVolume, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return nil, err
 	}
+	defer rec.Close()
 
 	rows, err := rec.Query(systemId)
 	if err != nil {
 		log.Println("ERROR: Could not query DB: " + string(err.Error()))
 		return nil, err
 	}
+	defer rows.Close()
 
 	storageVolumes := make([]StorageVolume, 0)
+
 	for rows.Next() {
 		storageVolume := StorageVolume{}
 		err = rows.Scan(
@@ -234,6 +277,7 @@ func GetStorageVolumesBySystemId(systemId int) ([]StorageVolume, error) {
 		storageVolumes = append(storageVolumes, storageVolume)
 	}
 
+	log.Println("INFO: Storage Volumes with System Id '" + strconv.Itoa(systemId) + "' have been retrieved")
 	return storageVolumes, nil
 }
 
@@ -241,24 +285,43 @@ func UpdateStorageVolume(id int, s StorageVolume) (bool, error) {
 	log.Println("INFO: Update storage volume by Id requested: " + strconv.Itoa(id))
 	t, err := DB.Begin()
 	if err != nil {
+		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := t.Prepare("UPDATE StorageVolumes SET VolumeName = ?, StorageType = ?, DeviceModel = ?, DeviceId = ?, MountPoint = ?, VolumeSize = ?, VolumeFormat = ?, VolumeLabel = ?, SystemId = ? WHERE Id = ?")
 	if err != nil {
+		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return false, err
 	}
 
 	storageVolume, err := json.Marshal(s)
 	if err != nil {
+		log.Println("ERROR: Cannot marshal the storage volume object!" + string(err.Error()))
 		return false, err
 	}
 	_, err = q.Exec(storageVolume, id)
 	if err != nil {
+		log.Println("ERROR: Cannot update storage volume with ID '" + strconv.Itoa(id) + "': " + string(err.Error()))
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
+	log.Println("INFO: Storage Volume with Id '" + strconv.Itoa(id) + "' has been updated")
 	return true, nil
 }
