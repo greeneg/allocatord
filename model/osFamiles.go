@@ -158,12 +158,16 @@ func GetOSFamilyById(id int) (OperatingSystemFamily, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&osFamily.Id,
 		&osFamily.OSFamilyName,
 		&osFamily.CreatorId,
 		&osFamily.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot scan the Operating System Family object!" + string(err.Error()))
+		return OperatingSystemFamily{}, err
+	}
 
 	osFamily.CreationDate = ConvertSqliteTimestamp(osFamily.CreationDate)
 
@@ -193,12 +197,16 @@ func GetOSFamilyByName(name string) (OperatingSystemFamily, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&osFamily.Id,
 		&osFamily.OSFamilyName,
 		&osFamily.CreatorId,
 		&osFamily.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot scan the Operating System Family object!" + string(err.Error()))
+		return OperatingSystemFamily{}, err
+	}
 
 	osFamily.CreationDate = ConvertSqliteTimestamp(osFamily.CreationDate)
 

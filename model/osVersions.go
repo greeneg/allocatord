@@ -159,13 +159,17 @@ func GetOSVersionById(id int) (OperatingSystemVersion, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&osVersion.Id,
 		&osVersion.OperatingSystemId,
 		&osVersion.VersionNumber,
 		&osVersion.CreatorId,
 		&osVersion.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot marshal the Operating System Version object!" + string(err.Error()))
+		return OperatingSystemVersion{}, err
+	}
 
 	osVersion.CreationDate = ConvertSqliteTimestamp(osVersion.CreationDate)
 

@@ -159,16 +159,21 @@ func GetArchitectureById(id int) (Architecture, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&architecture.Id,
 		&architecture.ISEName,
 		&architecture.RegisterSize,
 		&architecture.CreatorId,
 		&architecture.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot scan the architecture object!" + string(err.Error()))
+		return Architecture{}, err
+	}
 
 	architecture.CreationDate = ConvertSqliteTimestamp(architecture.CreationDate)
 
+	log.Println("INFO: Architecture with Id '" + strconv.Itoa(id) + "' has been retrieved")
 	return architecture, nil
 }
 
@@ -194,15 +199,20 @@ func GetArchitectureByName(architectureName string) (Architecture, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&architecture.Id,
 		&architecture.ISEName,
 		&architecture.RegisterSize,
 		&architecture.CreatorId,
 		&architecture.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot scan the architecture object!" + string(err.Error()))
+		return Architecture{}, err
+	}
 
 	architecture.CreationDate = ConvertSqliteTimestamp(architecture.CreationDate)
 
+	log.Println("INFO: Architecture with Name '" + architectureName + "' has been retrieved")
 	return architecture, nil
 }

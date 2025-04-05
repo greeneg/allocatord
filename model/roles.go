@@ -158,12 +158,16 @@ func GetRoleById(id int) (Role, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&role.Id,
 		&role.RoleName,
 		&role.Description,
 		&role.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot scan the user object!" + string(err.Error()))
+		return Role{}, err
+	}
 
 	role.CreationDate = ConvertSqliteTimestamp(role.CreationDate)
 
@@ -193,12 +197,16 @@ func GetRoleByName(roleName string) (Role, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&role.Id,
 		&role.RoleName,
 		&role.Description,
 		&role.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot scan the user object!" + string(err.Error()))
+		return Role{}, err
+	}
 
 	role.CreationDate = ConvertSqliteTimestamp(role.CreationDate)
 

@@ -161,7 +161,7 @@ func GetBuildingById(id int) (Building, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&building.Id,
 		&building.BuildingName,
 		&building.ShortName,
@@ -170,9 +170,14 @@ func GetBuildingById(id int) (Building, error) {
 		&building.CreatorId,
 		&building.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot marshal the building objects!" + string(err.Error()))
+		return Building{}, err
+	}
 
 	building.CreationDate = ConvertSqliteTimestamp(building.CreationDate)
 
+	log.Println("INFO: Building with Id '" + strconv.Itoa(id) + "' has been retrieved")
 	return building, nil
 }
 
@@ -198,7 +203,7 @@ func GetBuildingByShortName(buildingShortName string) (Building, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&building.Id,
 		&building.BuildingName,
 		&building.ShortName,
@@ -207,9 +212,14 @@ func GetBuildingByShortName(buildingShortName string) (Building, error) {
 		&building.CreatorId,
 		&building.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot marshal the building objects!" + string(err.Error()))
+		return Building{}, err
+	}
 
 	building.CreationDate = ConvertSqliteTimestamp(building.CreationDate)
 
+	log.Println("INFO: Building with Short Name '" + buildingShortName + "' has been retrieved")
 	return building, nil
 }
 

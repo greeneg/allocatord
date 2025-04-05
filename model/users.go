@@ -46,9 +46,17 @@ func getStoredPasswordHash(username string) (string, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&passwordHash,
 	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Println("ERROR: No such user found in DB: " + string(err.Error()))
+			return "", nil
+		}
+		log.Println("ERROR: Cannot retrieve password hash from DB: " + string(err.Error()))
+		return "", err
+	}
 
 	log.Println("INFO: Retrieved password hash for user '" + username + "'")
 	return passwordHash, nil
@@ -152,7 +160,7 @@ func GetUserById(id int) (User, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&user.Id,
 		&user.UserName,
 		&user.FullName,
@@ -163,6 +171,10 @@ func GetUserById(id int) (User, error) {
 		&user.CreationDate,
 		&user.LastPasswordChangedDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot scan the user object!" + string(err.Error()))
+		return User{}, err
+	}
 
 	user.CreationDate = ConvertSqliteTimestamp(user.CreationDate)
 	user.LastPasswordChangedDate = ConvertSqliteTimestamp(user.LastPasswordChangedDate)
@@ -192,7 +204,7 @@ func GetUserByUserName(username string) (User, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&user.Id,
 		&user.UserName,
 		&user.FullName,
@@ -203,6 +215,10 @@ func GetUserByUserName(username string) (User, error) {
 		&user.CreationDate,
 		&user.LastPasswordChangedDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot scan the user object!" + string(err.Error()))
+		return User{}, err
+	}
 
 	user.CreationDate = ConvertSqliteTimestamp(user.CreationDate)
 	user.LastPasswordChangedDate = ConvertSqliteTimestamp(user.LastPasswordChangedDate)
@@ -424,9 +440,17 @@ func GetUserStatus(username string) (string, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&status,
 	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Println("ERROR: No such user found in DB: " + string(err.Error()))
+			return "", nil
+		}
+		log.Println("ERROR: Cannot retrieve status from DB: " + string(err.Error()))
+		return "", err
+	}
 
 	log.Println("INFO: User '" + username + "' status: " + status)
 	return status, nil

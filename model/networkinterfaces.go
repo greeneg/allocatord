@@ -165,7 +165,7 @@ func GetNetworkInterfaceById(id int) (NetworkInterface, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&networkInterface.Id,
 		&networkInterface.DeviceModel,
 		&networkInterface.DeviceId,
@@ -177,6 +177,10 @@ func GetNetworkInterfaceById(id int) (NetworkInterface, error) {
 		&networkInterface.CreatorId,
 		&networkInterface.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot scan the network interface object!" + string(err.Error()))
+		return NetworkInterface{}, err
+	}
 
 	networkInterface.CreationDate = ConvertSqliteTimestamp(networkInterface.CreationDate)
 
@@ -206,7 +210,7 @@ func GetNetworkInterfaceByIpAddress(ipAddr string) (NetworkInterface, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&networkInterface.Id,
 		&networkInterface.DeviceModel,
 		&networkInterface.DeviceId,
@@ -218,6 +222,10 @@ func GetNetworkInterfaceByIpAddress(ipAddr string) (NetworkInterface, error) {
 		&networkInterface.CreatorId,
 		&networkInterface.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot scan the network interface object!" + string(err.Error()))
+		return NetworkInterface{}, err
+	}
 
 	networkInterface.CreationDate = ConvertSqliteTimestamp(networkInterface.CreationDate)
 
@@ -247,7 +255,7 @@ func GetNetworkInterfaceByMACAddress(macAddress string) (NetworkInterface, error
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&networkInterface.Id,
 		&networkInterface.DeviceModel,
 		&networkInterface.DeviceId,
@@ -259,6 +267,10 @@ func GetNetworkInterfaceByMACAddress(macAddress string) (NetworkInterface, error
 		&networkInterface.CreatorId,
 		&networkInterface.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot scan the network interface object!" + string(err.Error()))
+		return NetworkInterface{}, err
+	}
 
 	networkInterface.CreationDate = ConvertSqliteTimestamp(networkInterface.CreationDate)
 
@@ -345,6 +357,7 @@ func UpdateNetworkInterface(networkInterfaceId int, n NetworkInterface) (bool, e
 		log.Println("ERROR: Cannot marshal the network interface object!" + string(err.Error()))
 		return false, err
 	}
+
 	_, err = q.Exec(networkInterface, networkInterfaceId)
 	if err != nil {
 		log.Println("ERROR: Cannot update network interface '" + n.DeviceModel + "': " + string(err.Error()))

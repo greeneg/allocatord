@@ -167,7 +167,7 @@ func GetStorageVolumeById(id int) (StorageVolume, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&volume.Id,
 		&volume.VolumeName,
 		&volume.StorageType,
@@ -181,9 +181,14 @@ func GetStorageVolumeById(id int) (StorageVolume, error) {
 		&volume.CreatorId,
 		&volume.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot scan the storage volume object!" + string(err.Error()))
+		return StorageVolume{}, err
+	}
 
 	volume.CreationDate = ConvertSqliteTimestamp(volume.CreationDate)
 
+	log.Println("INFO: Storage Volume with Id '" + strconv.Itoa(volume.Id) + "' has been retrieved")
 	return volume, nil
 }
 
@@ -209,7 +214,7 @@ func GetStorageVolumeByLabel(label string, id int) (StorageVolume, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&volume.Id,
 		&volume.VolumeName,
 		&volume.StorageType,
@@ -223,6 +228,10 @@ func GetStorageVolumeByLabel(label string, id int) (StorageVolume, error) {
 		&volume.CreatorId,
 		&volume.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot scan the storage volume object!" + string(err.Error()))
+		return StorageVolume{}, err
+	}
 
 	volume.CreationDate = ConvertSqliteTimestamp(volume.CreationDate)
 
@@ -310,6 +319,7 @@ func UpdateStorageVolume(id int, s StorageVolume) (bool, error) {
 		log.Println("ERROR: Cannot marshal the storage volume object!" + string(err.Error()))
 		return false, err
 	}
+
 	_, err = q.Exec(storageVolume, id)
 	if err != nil {
 		log.Println("ERROR: Cannot update storage volume with ID '" + strconv.Itoa(id) + "': " + string(err.Error()))

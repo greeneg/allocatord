@@ -160,13 +160,17 @@ func GetMachineRoleById(id int) (MachineRole, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&machineRole.Id,
 		&machineRole.MachineRoleName,
 		&machineRole.Description,
 		&machineRole.CreatorId,
 		&machineRole.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot scan the machine role objects!" + string(err.Error()))
+		return MachineRole{}, err
+	}
 
 	machineRole.CreationDate = ConvertSqliteTimestamp(machineRole.CreationDate)
 
@@ -196,13 +200,17 @@ func GetMachineRoleByName(machineRoleName string) (MachineRole, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&machineRole.Id,
 		&machineRole.MachineRoleName,
 		&machineRole.Description,
 		&machineRole.CreatorId,
 		&machineRole.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot scan the machine role objects!" + string(err.Error()))
+		return MachineRole{}, err
+	}
 
 	machineRole.CreationDate = ConvertSqliteTimestamp(machineRole.CreationDate)
 
@@ -239,6 +247,7 @@ func UpdateMachineRoleById(machineRoleId int, m MachineRole) (bool, error) {
 		log.Println("ERROR: Cannot marshal the machine role objects!" + string(err.Error()))
 		return false, err
 	}
+
 	_, err = q.Exec(machineRole, machineRoleId)
 	if err != nil {
 		log.Println("ERROR: Cannot update machine role '" + strconv.Itoa(machineRoleId) + "': " + string(err.Error()))

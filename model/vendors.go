@@ -158,12 +158,16 @@ func GetVendorById(id int) (Vendor, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&vendor.Id,
 		&vendor.VendorName,
 		&vendor.CreatorId,
 		&vendor.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot scan the vendor object!" + string(err.Error()))
+		return Vendor{}, err
+	}
 
 	vendor.CreationDate = ConvertSqliteTimestamp(vendor.CreationDate)
 
@@ -193,12 +197,16 @@ func GetVendorByName(vendorName string) (Vendor, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&vendor.Id,
 		&vendor.VendorName,
 		&vendor.CreatorId,
 		&vendor.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot scan the vendor object!" + string(err.Error()))
+		return Vendor{}, err
+	}
 
 	vendor.CreationDate = ConvertSqliteTimestamp(vendor.CreationDate)
 

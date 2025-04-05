@@ -159,13 +159,17 @@ func GetOUById(id int) (OrgUnit, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&ou.Id,
 		&ou.OUName,
 		&ou.Description,
 		&ou.CreatorId,
 		&ou.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot marshal the organizational unit objects!" + string(err.Error()))
+		return OrgUnit{}, err
+	}
 
 	ou.CreationDate = ConvertSqliteTimestamp(ou.CreationDate)
 

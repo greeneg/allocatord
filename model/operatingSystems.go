@@ -163,7 +163,7 @@ func GetOperatingSystemById(id int) (OperatingSystem, error) {
 	}
 	defer r.Close()
 
-	r.Scan(
+	err = r.Scan(
 		&os.Id,
 		&os.OSName,
 		&os.OSFamilyId,
@@ -173,9 +173,14 @@ func GetOperatingSystemById(id int) (OperatingSystem, error) {
 		&os.CreatorId,
 		&os.CreationDate,
 	)
+	if err != nil {
+		log.Println("ERROR: Cannot scan the Operating System record!" + string(err.Error()))
+		return OperatingSystem{}, err
+	}
 
 	os.CreationDate = ConvertSqliteTimestamp(os.CreationDate)
 
+	log.Println("INFO: Operating System with Id '" + strconv.Itoa(id) + "' has been retrieved")
 	return os, nil
 }
 
@@ -202,7 +207,7 @@ func GetOperatingSystemsByFamilyId(osFamilyId int) ([]OperatingSystem, error) {
 	operatingSystems := make([]OperatingSystem, 0)
 	for rows.Next() {
 		os := OperatingSystem{}
-		rows.Scan(
+		err = rows.Scan(
 			&os.Id,
 			&os.OSName,
 			&os.OSFamilyId,
@@ -212,6 +217,10 @@ func GetOperatingSystemsByFamilyId(osFamilyId int) ([]OperatingSystem, error) {
 			&os.CreatorId,
 			&os.CreationDate,
 		)
+		if err != nil {
+			log.Println("ERROR: Cannot marshal the Operating System objects!" + string(err.Error()))
+			return nil, err
+		}
 
 		os.CreationDate = ConvertSqliteTimestamp(os.CreationDate)
 
@@ -245,7 +254,7 @@ func GetOperatingSystemsByVendorId(osVendorId int) ([]OperatingSystem, error) {
 	operatingSystems := make([]OperatingSystem, 0)
 	for rows.Next() {
 		os := OperatingSystem{}
-		rows.Scan(
+		err = rows.Scan(
 			&os.Id,
 			&os.OSName,
 			&os.OSFamilyId,
@@ -255,12 +264,17 @@ func GetOperatingSystemsByVendorId(osVendorId int) ([]OperatingSystem, error) {
 			&os.CreatorId,
 			&os.CreationDate,
 		)
+		if err != nil {
+			log.Println("ERROR: Cannot marshal the Operating System objects!" + string(err.Error()))
+			return nil, err
+		}
 
 		os.CreationDate = ConvertSqliteTimestamp(os.CreationDate)
 
 		operatingSystems = append(operatingSystems, os)
 	}
 
+	log.Println("INFO: List of Operating Systems with vendor Id '" + strconv.Itoa(osVendorId) + "' retrieved")
 	return operatingSystems, nil
 }
 
