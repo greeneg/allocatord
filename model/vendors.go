@@ -31,6 +31,16 @@ func CreateVendor(v Vendor, id int) (bool, error) {
 		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := t.Prepare("INSERT INTO Vendors (VendorName, CreatorId) VALUES (?, ?)")
 	if err != nil {
@@ -44,7 +54,11 @@ func CreateVendor(v Vendor, id int) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
 	log.Println("INFO: Vendor '" + v.VendorName + "' created")
 	return true, nil
@@ -57,6 +71,16 @@ func DeleteVendor(vendorId int) (bool, error) {
 		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := DB.Prepare("DELETE FROM Vendors WHERE Id IS ?")
 	if err != nil {
@@ -70,7 +94,11 @@ func DeleteVendor(vendorId int) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
 	log.Println("INFO: Vendor with Id '" + strconv.Itoa(vendorId) + "' has been deleted")
 	return true, nil
@@ -83,6 +111,7 @@ func GetVendors() ([]Vendor, error) {
 		log.Println("ERROR: Could not run the DB query!" + string(err.Error()))
 		return nil, err
 	}
+	defer rows.Close()
 
 	vendors := make([]Vendor, 0)
 	for rows.Next() {
@@ -114,14 +143,11 @@ func GetVendorById(id int) (Vendor, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return Vendor{}, err
 	}
+	defer rec.Close()
 
 	vendor := Vendor{}
-	err = rec.QueryRow(id).Scan(
-		&vendor.Id,
-		&vendor.VendorName,
-		&vendor.CreatorId,
-		&vendor.CreationDate,
-	)
+
+	r, err := rec.Query(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Println("ERROR: No such vendor found in DB: " + string(err.Error()))
@@ -130,9 +156,18 @@ func GetVendorById(id int) (Vendor, error) {
 		log.Println("ERROR: Cannot retrieve vendor from DB: " + string(err.Error()))
 		return Vendor{}, err
 	}
+	defer r.Close()
+
+	r.Scan(
+		&vendor.Id,
+		&vendor.VendorName,
+		&vendor.CreatorId,
+		&vendor.CreationDate,
+	)
 
 	vendor.CreationDate = ConvertSqliteTimestamp(vendor.CreationDate)
 
+	log.Println("INFO: Vendor with Id '" + strconv.Itoa(id) + "' has been retrieved")
 	return vendor, nil
 }
 
@@ -143,14 +178,11 @@ func GetVendorByName(vendorName string) (Vendor, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return Vendor{}, err
 	}
+	defer rec.Close()
 
 	vendor := Vendor{}
-	err = rec.QueryRow(vendorName).Scan(
-		&vendor.Id,
-		&vendor.VendorName,
-		&vendor.CreatorId,
-		&vendor.CreationDate,
-	)
+
+	r, err := rec.Query(vendorName)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Println("ERROR: No such user found in DB: " + string(err.Error()))
@@ -159,8 +191,17 @@ func GetVendorByName(vendorName string) (Vendor, error) {
 		log.Println("ERROR: Cannot retrieve user from DB: " + string(err.Error()))
 		return Vendor{}, err
 	}
+	defer r.Close()
+
+	r.Scan(
+		&vendor.Id,
+		&vendor.VendorName,
+		&vendor.CreatorId,
+		&vendor.CreationDate,
+	)
 
 	vendor.CreationDate = ConvertSqliteTimestamp(vendor.CreationDate)
 
+	log.Println("INFO: Vendor with Name '" + vendorName + "' has been retrieved")
 	return vendor, nil
 }
