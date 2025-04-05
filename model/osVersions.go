@@ -31,6 +31,16 @@ func CreateOSVersion(osVersion OperatingSystemVersion, id int) (bool, error) {
 		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := t.Prepare("INSERT INTO OperatingSystemVersions (OperatingSystemId, VersionNumber, CreatorId) VALUES (?, ?, ?)")
 	if err != nil {
@@ -44,7 +54,11 @@ func CreateOSVersion(osVersion OperatingSystemVersion, id int) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
 	log.Println("INFO: Operating System Version record '" + osVersion.VersionNumber + "' created")
 	return true, nil
@@ -57,6 +71,16 @@ func DeleteOSVersion(osVersionId int) (bool, error) {
 		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := DB.Prepare("DELETE FROM OperatingSystemVersions WHERE Id IS ?")
 	if err != nil {
@@ -70,7 +94,11 @@ func DeleteOSVersion(osVersionId int) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
 	log.Println("INFO: Operating System Version with Id '" + strconv.Itoa(osVersionId) + "' has been deleted")
 	return true, nil
@@ -83,6 +111,7 @@ func GetOSVersions() ([]OperatingSystemVersion, error) {
 		log.Println("ERROR: Could not run the DB query!" + string(err.Error()))
 		return nil, err
 	}
+	defer rows.Close()
 
 	osVersions := make([]OperatingSystemVersion, 0)
 	for rows.Next() {
@@ -115,15 +144,11 @@ func GetOSVersionById(id int) (OperatingSystemVersion, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return OperatingSystemVersion{}, err
 	}
+	defer rec.Close()
 
 	osVersion := OperatingSystemVersion{}
-	err = rec.QueryRow(id).Scan(
-		&osVersion.Id,
-		&osVersion.OperatingSystemId,
-		&osVersion.VersionNumber,
-		&osVersion.CreatorId,
-		&osVersion.CreationDate,
-	)
+
+	r, err := rec.Query(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Println("ERROR: No such Operating System Version record found in DB: " + string(err.Error()))
@@ -132,9 +157,19 @@ func GetOSVersionById(id int) (OperatingSystemVersion, error) {
 		log.Println("ERROR: Cannot retrieve Operating System Version record from DB: " + string(err.Error()))
 		return OperatingSystemVersion{}, err
 	}
+	defer r.Close()
+
+	r.Scan(
+		&osVersion.Id,
+		&osVersion.OperatingSystemId,
+		&osVersion.VersionNumber,
+		&osVersion.CreatorId,
+		&osVersion.CreationDate,
+	)
 
 	osVersion.CreationDate = ConvertSqliteTimestamp(osVersion.CreationDate)
 
+	log.Println("INFO: Operating System Version with Id '" + strconv.Itoa(id) + "' has been retrieved")
 	return osVersion, nil
 }
 
@@ -145,17 +180,19 @@ func GetOSVersionsByOSId(osId int) ([]OperatingSystemVersion, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return nil, err
 	}
+	defer rec.Close()
 
 	rows, err := rec.Query(osId)
 	if err != nil {
 		log.Println("ERROR: Could not query DB: " + string(err.Error()))
 		return nil, err
 	}
+	defer rows.Close()
 
 	versions := make([]OperatingSystemVersion, 0)
 	for rows.Next() {
 		osVersion := OperatingSystemVersion{}
-		err = rec.QueryRow(osId).Scan(
+		err = rows.Scan(
 			&osVersion.Id,
 			&osVersion.OperatingSystemId,
 			&osVersion.VersionNumber,
@@ -176,5 +213,6 @@ func GetOSVersionsByOSId(osId int) ([]OperatingSystemVersion, error) {
 		versions = append(versions, osVersion)
 	}
 
+	log.Println("INFO: List of Operating System Versions with OS Id '" + strconv.Itoa(osId) + "' retrieved")
 	return versions, nil
 }
