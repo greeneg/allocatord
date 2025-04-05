@@ -32,6 +32,16 @@ func CreateOperatingSystem(os OperatingSystem, id int) (bool, error) {
 		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := t.Prepare("INSERT INTO OperatingSystems (OSName, OSFamilyId, OSImageUrl, ImageUriProtocol, CreatorId) VALUES (?, ?, ?, ?, ?)")
 	if err != nil {
@@ -45,7 +55,11 @@ func CreateOperatingSystem(os OperatingSystem, id int) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
 	log.Println("INFO: Operating System record '" + os.OSName + "' created")
 	return true, nil
@@ -58,6 +72,16 @@ func DeleteOperatingSystem(osId int) (bool, error) {
 		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := DB.Prepare("DELETE FROM OperatingSystems WHERE Id IS ?")
 	if err != nil {
@@ -71,7 +95,11 @@ func DeleteOperatingSystem(osId int) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
 	log.Println("INFO: Operating System with Id '" + strconv.Itoa(osId) + "' has been deleted")
 	return true, nil
@@ -84,6 +112,7 @@ func GetOperatingSystems() ([]OperatingSystem, error) {
 		log.Println("ERROR: Could not run the DB query!" + string(err.Error()))
 		return nil, err
 	}
+	defer rows.Close()
 
 	operatingSystems := make([]OperatingSystem, 0)
 	for rows.Next() {
@@ -119,9 +148,22 @@ func GetOperatingSystemById(id int) (OperatingSystem, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return OperatingSystem{}, err
 	}
+	defer rec.Close()
 
 	os := OperatingSystem{}
-	err = rec.QueryRow(id).Scan(
+
+	r, err := rec.Query(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Println("ERROR: No such Operating System record found in DB: " + string(err.Error()))
+			return OperatingSystem{}, nil
+		}
+		log.Println("ERROR: Cannot retrieve Operating System record from DB: " + string(err.Error()))
+		return OperatingSystem{}, err
+	}
+	defer r.Close()
+
+	r.Scan(
 		&os.Id,
 		&os.OSName,
 		&os.OSFamilyId,
@@ -131,14 +173,6 @@ func GetOperatingSystemById(id int) (OperatingSystem, error) {
 		&os.CreatorId,
 		&os.CreationDate,
 	)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			log.Println("ERROR: No such Operating System record found in DB: " + string(err.Error()))
-			return OperatingSystem{}, nil
-		}
-		log.Println("ERROR: Cannot retrieve Operating System record from DB: " + string(err.Error()))
-		return OperatingSystem{}, err
-	}
 
 	os.CreationDate = ConvertSqliteTimestamp(os.CreationDate)
 
@@ -152,17 +186,23 @@ func GetOperatingSystemsByFamilyId(osFamilyId int) ([]OperatingSystem, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return nil, err
 	}
+	defer rec.Close()
 
 	rows, err := rec.Query(osFamilyId)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Println("ERROR: No such Operating System with family Id '" + strconv.Itoa(osFamilyId) + "' found in DB: " + string(err.Error()))
+			return nil, err
+		}
 		log.Println("ERROR: Could not query DB: " + string(err.Error()))
 		return nil, err
 	}
+	defer rows.Close()
 
 	operatingSystems := make([]OperatingSystem, 0)
 	for rows.Next() {
 		os := OperatingSystem{}
-		err = rec.QueryRow(osFamilyId).Scan(
+		rows.Scan(
 			&os.Id,
 			&os.OSName,
 			&os.OSFamilyId,
@@ -172,20 +212,13 @@ func GetOperatingSystemsByFamilyId(osFamilyId int) ([]OperatingSystem, error) {
 			&os.CreatorId,
 			&os.CreationDate,
 		)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				log.Println("ERROR: No such Operating System with family Id '" + strconv.Itoa(osFamilyId) + "' found in DB: " + string(err.Error()))
-				return nil, err
-			}
-			log.Println("ERROR: Cannot retrieve Operating System with family Id '" + strconv.Itoa(osFamilyId) + "' from DB: " + string(err.Error()))
-			return nil, err
-		}
 
 		os.CreationDate = ConvertSqliteTimestamp(os.CreationDate)
 
 		operatingSystems = append(operatingSystems, os)
 	}
 
+	log.Println("INFO: List of Operating Systems with family Id '" + strconv.Itoa(osFamilyId) + "' retrieved")
 	return operatingSystems, nil
 }
 
@@ -196,17 +229,23 @@ func GetOperatingSystemsByVendorId(osVendorId int) ([]OperatingSystem, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return nil, err
 	}
+	defer rec.Close()
 
 	rows, err := rec.Query(osVendorId)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Println("ERROR: No such Operating System with family Id '" + strconv.Itoa(osVendorId) + "' found in DB: " + string(err.Error()))
+			return nil, err
+		}
 		log.Println("ERROR: Could not query DB: " + string(err.Error()))
 		return nil, err
 	}
+	defer rows.Close()
 
 	operatingSystems := make([]OperatingSystem, 0)
 	for rows.Next() {
 		os := OperatingSystem{}
-		err = rec.QueryRow(osVendorId).Scan(
+		rows.Scan(
 			&os.Id,
 			&os.OSName,
 			&os.OSFamilyId,
@@ -216,14 +255,6 @@ func GetOperatingSystemsByVendorId(osVendorId int) ([]OperatingSystem, error) {
 			&os.CreatorId,
 			&os.CreationDate,
 		)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				log.Println("ERROR: No such Operating System with family Id '" + strconv.Itoa(osVendorId) + "' found in DB: " + string(err.Error()))
-				return nil, err
-			}
-			log.Println("ERROR: Cannot retrieve Operating System with family Id '" + strconv.Itoa(osVendorId) + "' from DB: " + string(err.Error()))
-			return nil, err
-		}
 
 		os.CreationDate = ConvertSqliteTimestamp(os.CreationDate)
 
@@ -239,6 +270,16 @@ func UpdateOperatingSystemById(osId int, os OperatingSystem) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := t.Prepare("UPDATE OperatingSystems SET OSName = ?, OSFamilyId = ?, OSImageUrl = ?, ImageUriProtocol = ? WHERE Id = ?")
 	if err != nil {
@@ -254,7 +295,12 @@ func UpdateOperatingSystemById(osId int, os OperatingSystem) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
+	log.Println("INFO: Operating System with Id '" + strconv.Itoa(osId) + "' has been updated")
 	return true, nil
 }
