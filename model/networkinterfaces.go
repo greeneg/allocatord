@@ -180,6 +180,7 @@ func GetNetworkInterfaceById(id int) (NetworkInterface, error) {
 
 	networkInterface.CreationDate = ConvertSqliteTimestamp(networkInterface.CreationDate)
 
+	log.Println("INFO: Network Interface with Id '" + strconv.Itoa(id) + "' retrieved")
 	return networkInterface, nil
 }
 
@@ -319,6 +320,7 @@ func UpdateNetworkInterface(networkInterfaceId int, n NetworkInterface) (bool, e
 	log.Println("INFO: Update network interface by Id requested: " + strconv.Itoa(networkInterfaceId))
 	t, err := DB.Begin()
 	if err != nil {
+		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
 	defer func() {
@@ -334,15 +336,18 @@ func UpdateNetworkInterface(networkInterfaceId int, n NetworkInterface) (bool, e
 
 	q, err := t.Prepare("UPDATE NetworkInterfaces SET DeviceModel = ?, DeviceId = ?, MACAddress = ?, SystemId = ?, IpAddress = ?, Bitmask = ?, Gateway = ? WHERE Id = ?")
 	if err != nil {
+		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return false, err
 	}
 
 	networkInterface, err := json.Marshal(n)
 	if err != nil {
+		log.Println("ERROR: Cannot marshal the network interface object!" + string(err.Error()))
 		return false, err
 	}
 	_, err = q.Exec(networkInterface, networkInterfaceId)
 	if err != nil {
+		log.Println("ERROR: Cannot update network interface '" + n.DeviceModel + "': " + string(err.Error()))
 		return false, err
 	}
 
