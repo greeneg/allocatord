@@ -31,6 +31,16 @@ func CreateOU(o OrgUnit, id int) (bool, error) {
 		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := t.Prepare("INSERT INTO Roles (OUName, Description, CreatorId) VALUES (?, ?, ?)")
 	if err != nil {
@@ -44,7 +54,11 @@ func CreateOU(o OrgUnit, id int) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
 	log.Println("INFO: Organizational Unit '" + o.OUName + "' created")
 	return true, nil
@@ -57,6 +71,16 @@ func DeleteOU(ouId int) (bool, error) {
 		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := DB.Prepare("DELETE FROM OrganizationalUnits WHERE Id IS ?")
 	if err != nil {
@@ -70,7 +94,11 @@ func DeleteOU(ouId int) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
 	log.Println("INFO: Organizational Unit with Id '" + strconv.Itoa(ouId) + "' has been deleted")
 	return true, nil
@@ -83,6 +111,7 @@ func GetOUs() ([]OrgUnit, error) {
 		log.Println("ERROR: Could not run the DB query!" + string(err.Error()))
 		return nil, err
 	}
+	defer rows.Close()
 
 	units := make([]OrgUnit, 0)
 	for rows.Next() {
@@ -115,15 +144,11 @@ func GetOUById(id int) (OrgUnit, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return OrgUnit{}, err
 	}
+	defer rec.Close()
 
 	ou := OrgUnit{}
-	err = rec.QueryRow(id).Scan(
-		&ou.Id,
-		&ou.OUName,
-		&ou.Description,
-		&ou.CreatorId,
-		&ou.CreationDate,
-	)
+
+	r, err := rec.Query(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Println("ERROR: No such user found in DB: " + string(err.Error()))
@@ -132,8 +157,18 @@ func GetOUById(id int) (OrgUnit, error) {
 		log.Println("ERROR: Cannot retrieve user from DB: " + string(err.Error()))
 		return OrgUnit{}, err
 	}
+	defer r.Close()
+
+	r.Scan(
+		&ou.Id,
+		&ou.OUName,
+		&ou.Description,
+		&ou.CreatorId,
+		&ou.CreationDate,
+	)
 
 	ou.CreationDate = ConvertSqliteTimestamp(ou.CreationDate)
 
+	log.Println("INFO: Organizational Unit with Id '" + strconv.Itoa(ou.Id) + "' retrieved")
 	return ou, nil
 }
