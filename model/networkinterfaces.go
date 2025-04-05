@@ -32,6 +32,16 @@ func CreateNetworkInterface(n NetworkInterface, id int) (bool, error) {
 		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := t.Prepare("INSERT INTO NetworkInterfaces (DeviceModel, DeviceId, MACAddress, SystemId, IpAddress, Bitmask, Gateway, CreatorId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
@@ -45,7 +55,11 @@ func CreateNetworkInterface(n NetworkInterface, id int) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
 	log.Println("INFO: Network Interface '" + n.DeviceModel + "' created")
 	return true, nil
@@ -58,6 +72,16 @@ func DeleteNetworkInterface(networkInterfaceId int) (bool, error) {
 		log.Println("ERROR: Could not start DB transaction!" + string(err.Error()))
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := DB.Prepare("DELETE FROM NetworkInterfaces WHERE Id IS ?")
 	if err != nil {
@@ -71,7 +95,11 @@ func DeleteNetworkInterface(networkInterfaceId int) (bool, error) {
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
 	log.Println("INFO: Network Interface with Id '" + strconv.Itoa(networkInterfaceId) + "' has been deleted")
 	return true, nil
@@ -84,6 +112,7 @@ func GetNetworkInterfaces() ([]NetworkInterface, error) {
 		log.Println("ERROR: Could not run the DB query!" + string(err.Error()))
 		return nil, err
 	}
+	defer rows.Close()
 
 	networkInterfaces := make([]NetworkInterface, 0)
 	for rows.Next() {
@@ -121,9 +150,22 @@ func GetNetworkInterfaceById(id int) (NetworkInterface, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return NetworkInterface{}, err
 	}
+	defer rec.Close()
 
 	networkInterface := NetworkInterface{}
-	err = rec.QueryRow(id).Scan(
+
+	r, err := rec.Query(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Println("ERROR: No such network interface found in DB: " + string(err.Error()))
+			return NetworkInterface{}, nil
+		}
+		log.Println("ERROR: Cannot retrieve network interface from DB: " + string(err.Error()))
+		return NetworkInterface{}, err
+	}
+	defer r.Close()
+
+	r.Scan(
 		&networkInterface.Id,
 		&networkInterface.DeviceModel,
 		&networkInterface.DeviceId,
@@ -135,14 +177,6 @@ func GetNetworkInterfaceById(id int) (NetworkInterface, error) {
 		&networkInterface.CreatorId,
 		&networkInterface.CreationDate,
 	)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			log.Println("ERROR: No such network interface found in DB: " + string(err.Error()))
-			return NetworkInterface{}, nil
-		}
-		log.Println("ERROR: Cannot retrieve network interface from DB: " + string(err.Error()))
-		return NetworkInterface{}, err
-	}
 
 	networkInterface.CreationDate = ConvertSqliteTimestamp(networkInterface.CreationDate)
 
@@ -156,9 +190,22 @@ func GetNetworkInterfaceByIpAddress(ipAddr string) (NetworkInterface, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return NetworkInterface{}, err
 	}
+	defer rec.Close()
 
 	networkInterface := NetworkInterface{}
-	err = rec.QueryRow(ipAddr).Scan(
+
+	r, err := rec.Query(ipAddr)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Println("ERROR: No such network interface found in DB: " + string(err.Error()))
+			return NetworkInterface{}, nil
+		}
+		log.Println("ERROR: Cannot retrieve network interface from DB: " + string(err.Error()))
+		return NetworkInterface{}, err
+	}
+	defer r.Close()
+
+	r.Scan(
 		&networkInterface.Id,
 		&networkInterface.DeviceModel,
 		&networkInterface.DeviceId,
@@ -170,17 +217,10 @@ func GetNetworkInterfaceByIpAddress(ipAddr string) (NetworkInterface, error) {
 		&networkInterface.CreatorId,
 		&networkInterface.CreationDate,
 	)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			log.Println("ERROR: No such network interface found in DB: " + string(err.Error()))
-			return NetworkInterface{}, nil
-		}
-		log.Println("ERROR: Cannot retrieve network interface from DB: " + string(err.Error()))
-		return NetworkInterface{}, err
-	}
 
 	networkInterface.CreationDate = ConvertSqliteTimestamp(networkInterface.CreationDate)
 
+	log.Println("INFO: Network Interface with IP address '" + ipAddr + "' retrieved")
 	return networkInterface, nil
 }
 
@@ -191,9 +231,22 @@ func GetNetworkInterfaceByMACAddress(macAddress string) (NetworkInterface, error
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return NetworkInterface{}, err
 	}
+	defer rec.Close()
 
 	networkInterface := NetworkInterface{}
-	err = rec.QueryRow(macAddress).Scan(
+
+	r, err := rec.Query(macAddress)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Println("ERROR: No such network interface found in DB: " + string(err.Error()))
+			return NetworkInterface{}, nil
+		}
+		log.Println("ERROR: Cannot retrieve network interface from DB: " + string(err.Error()))
+		return NetworkInterface{}, err
+	}
+	defer r.Close()
+
+	r.Scan(
 		&networkInterface.Id,
 		&networkInterface.DeviceModel,
 		&networkInterface.DeviceId,
@@ -205,17 +258,10 @@ func GetNetworkInterfaceByMACAddress(macAddress string) (NetworkInterface, error
 		&networkInterface.CreatorId,
 		&networkInterface.CreationDate,
 	)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			log.Println("ERROR: No such network interface found in DB: " + string(err.Error()))
-			return NetworkInterface{}, nil
-		}
-		log.Println("ERROR: Cannot retrieve network interface from DB: " + string(err.Error()))
-		return NetworkInterface{}, err
-	}
 
 	networkInterface.CreationDate = ConvertSqliteTimestamp(networkInterface.CreationDate)
 
+	log.Println("INFO: Network Interface with MAC address '" + macAddress + "' retrieved")
 	return networkInterface, nil
 }
 
@@ -226,16 +272,19 @@ func GetNetworkInterfacesBySystemId(systemId int) ([]NetworkInterface, error) {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return nil, err
 	}
+	defer rec.Close()
 
 	rows, err := rec.Query(systemId)
 	if err != nil {
 		log.Println("ERROR: Could not query DB: " + string(err.Error()))
 		return nil, err
 	}
+	defer rows.Close()
 
 	networkInterfaces := make([]NetworkInterface, 0)
 	for rows.Next() {
 		networkInterface := NetworkInterface{}
+
 		err = rows.Scan(
 			&networkInterface.Id,
 			&networkInterface.DeviceModel,
@@ -262,6 +311,7 @@ func GetNetworkInterfacesBySystemId(systemId int) ([]NetworkInterface, error) {
 		networkInterfaces = append(networkInterfaces, networkInterface)
 	}
 
+	log.Println("INFO: List of network interfaces by System Id retrieved")
 	return networkInterfaces, nil
 }
 
@@ -271,6 +321,16 @@ func UpdateNetworkInterface(networkInterfaceId int, n NetworkInterface) (bool, e
 	if err != nil {
 		return false, err
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
 
 	q, err := t.Prepare("UPDATE NetworkInterfaces SET DeviceModel = ?, DeviceId = ?, MACAddress = ?, SystemId = ?, IpAddress = ?, Bitmask = ?, Gateway = ? WHERE Id = ?")
 	if err != nil {
@@ -286,7 +346,12 @@ func UpdateNetworkInterface(networkInterfaceId int, n NetworkInterface) (bool, e
 		return false, err
 	}
 
-	t.Commit()
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
 
+	log.Println("INFO: Network Interface '" + n.DeviceModel + "' updated")
 	return true, nil
 }
