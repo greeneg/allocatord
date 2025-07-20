@@ -2734,6 +2734,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/{name}/typeId": {
+            "patch": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Set a user's type Id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Set a user's type Id",
+                "parameters": [
+                    {
+                        "description": "User Type Id",
+                        "name": "typeId",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UserType"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.UserType"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "security": [
@@ -2765,7 +2817,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/byOuId/{ouId}": {
+        "/users/ouid/{ouId}": {
             "get": {
                 "security": [
                     {
@@ -2805,7 +2857,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/byRoleId/{roleId}": {
+        "/users/roleid/{roleId}": {
             "get": {
                 "security": [
                     {
@@ -2825,6 +2877,46 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Role Id",
                         "name": "roleId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.UsersList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.FailureMsg"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/typeid/{typeId}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve list of users by type Id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Retrieve list of users by type Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Type Id",
+                        "name": "typeId",
                         "in": "path",
                         "required": true
                     }
@@ -3346,6 +3438,9 @@ const docTemplate = `{
                 },
                 "userName": {
                     "type": "string"
+                },
+                "userTypeId": {
+                    "type": "integer"
                 }
             }
         },
@@ -3466,6 +3561,9 @@ const docTemplate = `{
                 },
                 "userName": {
                     "type": "string"
+                },
+                "userTypeId": {
+                    "type": "integer"
                 }
             }
         },
@@ -3522,6 +3620,29 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "userStatus": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UserType": {
+            "type": "object",
+            "properties": {
+                "Id": {
+                    "type": "integer"
+                },
+                "allowDeletion": {
+                    "type": "boolean"
+                },
+                "allowDisable": {
+                    "type": "boolean"
+                },
+                "allowRoleChange": {
+                    "type": "boolean"
+                },
+                "typeDescription": {
+                    "type": "string"
+                },
+                "typeName": {
                     "type": "string"
                 }
             }

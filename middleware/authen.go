@@ -46,54 +46,73 @@ func processAuthorizationHeader(authHeader string) (string, string) {
 }
 
 func AuthCheck(c *gin.Context) {
-	session := sessions.Default(c)
-	user := session.Get("user")
-	if user == nil {
-		log.Println("INFO: No session found. Attempting to check for authentication headers")
-		baHeader := c.GetHeader("Authorization")
-		if baHeader == "" {
-			log.Println("ERROR: No authentication header found. Aborting")
-			c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "not authorized!"})
-			c.Abort()
-			return
-		}
-		// otherwise, lets process that header
-		username, password := processAuthorizationHeader(baHeader)
-		authStatus := helpers.CheckUserPass(username, password)
-		if authStatus {
-			session.Set(globals.UserKey, username)
-			if err := session.Save(); err != nil {
-				c.IndentedJSON(http.StatusInternalServerError,
-					gin.H{"error": "failed to save user session"})
-				// session saving is not fatal, so allow them to proceed
-			}
-			log.Println("INFO: Authenticated")
-		} else {
-			log.Println("ERROR: Authentication failed. Aborting")
-			c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "not authorized!"})
-			c.Abort()
-			return
-		}
+	var clientFingerprintHeader string = c.GetHeader("X-ASSIMILATOR-TYPE")
+	// check if this is a machine logging in for DB access
+	if clientFingerprintHeader == "MACHINE" {
+		// now grab the token from the headers
+		/*		authToken := c.GetHeader("X-Auth-Token")
+				if authToken != "" {
+					result, err := verifyMachineToken(authToken)
+					if err != nil {
+					}
+					if result {
+
+					} else {
+
+					}
+				} else {
+
+				} */
 	} else {
-		userString := fmt.Sprintf("%v", user)
-		log.Println("INFO: Session found: User: " + userString)
-		log.Println("INFO: Checking if user is locked or not...")
-		user, err := model.GetUserByUserName(userString)
-		if err != nil {
-			log.Println("ERROR: " + string(err.Error()))
-			c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "unable to authenticate: " + err.Error()})
-			c.Abort()
-			return
-		}
-		status := helpers.CheckIsNotLocked(user)
-		if status {
-			log.Println("INFO: Authenticated")
+		session := sessions.Default(c)
+		user := session.Get("user")
+		if user == nil {
+			log.Println("INFO: No session found. Attempting to check for authentication headers")
+			baHeader := c.GetHeader("Authorization")
+			if baHeader == "" {
+				log.Println("ERROR: No authentication header found. Aborting")
+				c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "not authorized!"})
+				c.Abort()
+				return
+			}
+			// otherwise, lets process that header
+			username, password := processAuthorizationHeader(baHeader)
+			authStatus := helpers.CheckUserPass(username, password)
+			if authStatus {
+				session.Set(globals.UserKey, username)
+				if err := session.Save(); err != nil {
+					c.IndentedJSON(http.StatusInternalServerError,
+						gin.H{"error": "failed to save user session"})
+					// session saving is not fatal, so allow them to proceed
+				}
+				log.Println("INFO: Authenticated")
+			} else {
+				log.Println("ERROR: Authentication failed. Aborting")
+				c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "not authorized!"})
+				c.Abort()
+				return
+			}
 		} else {
-			log.Println("WARN: User '" + userString + "' is locked!")
-			c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "not authorized!"})
-			c.Abort()
-			return
+			userString := fmt.Sprintf("%v", user)
+			log.Println("INFO: Session found: User: " + userString)
+			log.Println("INFO: Checking if user is locked or not...")
+			user, err := model.GetUserByUserName(userString)
+			if err != nil {
+				log.Println("ERROR: " + string(err.Error()))
+				c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "unable to authenticate: " + err.Error()})
+				c.Abort()
+				return
+			}
+			status := helpers.CheckIsNotLocked(user)
+			if status {
+				log.Println("INFO: Authenticated")
+			} else {
+				log.Println("WARN: User '" + userString + "' is locked!")
+				c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "not authorized!"})
+				c.Abort()
+				return
+			}
 		}
+		c.Next()
 	}
-	c.Next()
 }

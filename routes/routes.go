@@ -92,16 +92,34 @@ func PrivateRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 	g.POST("/storageVolume", a.CreateStorageVolume)                                          // create a new storage volume
 	g.PATCH("/storageVolume/:storageVolumeId", a.UpdateStorageVolume)                        // update a storage volume
 	g.DELETE("/storageVolume/:storageVolumeId", a.DeleteStorageVolume)                       // delete a storage volume
+	// System Models
+	// g.GET("/systemModels", a.GetSystemModels)                                // get all system models
+	// g.GET("/systemModels/byVendorId/:vendorId", a.GetSystemModelsByVendorId) // get system models by vendor Id
+	//g.POST("/systemModel", a.CreateSystemModel)                              // create new system models
+	//g.DELETE("/systemModel/:modelId", a.DeleteSystemModel)                   // delete a system model
+	// Systems
+	g.GET("/systems")                                // get all systems
+	g.GET("/systems/byVendorId/:vendorId")           // get systems by vendor Id
+	g.GET("/systems/byCpuCores/:coreCount")          // get systems by number of CPU Cores
+	g.GET("/systems/byRAM/:memoryCount")             // get systems by amount of installed RAM
+	g.GET("/systems/byMachineRoleId/:machineRoleId") // get systems by the machine's role Id
+	g.GET("/systems/byOuId/:ouId")                   // get systems by organizational unit Id
+	g.GET("/system/byId/:id")                        // get system by Id
 	// user related routes
-	g.GET("/users", a.GetUsers)                          // get all users
-	g.GET("/users/byOuId/:ouId", a.GetUsersByOuId)       // get all users by organizational unit Id
-	g.GET("/users/byRoleId/:roleId", a.GetUsersByRoleId) // get all users by role Id
-	g.GET("/user/:name/status", a.GetUserStatus)         // get whether a user is locked or not
-	g.POST("/user", a.CreateUser)                        // create new user
-	g.PATCH("/user/:name/status", a.SetUserStatus)       // lock a user
-	g.PATCH("/user/:name/ouId", a.SetUserOuId)           // set a user's organizational unit Id
-	g.PATCH("/user/:name/roleId", a.SetUserRoleId)       // set a user's role Id
-	g.DELETE("/user/:name", a.DeleteUser)                // trash a user
+	g.GET("/users", a.GetUsers)                        // get all users
+	g.GET("/users/ouid/:ouId", a.GetUsersByOuId)       // get all users by organizational unit Id
+	g.GET("/users/roleid/:roleId", a.GetUsersByRoleId) // get all users by role Id
+	g.GET("/users/typeid/:typeId", a.GetUsersByTypeId) // get all users by type Id
+	g.GET("/user/name/:name", a.GetUserByUserName)     // get a user by username
+	g.GET("/user/name/:name/status", a.GetUserStatus)  // get whether a user is locked or not
+	g.GET("/user/id/:id", a.GetUserById)               // get a user by Id
+	g.POST("/user", a.CreateUser)                      // create new user
+	g.PATCH("/user/:name", a.ChangeAccountPassword)    // update a user password
+	g.PATCH("/user/:name/status", a.SetUserStatus)     // lock a user
+	g.PATCH("/user/:name/ouid", a.SetUserOuId)         // set a user's organizational unit Id
+	g.PATCH("/user/:name/roleid", a.SetUserRoleId)     // set a user's role Id
+	g.PATCH("/user/:name/typeid", a.SetUserTypeId)     // set a user's type Id
+	g.DELETE("/user/:name", a.DeleteUser)              // trash a user
 	// Vendors
 	g.GET("/vendors", a.GetVendors)               // get all vendors
 	g.GET("/vendor/byId/:id", a.GetVendorById)    // get a vendor by Id
@@ -110,19 +128,6 @@ func PrivateRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
 }
 
 func PublicRoutes(g *gin.RouterGroup, a *controllers.Allocator) {
-	// User related routes
-	g.GET("/user/byId/:id", a.GetUserById)          // get a user by Id
-	g.GET("/user/:name", a.GetUserByUserName)       // get a user by username
-	g.PATCH("/user/:name", a.ChangeAccountPassword) // update a user password
-	// Systems
-	g.GET("/systems")                                // get all systems
-	g.GET("/systems/byVendorId/:vendorid")           // get systems by vendor Id
-	g.GET("/systems/byCpuCores/:coreCount")          // get systems by number of CPU Cores
-	g.GET("/systems/byRAM/:memoryCount")             // get systems by amount of installed RAM
-	g.GET("/systems/byMachineRoleId/:machineRoleId") // get systems by the machine's role Id
-	g.GET("/systems/byOuId/:ouId")                   // get systems by organizational unit Id
-	g.GET("/system/byId/:id")                        // get system by Id
 	// service related routes
-	g.OPTIONS("/")   // API options
 	g.GET("/health") // service health API
 }

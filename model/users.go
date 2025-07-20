@@ -141,32 +141,23 @@ func ChangeAccountPassword(username string, oldPassword string, newPassword stri
 
 func GetUserById(id int) (User, error) {
 	log.Println("INFO: User by Id requested: " + strconv.Itoa(id))
-	rec, err := DB.Prepare("SELECT * FROM Users WHERE Id = ?")
+	stmt, err := DB.Prepare("SELECT * FROM Users WHERE Id = ?")
 	if err != nil {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return User{}, err
 	}
-	defer rec.Close()
+	defer stmt.Close()
 
 	user := User{}
-	r, err := rec.Query(id)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			log.Println("ERROR: No such user found in DB: " + string(err.Error()))
-			return User{}, nil
-		}
-		log.Println("ERROR: Cannot retrieve user from DB: " + string(err.Error()))
-		return User{}, err
-	}
-	defer r.Close()
-
-	err = r.Scan(
+	record := stmt.QueryRow(id)
+	err = record.Scan(
 		&user.Id,
 		&user.UserName,
 		&user.FullName,
 		&user.Status,
 		&user.OrgUnitId,
 		&user.RoleId,
+		&user.TypeId,
 		&user.PasswordHash,
 		&user.CreationDate,
 		&user.LastPasswordChangedDate,
@@ -185,32 +176,23 @@ func GetUserById(id int) (User, error) {
 
 func GetUserByUserName(username string) (User, error) {
 	log.Println("INFO: User by username requested: " + username)
-	rec, err := DB.Prepare("SELECT * FROM Users WHERE UserName = ?")
+	stmt, err := DB.Prepare("SELECT * FROM Users WHERE UserName = ?")
 	if err != nil {
 		log.Println("ERROR: Could not prepare the DB query!" + string(err.Error()))
 		return User{}, err
 	}
-	defer rec.Close()
+	defer stmt.Close()
 
 	user := User{}
-	r, err := rec.Query(username)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			log.Println("ERROR: No such user found in DB: " + string(err.Error()))
-			return User{}, nil
-		}
-		log.Println("ERROR: Cannot retrieve user from DB: " + string(err.Error()))
-		return User{}, err
-	}
-	defer r.Close()
-
-	err = r.Scan(
+	record := stmt.QueryRow(username)
+	err = record.Scan(
 		&user.Id,
 		&user.UserName,
 		&user.FullName,
 		&user.Status,
 		&user.OrgUnitId,
 		&user.RoleId,
+		&user.TypeId,
 		&user.PasswordHash,
 		&user.CreationDate,
 		&user.LastPasswordChangedDate,
@@ -330,6 +312,7 @@ func GetUsers() ([]User, error) {
 			&user.Status,
 			&user.OrgUnitId,
 			&user.RoleId,
+			&user.TypeId,
 			&user.PasswordHash,
 			&user.CreationDate,
 			&user.LastPasswordChangedDate,
@@ -368,6 +351,7 @@ func GetUsersByOuId(ouId int) ([]User, error) {
 			&user.Status,
 			&user.OrgUnitId,
 			&user.RoleId,
+			&user.TypeId,
 			&user.PasswordHash,
 			&user.CreationDate,
 			&user.LastPasswordChangedDate,
@@ -405,6 +389,83 @@ func GetUsersByRoleId(roleId int) ([]User, error) {
 			&user.Status,
 			&user.OrgUnitId,
 			&user.RoleId,
+			&user.TypeId,
+			&user.PasswordHash,
+			&user.CreationDate,
+			&user.LastPasswordChangedDate,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		user.CreationDate = ConvertSqliteTimestamp(user.CreationDate)
+		user.LastPasswordChangedDate = ConvertSqliteTimestamp(user.LastPasswordChangedDate)
+
+		users = append(users, user)
+	}
+
+	log.Println("INFO: List of selected users retrieved")
+	return users, nil
+}
+
+func GetUserByTypeId(typeId int) ([]User, error) {
+	log.Println("INFO: List user objects based on type Id")
+	rows, err := DB.Query("SELECT * FROM Users WHERE TypeId IS ?", typeId)
+	if err != nil {
+		log.Println("ERROR: Could not prepare DB query! " + string(err.Error()))
+		return []User{}, err
+	}
+	defer rows.Close()
+
+	users := make([]User, 0)
+	for rows.Next() {
+		user := User{}
+		err := rows.Scan(
+			&user.Id,
+			&user.UserName,
+			&user.FullName,
+			&user.Status,
+			&user.OrgUnitId,
+			&user.RoleId,
+			&user.TypeId,
+			&user.PasswordHash,
+			&user.CreationDate,
+			&user.LastPasswordChangedDate,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		user.CreationDate = ConvertSqliteTimestamp(user.CreationDate)
+		user.LastPasswordChangedDate = ConvertSqliteTimestamp(user.LastPasswordChangedDate)
+
+		users = append(users, user)
+	}
+
+	log.Println("INFO: List of selected users retrieved")
+	return users, nil
+}
+
+func GetUsersByTypeId(typeId int) ([]User, error) {
+	log.Println("INFO: List user objects based on type Id")
+	rows, err := DB.Query("SELECT * FROM Users WHERE UserTypeId IS ?", typeId)
+	if err != nil {
+		log.Println("ERROR: Could not prepare DB query! " + string(err.Error()))
+		return []User{}, err
+	}
+	defer rows.Close()
+
+	users := make([]User, 0)
+	for rows.Next() {
+		user := User{}
+		err := rows.Scan(
+			&user.Id,
+			&user.UserName,
+			&user.FullName,
+			&user.Status,
+			&user.OrgUnitId,
+			&user.RoleId,
+			&user.TypeId,
 			&user.PasswordHash,
 			&user.CreationDate,
 			&user.LastPasswordChangedDate,
@@ -594,5 +655,85 @@ func SetUserRoleId(username string, j UserRoleId) (bool, error) {
 	}
 
 	log.Println("INFO: SQL result: Rows: " + strconv.Itoa(int(numberOfRows)))
+	return true, nil
+}
+
+func SetUserTypeId(username string, j UserType) (bool, error) {
+	log.Println("INFO: Set user's type Id for user '" + username + "'")
+	t, err := DB.Begin()
+	if err != nil {
+		log.Println("ERROR: Could not start DB transaction: " + string(err.Error()))
+		return false, err
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to panic: " + string(r.(error).Error()))
+		}
+		if err != nil {
+			t.Rollback()
+			log.Println("ERROR: Transaction rolled back due to error: " + string(err.Error()))
+		}
+	}()
+
+	q, err := DB.Prepare("UPDATE Users SET TypeId = ? WHERE UserName = ?")
+	if err != nil {
+		log.Println("ERROR: Could not prepare DB query! " + string(err.Error()))
+		return false, err
+	}
+
+	result, err := q.Exec(j.Id, username)
+	if err != nil {
+		log.Println("ERROR: Could not execute query for user '" + username + "': " + string(err.Error()))
+		return false, err
+	}
+
+	numberOfRows, err := result.RowsAffected()
+	if err != nil {
+		log.Println("ERROR: Could not get number of rows affected: " + string(err.Error()))
+		return false, err
+	}
+
+	err = t.Commit()
+	if err != nil {
+		log.Println("ERROR: Could not commit the DB transaction!" + string(err.Error()))
+		return false, err
+	}
+
+	log.Println("INFO: SQL result: Rows: " + strconv.Itoa(int(numberOfRows)))
+	return true, nil
+}
+
+func CanDeleteUser(username string) (bool, error) {
+	log.Println("INFO: Check if user '" + username + "' can be deleted")
+	user, err := GetUserByUserName(username)
+	if err != nil {
+		log.Println("ERROR: Cannot retrieve user by username: " + string(err.Error()))
+		return false, err
+	}
+
+	if user.TypeId == 1 || user.RoleId == 1 {
+		log.Println("INFO: User '" + username + "' cannot be deleted due to type or role restrictions")
+		return false, nil
+	}
+
+	log.Println("INFO: User '" + username + "' can be deleted")
+	return true, nil
+}
+
+func CanChangeUserStatus(username string) (bool, error) {
+	log.Println("INFO: Check if user '" + username + "' status can be changed")
+	user, err := GetUserByUserName(username)
+	if err != nil {
+		log.Println("ERROR: Cannot retrieve user by username: " + string(err.Error()))
+		return false, err
+	}
+
+	if user.TypeId == 1 || user.RoleId == 1 {
+		log.Println("INFO: User '" + username + "' status cannot be changed due to type or role restrictions")
+		return false, nil
+	}
+
+	log.Println("INFO: User '" + username + "' status can be changed")
 	return true, nil
 }

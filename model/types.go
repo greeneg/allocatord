@@ -188,6 +188,7 @@ type ProposedUser struct {
 	Status    string `json:"status" enum:"enabled,disabled"`
 	OrgUnitId int    `json:"orgUnitId"`
 	RoleId    int    `json:"roleId"`
+	TypeId    int    `json:"userTypeId"`
 	Password  string `json:"password"`
 }
 
@@ -198,6 +199,7 @@ type User struct {
 	Status                  string `json:"status"`
 	OrgUnitId               int    `json:"orgUnitId"`
 	RoleId                  int    `json:"roleId"`
+	TypeId                  int    `json:"userTypeId"`
 	PasswordHash            string `json:"passwordHash"`
 	CreationDate            string `json:"creationDate"`
 	LastPasswordChangedDate string `json:"lastPasswordChangedDate"`
@@ -232,6 +234,15 @@ type UserRoleId struct {
 type UserRoleIdMsg struct {
 	Message    string `json:"message"`
 	UserRoleId int    `json:"roleId"`
+}
+
+type UserType struct {
+	Id              int    `json:"Id"`
+	Name            string `json:"typeName"`
+	Description     string `json:"typeDescription"`
+	AllowRoleChange bool   `json:"allowRoleChange"`
+	AllowDeletion   bool   `json:"allowDeletion"`
+	AllowDisable    bool   `json:"allowDisable"`
 }
 
 type Vendor struct {

@@ -2,7 +2,7 @@ package main
 
 /*
 
-  Giron-Service - Golang-based web service for managing panel events
+  AllocatorD - Golang-based web service for allocating systems
 
   Author:  Gary L. Greene, Jr.
   License: Apache v2.0
@@ -76,18 +76,18 @@ func createDB(dbName string) (bool, error) {
 		CreatorId    INTEGER  NOT NULL
 							  REFERENCES Users (Id),
 		CreationDate DATETIME NOT NULL
-							  DEFAULT (CURRENT_TIMESTAMP) 
+							  DEFAULT (CURRENT_TIMESTAMP)
 	);
 	CREATE TABLE IF NOT EXISTS Audit (
 		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
 							  NOT NULL
 							  UNIQUE,
-		ChangedById  INTEGER  REFERENCES Users (Id) 
+		ChangedById  INTEGER  REFERENCES Users (Id)
 							  NOT NULL,
 		TableChanged STRING   NOT NULL,
 		ChangeClass  STRING   NOT NULL,
 		ChangeDate   DATETIME NOT NULL
-							  DEFAULT (CURRENT_TIMESTAMP) 
+							  DEFAULT (CURRENT_TIMESTAMP)
 	);
 	CREATE TABLE IF NOT EXISTS Buildings (
 		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
@@ -99,10 +99,10 @@ func createDB(dbName string) (bool, error) {
 							  UNIQUE,
 		City         STRING   NOT NULL,
 		Region       STRING   NOT NULL,
-		CreatorId    INTEGER  REFERENCES Users (Id) 
+		CreatorId    INTEGER  REFERENCES Users (Id)
 							  NOT NULL,
 		CreationDate DATETIME NOT NULL
-							  DEFAULT (CURRENT_TIMESTAMP) 
+							  DEFAULT (CURRENT_TIMESTAMP)
 	);
 	CREATE TABLE IF NOT EXISTS MachineRoles (
 		Id              INTEGER  PRIMARY KEY AUTOINCREMENT
@@ -111,10 +111,10 @@ func createDB(dbName string) (bool, error) {
 		MachineRoleName STRING   UNIQUE
 								 NOT NULL,
 		Description     STRING   NOT NULL,
-		CreatorId       INTEGER  REFERENCES Users (Id) 
+		CreatorId       INTEGER  REFERENCES Users (Id)
 								 NOT NULL,
 		CreationDate    DATETIME NOT NULL
-								 DEFAULT (CURRENT_TIMESTAMP) 
+								 DEFAULT (CURRENT_TIMESTAMP)
 	);
 	CREATE TABLE IF NOT EXISTS NetworkInterfaces (
 		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
@@ -124,15 +124,15 @@ func createDB(dbName string) (bool, error) {
 		DeviceId     STRING   NOT NULL,
 		MACAddress   STRING   NOT NULL
 							  UNIQUE,
-		SystemId     INTEGER  REFERENCES Systems (Id) 
+		SystemId     INTEGER  REFERENCES Systems (Id)
 							  NOT NULL,
 		IpAddress    STRING   NOT NULL,
 		Bitmask      INTEGER  NOT NULL,
 		Gateway      STRING   NOT NULL,
-		CreatorId    INTEGER  REFERENCES Users (Id) 
+		CreatorId    INTEGER  REFERENCES Users (Id)
 							  NOT NULL,
 		CreationDate DATETIME NOT NULL
-							  DEFAULT (CURRENT_TIMESTAMP) 
+							  DEFAULT (CURRENT_TIMESTAMP)
 	);
 	CREATE TABLE IF NOT EXISTS OperatingSystemFamilies (
 		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
@@ -140,10 +140,10 @@ func createDB(dbName string) (bool, error) {
 							  NOT NULL,
 		OSFamilyName STRING   UNIQUE
 							  NOT NULL,
-		CreatorId    INTEGER  REFERENCES Users (Id) 
+		CreatorId    INTEGER  REFERENCES Users (Id)
 							  NOT NULL,
 		CreationDate DATETIME NOT NULL
-							  DEFAULT (CURRENT_TIMESTAMP) 
+							  DEFAULT (CURRENT_TIMESTAMP)
 	);
 	CREATE TABLE IF NOT EXISTS OperatingSystems (
 		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
@@ -151,14 +151,14 @@ func createDB(dbName string) (bool, error) {
 							  NOT NULL,
 		OSName       STRING   UNIQUE
 							  NOT NULL,
-		OSFamilyId   INTEGER  REFERENCES OperatingSystemFamilies (Id) 
+		OSFamilyId   INTEGER  REFERENCES OperatingSystemFamilies (Id)
 							  NOT NULL,
 		OSImageUrl   STRING   UNIQUE
 							  NOT NULL,
-		CreatorId    INTEGER  REFERENCES Users (Id) 
+		CreatorId    INTEGER  REFERENCES Users (Id)
 							  NOT NULL,
 		CreationDate DATETIME NOT NULL
-							  DEFAULT (CURRENT_TIMESTAMP) 
+							  DEFAULT (CURRENT_TIMESTAMP)
 	);
 	CREATE TABLE IF NOT EXISTS OrganizationalUnits (
 		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
@@ -167,10 +167,10 @@ func createDB(dbName string) (bool, error) {
 		OUName       STRING   UNIQUE
 							  NOT NULL,
 		Description  STRING   NOT NULL,
-		CreatorId    INTEGER  REFERENCES Users (Id) 
+		CreatorId    INTEGER  REFERENCES Users (Id)
 							  NOT NULL,
 		CreationDate DATETIME NOT NULL
-							  DEFAULT (CURRENT_TIMESTAMP) 
+							  DEFAULT (CURRENT_TIMESTAMP)
 	);
 
 	INSERT INTO OrganizationalUnits (Id, OUName, Description, CreatorId, CreationDate)
@@ -182,7 +182,7 @@ func createDB(dbName string) (bool, error) {
 							  NOT NULL,
 		Description  STRING   NOT NULL,
 		CreationDate DATETIME NOT NULL
-							  DEFAULT (CURRENT_TIMESTAMP) 
+							  DEFAULT (CURRENT_TIMESTAMP)
 	);
 
 	INSERT INTO Roles (Id, RoleName, Description, CreationDate)
@@ -200,12 +200,12 @@ func createDB(dbName string) (bool, error) {
 		VolumeSize   INTEGER  NOT NULL,
 		VolumeFormat STRING   NOT NULL,
 		VolumeLabel  STRING   NOT NULL,
-		SystemId     INTEGER  REFERENCES Systems (Id) 
+		SystemId     INTEGER  REFERENCES Systems (Id)
 							  NOT NULL,
-		CreatorId    INTEGER  REFERENCES Users (Id) 
+		CreatorId    INTEGER  REFERENCES Users (Id)
 							  NOT NULL,
 		CreationDate DATETIME NOT NULL
-							  DEFAULT (CURRENT_TIMESTAMP) 
+							  DEFAULT (CURRENT_TIMESTAMP)
 	);
 	CREATE TABLE IF NOT EXISTS SystemModels (
 		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
@@ -213,10 +213,10 @@ func createDB(dbName string) (bool, error) {
 							  NOT NULL,
 		ModelName    STRING   NOT NULL
 							  UNIQUE,
-		CreatorId    INTEGER  REFERENCES Users (Id) 
+		CreatorId    INTEGER  REFERENCES Users (Id)
 							  NOT NULL,
 		CreationDate DATETIME NOT NULL
-							  DEFAULT (CURRENT_TIMESTAMP) 
+							  DEFAULT (CURRENT_TIMESTAMP)
 	);
 	CREATE TABLE IF NOT EXISTS Systems (
 		Id                INTEGER  PRIMARY KEY AUTOINCREMENT
@@ -224,29 +224,29 @@ func createDB(dbName string) (bool, error) {
 								   NOT NULL,
 		SerialNumber      STRING   NOT NULL
 								   UNIQUE,
-		ModelId           INTEGER  REFERENCES SystemModels (Id) 
+		ModelId           INTEGER  REFERENCES SystemModels (Id)
 								   NOT NULL,
 		OperatingSystemId INTEGER  NOT NULL
 								   REFERENCES OperatingSystems (Id),
 		Reimage           BOOL     NOT NULL
 								   DEFAULT (FALSE),
 		HostVars          STRING   NOT NULL,
-		BilledToOrgUnitId INTEGER  REFERENCES OrganizationalUnits (Id) 
+		BilledToOrgUnitId INTEGER  REFERENCES OrganizationalUnits (Id)
 								   NOT NULL,
 		MachineRoleId     INTEGER  NOT NULL
 								   REFERENCES MachineRoles (Id),
-		BuildingId        INTEGER  REFERENCES Buildings (Id) 
+		BuildingId        INTEGER  REFERENCES Buildings (Id)
 								   NOT NULL,
 		VendorId          INTEGER  NOT NULL
 								   REFERENCES Vendors (Id),
-		ArchitectureId    INTEGER  REFERENCES Architectures (Id) 
+		ArchitectureId    INTEGER  REFERENCES Architectures (Id)
 								   NOT NULL,
 		RAM               INTEGER  NOT NULL,
 		CPUCores          INTEGER  NOT NULL,
-		CreatorId         INTEGER  REFERENCES Users (Id) 
+		CreatorId         INTEGER  REFERENCES Users (Id)
 								   NOT NULL,
 		CreationDate      DATETIME NOT NULL
-								   DEFAULT (CURRENT_TIMESTAMP) 
+								   DEFAULT (CURRENT_TIMESTAMP)
 	);
 	CREATE TABLE IF NOT EXISTS Users (
 		Id                      INTEGER  PRIMARY KEY AUTOINCREMENT
@@ -257,19 +257,43 @@ func createDB(dbName string) (bool, error) {
 		FullName                STRING   NOT NULL,
 		Status                  STRING   NOT NULL
 										 DEFAULT enabled,
-		OrgUnitId               INTEGER  REFERENCES OrganizationalUnits (Id) 
+		OrgUnitId               INTEGER  REFERENCES OrganizationalUnits (Id)
 										 NOT NULL,
-		RoleId                  INTEGER  REFERENCES Roles (Id) 
+		RoleId                  INTEGER  REFERENCES Roles (Id)
 										 NOT NULL,
 		PasswordHash            STRING   NOT NULL,
 		CreationDate            DATETIME NOT NULL
 										 DEFAULT (CURRENT_TIMESTAMP),
 		LastPasswordChangedDate DATETIME NOT NULL
-										 DEFAULT (CURRENT_TIMESTAMP) 
+										 DEFAULT (CURRENT_TIMESTAMP)
 	);
 
 	INSERT INTO Users (Id, UserName, FullName, Status, OrgUnitId, RoleId, PasswordHash, CreationDate, LastPasswordChangedDate)
 		VALUES ( 1, 'SYSTEM', 'Allocator System', 'enabled', 1, 1, '!', '2024-06-01 14:58:36', '2024-06-01 14:58:36' );
+
+	CREATE TABLE IF NOT EXISTS UserTypes (
+		Id              		INTEGER PRIMARY KEY AUTOINCREMENT
+							  			UNIQUE
+							  			NOT NULL,
+		TypeName        		STRING	NOT NULL
+							  			UNIQUE,
+		Description 			STRING	NOT NULL,
+		AllowRoleChange 		BOOL	NOT NULL
+							  			DEFAULT (FALSE),
+		AllowDeletion   		BOOL	NOT NULL
+							  			DEFAULT (FALSE),
+		AllowDisable			BOOL	NOT NULL
+										DEFAULT (FALSE)
+	);
+
+	INSERT INTO UserTypes (Id, TypeName, Description, AllowRoleChange, AllowDeletion, AllowDisable)
+		VALUES ( 1, 'BUILTIN', 'Built-in system user type', FALSE, FALSE, FALSE );
+
+	INSERT INTO UserTypes (Id, TypeName, Description, AllowRoleChange, AllowDeletion, AllowDisable)
+		VALUES ( 2, 'LOCAL', 'Local user type', TRUE, TRUE, TRUE );
+
+	INSERT INTO UserTypes (Id, TypeName, Description, AllowRoleChange, AllowDeletion, AllowDisable)
+		VALUES ( 3, 'EXTERNAL', 'External user type', TRUE, TRUE, TRUE );
 
 	CREATE TABLE IF NOT EXISTS Vendors (
 		Id           INTEGER  PRIMARY KEY AUTOINCREMENT
@@ -279,7 +303,7 @@ func createDB(dbName string) (bool, error) {
 							  NOT NULL,
 		CreatorId    INTEGER  REFERENCES Users (Id),
 		CreationDate DATETIME NOT NULL
-							  DEFAULT (CURRENT_TIMESTAMP) 
+							  DEFAULT (CURRENT_TIMESTAMP)
 	);
 	`
 
@@ -351,7 +375,14 @@ func main() {
 	routes.PrivateRoutes(private, Allocator)
 
 	// swagger doc
-	r.GET("/api/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	r.GET("/api/v1/swagger/*any", func(c *gin.Context) {
+		if c.Request.URL.Path == "/api/v1/swagger/" {
+			c.Redirect(301, "/api/v1/swagger/index.html")
+			return
+		}
+
+		ginSwagger.WrapHandler(swaggerfiles.Handler)
+	})
 
 	tcpPort := strconv.Itoa(Allocator.ConfStruct.TcpPort)
 	tlsTcpPort := strconv.Itoa(Allocator.ConfStruct.TLSTcpPort)

@@ -221,6 +221,8 @@ definitions:
         type: string
       userName:
         type: string
+      userTypeId:
+        type: integer
     type: object
   model.Role:
     properties:
@@ -299,6 +301,8 @@ definitions:
         type: string
       userName:
         type: string
+      userTypeId:
+        type: integer
     type: object
   model.UserOrgUnitId:
     properties:
@@ -334,6 +338,21 @@ definitions:
       message:
         type: string
       userStatus:
+        type: string
+    type: object
+  model.UserType:
+    properties:
+      Id:
+        type: integer
+      allowDeletion:
+        type: boolean
+      allowDisable:
+        type: boolean
+      allowRoleChange:
+        type: boolean
+      typeDescription:
+        type: string
+      typeName:
         type: string
     type: object
   model.UsersList:
@@ -2028,6 +2047,39 @@ paths:
       summary: Set a user's active status. Can be either 'enabled' or 'locked'
       tags:
       - user
+  /user/{name}/typeId:
+    patch:
+      consumes:
+      - application/json
+      description: Set a user's type Id
+      parameters:
+      - description: User Type Id
+        in: body
+        name: typeId
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserType'
+      - description: User name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UserType'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Set a user's type Id
+      tags:
+      - user
   /user/id/{id}:
     get:
       description: Retrieve a user by their Id
@@ -2093,7 +2145,7 @@ paths:
       summary: Retrieve list of all users
       tags:
       - user
-  /users/byOuId/{ouId}:
+  /users/ouid/{ouId}:
     get:
       description: Retrieve list of users by Organizational Unit Id
       parameters:
@@ -2118,7 +2170,7 @@ paths:
       summary: Retrieve list of users by Organizational Unit Id
       tags:
       - user
-  /users/byRoleId/{roleId}:
+  /users/roleid/{roleId}:
     get:
       description: Retrieve list of users by role Id
       parameters:
@@ -2141,6 +2193,31 @@ paths:
       security:
       - BasicAuth: []
       summary: Retrieve list of users by role Id
+      tags:
+      - user
+  /users/typeid/{typeId}:
+    get:
+      description: Retrieve list of users by type Id
+      parameters:
+      - description: Type Id
+        in: path
+        name: typeId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UsersList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.FailureMsg'
+      security:
+      - BasicAuth: []
+      summary: Retrieve list of users by type Id
       tags:
       - user
   /vendor:

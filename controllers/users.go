@@ -109,6 +109,16 @@ func (a *Allocator) DeleteUser(c *gin.Context) {
 	_, authed := a.GetUserId(c)
 	if authed {
 		username := c.Param("name")
+		canDelete, err := model.CanDeleteUser(username)
+		if err != nil {
+			log.Println("ERROR: Cannot check if user can be deleted: " + string(err.Error()))
+			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Unable to check if user can be deleted: " + string(err.Error())})
+			return
+		}
+		if !canDelete {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "User '" + username + "' cannot be deleted. Please check the user type and role."})
+			return
+		}
 		status, err := model.DeleteUser(username)
 		if err != nil {
 			log.Println("ERROR: Cannot delete user: " + string(err.Error()))
@@ -177,6 +187,16 @@ func (a *Allocator) GetUserStatus(c *gin.Context) {
 func (a *Allocator) SetUserStatus(c *gin.Context) {
 	_, authed := a.GetUserId(c)
 	if authed {
+		canChangeStatus, err := model.CanChangeUserStatus(c.Param("name"))
+		if err != nil {
+			log.Println("ERROR: Cannot check if user status can be changed: " + string(err.Error()))
+			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Unable to check if user status can be changed: " + string(err.Error())})
+			return
+		}
+		if !canChangeStatus {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "User '" + c.Param("name") + "' cannot have their status changed. Please check the user type and role."})
+			return
+		}
 		username := c.Param("name")
 		var json model.UserStatus
 		if err := c.ShouldBindJSON(&json); err != nil {
@@ -285,6 +305,48 @@ func (a *Allocator) SetUserRoleId(c *gin.Context) {
 	}
 }
 
+// SetUserTypeId Set the type Id of a user
+//
+//		@Summary		Set a user's type Id
+//		@Description	Set a user's type Id
+//		@Tags			user
+//		@Accept			json
+//		@Produce		json
+//		@Param			typeId	body	model.UserType	true	"User Type Id"
+//		@Param			name	path	string	true	"User name"
+//		@Security		BasicAuth
+//		@Success		200 {object} model.UserType
+//		@Failure		400 {object} model.FailureMsg
+//	 @Router			/user/{name}/typeId [patch]
+func (a *Allocator) SetUserTypeId(c *gin.Context) {
+	_, authed := a.GetUserId(c)
+	if authed {
+		username := c.Param("name")
+		var json model.UserType
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		status, err := model.SetUserTypeId(username, json)
+		if err != nil {
+			c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": string(err.Error())})
+			return
+		}
+
+		if status {
+			c.IndentedJSON(http.StatusOK, gin.H{
+				"message": "User '" + username + "' has been set to type Id '" + strconv.Itoa(json.Id) + "'",
+				"typeId":  json.Id,
+			})
+		} else {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Unable to set user type Id"})
+		}
+	} else {
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
+	}
+}
+
 // GetUsers Retrieve list of all users
 //
 //	@Summary		Retrieve list of all users
@@ -334,7 +396,7 @@ func (a *Allocator) GetUsers(c *gin.Context) {
 //	@Security		BasicAuth
 //	@Success        200 {object}	model.UsersList
 //	@Failure		400 {object}	model.FailureMsg
-//	@Router			/users/byOuId/{ouId} [get]
+//	@Router			/users/ouid/{ouId} [get]
 func (a *Allocator) GetUsersByOuId(c *gin.Context) {
 	_, authed := a.GetUserId(c)
 	if authed {
@@ -359,7 +421,7 @@ func (a *Allocator) GetUsersByOuId(c *gin.Context) {
 			strId := strconv.Itoa(ouId)
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found for users with organizational unit Id " + strId})
 		} else {
-			c.IndentedJSON(http.StatusOK, safeUsers)
+			c.IndentedJSON(http.StatusOK, gin.H{"data": safeUsers})
 		}
 	} else {
 		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
@@ -376,7 +438,7 @@ func (a *Allocator) GetUsersByOuId(c *gin.Context) {
 //	@Security		BasicAuth
 //	@Success        200 {object}	model.UsersList
 //	@Failure		400 {object}	model.FailureMsg
-//	@Router			/users/byRoleId/{roleId} [get]
+//	@Router			/users/roleid/{roleId} [get]
 func (a *Allocator) GetUsersByRoleId(c *gin.Context) {
 	_, authed := a.GetUserId(c)
 	if authed {
@@ -400,6 +462,48 @@ func (a *Allocator) GetUsersByRoleId(c *gin.Context) {
 		if users == nil {
 			strId := strconv.Itoa(roleId)
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found for users with role Id " + strId})
+		} else {
+			c.IndentedJSON(http.StatusOK, gin.H{"data": safeUsers})
+		}
+	} else {
+		c.IndentedJSON(http.StatusForbidden, gin.H{"error": "Insufficient access. Access denied!"})
+	}
+}
+
+// GetUsersByTypeId Retrieve list of users by type Id
+//
+//	@Summary        Retrieve list of users by type Id
+//	@Description    Retrieve list of users by type Id
+//	@Tags           user
+//	@Produce        json
+//	@Param          typeId	path int true "Type Id"
+//	@Security		BasicAuth
+//	@Success        200 {object}	model.UsersList
+//	@Failure		400 {object}	model.FailureMsg
+//	@Router			/users/typeid/{typeId} [get]
+func (a *Allocator) GetUsersByTypeId(c *gin.Context) {
+	_, authed := a.GetUserId(c)
+	if authed {
+		typeId, _ := strconv.Atoi(c.Param("typeId"))
+		users, err := model.GetUsersByTypeId(typeId)
+		helpers.FatalCheckError(err)
+
+		safeUsers := make([]SafeUser, 0)
+		for _, user := range users {
+			safeUser := SafeUser{}
+			safeUser.Id = user.Id
+			safeUser.UserName = user.UserName
+			safeUser.FullName = user.FullName
+			safeUser.OrgUnitId = user.OrgUnitId
+			safeUser.RoleId = user.RoleId
+			safeUser.CreationDate = user.CreationDate
+
+			safeUsers = append(safeUsers, safeUser)
+		}
+
+		if users == nil {
+			strId := strconv.Itoa(typeId)
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "No records found for users with type Id " + strId})
 		} else {
 			c.IndentedJSON(http.StatusOK, gin.H{"data": safeUsers})
 		}

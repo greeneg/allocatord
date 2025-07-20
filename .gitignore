@@ -30,3 +30,7 @@ tools/setuptool/setuptool
 
 # we don't check in our config.json
 config/config.json
+
+# don't track the shm and wal files
+*.db-shm
+*.db-wal
