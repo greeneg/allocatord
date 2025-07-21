@@ -1,18 +1,14 @@
 package main
 
 import (
-	"database/sql"
-	"encoding/json"
-	"fmt"
 	"os"
 	"path"
 	"strings"
 
 	"github.com/pborman/getopt/v2"
-	"golang.org/x/term"
 )
 
-var VERSION string = "0.0.1"
+var VERSION string = "0.1.0"
 
 var appFullPath, _ = os.Executable()
 var app = path.Base(appFullPath)
@@ -78,9 +74,7 @@ func init() {
 	getopt.FlagLong(&roleDescription, "role-description", 'D', "The description of the role to process")
 }
 
-func main() {
-	getopt.Parse()
-
+func processFlags() {
 	if *optHelp {
 		showHelp()
 		os.Exit(0)
@@ -139,6 +133,11 @@ func main() {
 			os.Exit(1)
 		}
 	}
+}
+
+func main() {
+	getopt.Parse()
+	processFlags()
 
 	creator, err := getAccountByName("SYSTEM")
 	if err != nil {
@@ -146,98 +145,22 @@ func main() {
 		os.Exit(1)
 	}
 
-	var ouRecord OrgUnit
-	// This is a built-in organizational unit
-	biOrgUnitState, err := getOrgUnitStatus("InformationTechnology")
-	if err != nil && err != sql.ErrNoRows {
-		errPrintln("Encountered error when checking org unit status: " + string(err.Error()))
+	ouRecord, err := createInformationTechnologyOu(creator)
+	if err != nil {
+		errPrintln("Encountered error when creating the InformationTechnology organizational unit: " + string(err.Error()))
 		os.Exit(1)
-	}
-	if !biOrgUnitState {
-		infoPrintln("Creating org unit 'InformationTechnology'")
-		status, err := createOU("InformationTechnolgy", "The organizational unit that manages Information Technology services", creator.Id)
-		if err != nil {
-			errPrintln("Encountered error when creating org unit: " + string(err.Error()))
-		}
-		if status {
-			ouRecord, err := getOrgUnitByName("InformationTechnology")
-			if err != nil {
-				errPrintln("Encountered error when retrieving org unit 'InformationTechnology'")
-				os.Exit(1)
-			}
-			ouRecordStr, err := json.Marshal(ouRecord)
-			if err != nil {
-				errPrintln("Encountered error when converting struct to JSON: " + string(err.Error()))
-				os.Exit(1)
-			}
-			infoPrintln("organizational unit 'InformationTechnology' created: " + string(ouRecordStr))
-		}
-	} else {
-		infoPrintln("Built-in organizational unit 'information-technology' already exists. Continue")
-		ouRecord, _ = getOrgUnitByName("InformationTechnology")
 	}
 
-	var roleRecord Role
-	// We're working on the built-in account, 'admin' and role 'administrators'
-	//
-	// first, does the administrators role already exist?
-	biRoleState, err := getRoleStatus("administrators")
-	if err != nil && err != sql.ErrNoRows {
-		errPrintln("Encountered error when checking role status: " + string(err.Error()))
+	roleRecord, err := createAdministratorsRole(creator)
+	if err != nil {
+		errPrintln("Encountered error when creating the Administrators role: " + string(err.Error()))
 		os.Exit(1)
-	}
-	if !biRoleState {
-		infoPrintln("Creating role 'administrators'")
-		status, err := createRole("administrators", "Accounts that have full administrative rights to the system")
-		if err != nil {
-			errPrintln("Encountered error when creating role: " + string(err.Error()))
-			os.Exit(1)
-		}
-		if status {
-			roleRecord, err := getRoleByName("administrators")
-			if err != nil {
-				errPrintln("Encountered error when retrieving role 'administrators'")
-				os.Exit(1)
-			}
-			roleRecordStr, err := json.Marshal(roleRecord)
-			if err != nil {
-				errPrintln("Encountered error when converting struct to JSON: " + string(err.Error()))
-				os.Exit(1)
-			}
-			infoPrintln("role 'administrators' created: " + string(roleRecordStr))
-		}
-	} else {
-		infoPrintln("Built-in role 'administrators' already exists. Continuing")
-		roleRecord, _ = getRoleByName("administrators")
 	}
 
 	// now handle our admin user
-	biAdminAccountState, err := getAccountStatus("admin")
-	if err != nil && err != sql.ErrNoRows {
-		errPrintln("Encountered error when checking account status: " + string(err.Error()))
+	_, err = createAdminAccount(creator, ouRecord, roleRecord)
+	if err != nil {
+		errPrintln("Encountered error when creating the admin account: " + string(err.Error()))
 		os.Exit(1)
-	}
-	if !biAdminAccountState {
-		fmt.Print("Enter new password: ")
-		input, _ := term.ReadPassword(int(os.Stdin.Fd()))
-		fmt.Print("\nRe-enter passphrase: ")
-		input2, _ := term.ReadPassword(int(os.Stdin.Fd()))
-		println("")
-		if strings.Compare(string(input), string(input2)) != 0 {
-			errPrintln("Password does not match. Exiting")
-			os.Exit(1)
-		}
-
-		accountRecord, err := createAccount("admin", "System Administrator", roleRecord.Id, ouRecord.Id, string(input))
-		if err != nil {
-			errPrintln("Encountered error when creating account: " + string(err.Error()))
-			os.Exit(1)
-		}
-		accountRecordStr, err := json.Marshal(accountRecord)
-		if err != nil {
-			errPrintln("Encountered error when converting struct to JSON: " + string(err.Error()))
-			os.Exit(1)
-		}
-		infoPrintln("account 'admin' created: " + string(accountRecordStr))
 	}
 }

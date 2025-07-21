@@ -4,6 +4,7 @@ import (
 	"crypto/sha512"
 	"database/sql"
 	"encoding/hex"
+	"encoding/json"
 	"time"
 )
 
@@ -60,6 +61,41 @@ func createOU(ouName string, ouDescription string, creatorId int) (bool, error) 
 
 	t.Commit()
 	return false, nil
+}
+
+func createInformationTechnologyOu(creator User) (OrgUnit, error) {
+	var ouRecord OrgUnit
+	// This is a built-in organizational unit
+	biOrgUnitState, err := getOrgUnitStatus("InformationTechnology")
+	if err != nil && err != sql.ErrNoRows {
+		errPrintln("Encountered error when checking org unit status: " + string(err.Error()))
+		return OrgUnit{}, err
+	}
+	if !biOrgUnitState {
+		infoPrintln("Creating org unit 'InformationTechnology'")
+		status, err := createOU("InformationTechnolgy", "The organizational unit that manages Information Technology services", creator.Id)
+		if err != nil {
+			errPrintln("Encountered error when creating org unit: " + string(err.Error()))
+		}
+		if status {
+			ouRecord, err := getOrgUnitByName("InformationTechnology")
+			if err != nil {
+				errPrintln("Encountered error when retrieving org unit 'InformationTechnology'")
+				return OrgUnit{}, err
+			}
+			ouRecordStr, err := json.Marshal(ouRecord)
+			if err != nil {
+				errPrintln("Encountered error when converting struct to JSON: " + string(err.Error()))
+				return OrgUnit{}, err
+			}
+			infoPrintln("organizational unit 'InformationTechnology' created: " + string(ouRecordStr))
+		}
+	} else {
+		infoPrintln("Built-in organizational unit 'information-technology' already exists. Continue")
+		ouRecord, _ = getOrgUnitByName("InformationTechnology")
+	}
+
+	return ouRecord, nil
 }
 
 func getOrgUnitStatus(ouName string) (bool, error) {
@@ -160,6 +196,44 @@ func getRoleStatus(role string) (bool, error) {
 	return true, nil
 }
 
+func createAdministratorsRole(creator User) (Role, error) {
+	var roleRecord Role
+	// We're working on the built-in account, 'admin' and role 'administrators'
+	//
+	// first, does the administrators role already exist?
+	biRoleState, err := getRoleStatus("administrators")
+	if err != nil && err != sql.ErrNoRows {
+		errPrintln("Encountered error when checking role status: " + string(err.Error()))
+		return Role{}, err
+	}
+	if !biRoleState {
+		infoPrintln("Creating role 'administrators'")
+		status, err := createRole("administrators", "Accounts that have full administrative rights to the system")
+		if err != nil {
+			errPrintln("Encountered error when creating role: " + string(err.Error()))
+			return Role{}, err
+		}
+		if status {
+			roleRecord, err := getRoleByName("administrators")
+			if err != nil {
+				errPrintln("Encountered error when retrieving role 'administrators'")
+				return Role{}, err
+			}
+			roleRecordStr, err := json.Marshal(roleRecord)
+			if err != nil {
+				errPrintln("Encountered error when converting struct to JSON: " + string(err.Error()))
+				return Role{}, err
+			}
+			infoPrintln("role 'administrators' created: " + string(roleRecordStr))
+		}
+	} else {
+		infoPrintln("Built-in role 'administrators' already exists. Continuing")
+		roleRecord, _ = getRoleByName("administrators")
+	}
+
+	return roleRecord, nil
+}
+
 func createRole(roleName string, roleDescription string) (bool, error) {
 	t, err := DB.Begin()
 	if err != nil {
@@ -220,13 +294,14 @@ func getAccountStatus(account string) (bool, error) {
 		return false, err
 	}
 
-	q, err := DB.Prepare("SELECT * FROM Users WHERE UserName IS ?")
+	q, err := DB.Prepare("SELECT EXISTS(SELECT 1 FROM Users WHERE UserName IS ?)")
 	if err != nil {
 		errPrintln("Could not prepare DB query! " + string(err.Error()))
 		return false, err
 	}
 
-	err = q.QueryRow(account).Scan()
+	var exists bool
+	err = q.QueryRow(account).Scan(&exists)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			errPrintln("Encountered error when querying database: " + string(err.Error()))
@@ -240,17 +315,51 @@ func getAccountStatus(account string) (bool, error) {
 	return true, nil
 }
 
-func createAccount(accountName string, accountFullName string, orgUnitId int, roleId int, passwd string) (User, error) {
+func createAdminAccount(creator User, ouRecord OrgUnit, roleRecord Role) (User, error) {
+	// first, does the admin account already exist?
+	biAccountState, err := getAccountStatus("admin")
+	if err != nil && err != sql.ErrNoRows {
+		errPrintln("Encountered error when checking account status: " + string(err.Error()))
+		return User{}, err
+	}
+	if !biAccountState {
+		infoPrintln("Creating account 'admin'")
+		_, status, err := createAccount("admin", "Administrator", ouRecord.Id, roleRecord.Id, "admin")
+		if err != nil {
+			errPrintln("Encountered error when creating account: " + string(err.Error()))
+			return User{}, err
+		}
+		if status {
+			adminRecord, err := getAccountByName("admin")
+			if err != nil {
+				errPrintln("Encountered error when retrieving account 'admin'")
+				return User{}, err
+			}
+			adminRecordStr, err := json.Marshal(adminRecord)
+			if err != nil {
+				errPrintln("Encountered error when converting struct to JSON: " + string(err.Error()))
+				return User{}, err
+			}
+			infoPrintln("account 'admin' created: " + string(adminRecordStr))
+		}
+	} else {
+		infoPrintln("Built-in account 'admin' already exists. Continuing")
+	}
+
+	return getAccountByName("admin")
+}
+
+func createAccount(accountName string, accountFullName string, orgUnitId int, roleId int, passwd string) (User, bool, error) {
 	t, err := DB.Begin()
 	if err != nil {
 		errPrintln("Could not start DB transaction!" + string(err.Error()))
-		return User{}, err
+		return User{}, false, err
 	}
 
 	q, err := t.Prepare("INSERT INTO Users (UserName, FullName, OrgUnitId, RoleId, PasswordHash) VALUES (?, ?, ?, ?, ?)")
 	if err != nil {
 		errPrintln("Could not prepare the DB query!" + string(err.Error()))
-		return User{}, err
+		return User{}, false, err
 	}
 
 	// take password and hash it
@@ -262,7 +371,7 @@ func createAccount(accountName string, accountFullName string, orgUnitId int, ro
 	_, err = q.Exec(accountName, accountFullName, orgUnitId, roleId, passwdHash)
 	if err != nil {
 		errPrintln("Cannot create user '" + accountName + "': " + string(err.Error()))
-		return User{}, err
+		return User{}, false, err
 	}
 
 	t.Commit()
@@ -270,10 +379,10 @@ func createAccount(accountName string, accountFullName string, orgUnitId int, ro
 	user, err := getAccountByName(accountName)
 	if err != nil {
 		errPrintln("Could not retrieve user account: " + string(err.Error()))
-		return User{}, err
+		return User{}, false, err
 	}
 
-	return user, nil
+	return user, true, nil
 }
 
 func getAccountByName(accountName string) (User, error) {
